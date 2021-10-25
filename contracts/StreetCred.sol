@@ -5,17 +5,31 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 contract StreetCred is Ownable {
-  mapping(address => mapping(address => uint256[])) private ledger;
+  mapping(address => OwnedNFT[]) private ledger;
 
-  function addItem(
-    address _userAddress,
-    address _contractAddress,
-    uint256 _tokenId
-  ) public onlyOwner {
-    ERC721 token = ERC721(_contractAddress);
-    require(token.ownerOf(_tokenId) == msg.sender, "Caller must own given token");
-    require(token.isApprovedForAll(_userAddress, address(this)), "This contract must be approved");
+  struct Items {
+    address userAddress;
+    OwnedNFT[] ownedNFT;
+  }
 
-    ledger[_userAddress][_contractAddress].push(_tokenId);
+  struct OwnedNFT {
+    address contractAddress;
+    uint256[] ownedItemIds;
+  }
+
+  function addItem(Items[] memory _items) public  onlyOwner returns(bool success) {
+    for(uint256 i = 0; i < _items.length; i++) {
+      ledger[_items[i].userAddress] = _items[i].ownedNFT;
+    }
+
+    return true;
+  }
+
+  function deleteItem(address[] memory _users) public onlyOwner returns(bool success) {
+    for(uint256 i = 0; i < _users.length; i++) {
+      delete ledger[_users[i]];
+    }
+
+    return true;
   }
 }
