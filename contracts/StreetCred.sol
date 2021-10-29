@@ -13,13 +13,14 @@ contract StreetCred is Ownable {
   }
 
   struct OwnedNFT {
+    address userAddress;
     address contractAddress;
     uint256[] ownedItemIds;
   }
 
-  function addItem(Items[] memory _items) public  onlyOwner returns(bool success) {
+  function addItem(OwnedNFT[] memory _items) public  onlyOwner returns(bool success) {
     for(uint256 i = 0; i < _items.length; i++) {
-      ledger[_items[i].userAddress] = _items[i].ownedNFT;
+      ledger[_items[i].userAddress].push(OwnedNFT(_items[i].userAddress, _items[i].contractAddress, _items[i].ownedItemIds));
     }
 
     return true;
