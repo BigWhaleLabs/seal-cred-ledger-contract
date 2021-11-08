@@ -6,11 +6,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract StreetCred is Ownable {
   mapping(address => OwnedNFT[]) public ledger;
 
-  struct Items {
-    address userAddress;
-    OwnedNFT[] ownedNFT;
-  }
-
   struct OwnedNFT {
     address userAddress;
     address contractAddress;
@@ -25,6 +20,10 @@ contract StreetCred is Ownable {
     }
 
     return true;
+  }
+
+  function getItem(address _user) public view onlyOwner returns (OwnedNFT[] memory) {
+    return ledger[_user];
   }
 
   function deleteItem(address[] memory _users) public onlyOwner returns (bool success) {
