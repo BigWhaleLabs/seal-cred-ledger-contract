@@ -1,19 +1,35 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("Greeter", function () {
-  it("Should return the new greeting once it's changed", async function () {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+const dataMock = {
+  userAddress: "0x829bd824b016326a401d083b33d092293333a830",
+  contractAddress: "0x829bd824b016326a401d083b33d092293333a830",
+  ownedItemIds: [0, 1, 2, 3],
+};
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+describe("StreetCred", () => {
+  let StreetCred: any;
+  let streetCred: any;
+  let owner: any;
+  let addr1: any;
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
+  beforeEach(async () => {
+    StreetCred = await ethers.getContractFactory("StreetCred");
+    [owner, addr1] = await ethers.getSigners();
 
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
+    streetCred = await StreetCred.deploy();
+  });
 
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
+  describe("Storage", () => {
+    it("Should write data to the storage", async () => {
+      const addItemTx = await streetCred.addItem([dataMock]);
+
+      expect(addItemTx.confirmations).to.equal(1);
+    });
+    it("Writed data should exist in storage", async () => {
+      const item = await streetCred.getItem(dataMock.userAddress);
+
+      expect(item).to.equal(dataMock);
+    });
   });
 });
