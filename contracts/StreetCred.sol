@@ -12,7 +12,7 @@ contract StreetCred is Ownable {
     uint256[] ownedItemIds;
   }
 
-  function addItem(OwnedNFT[] memory _items) public onlyOwner returns (bool success) {
+  function addItems(OwnedNFT[] memory _items) public onlyOwner returns (bool success) {
     for (uint256 i = 0; i < _items.length; i++) {
       ledger[_items[i].userAddress].push(
         OwnedNFT(_items[i].userAddress, _items[i].contractAddress, _items[i].ownedItemIds)
@@ -22,11 +22,11 @@ contract StreetCred is Ownable {
     return true;
   }
 
-  function getItem(address _user) public view onlyOwner returns (OwnedNFT[] memory) {
+  function getItems(address _user) public view onlyOwner returns (OwnedNFT[] memory) {
     return ledger[_user];
   }
 
-  function deleteItem(address[] memory _users) public onlyOwner returns (bool success) {
+  function deleteItems(address[] memory _users) public onlyOwner returns (bool success) {
     for (uint256 i = 0; i < _users.length; i++) {
       delete ledger[_users[i]];
     }
