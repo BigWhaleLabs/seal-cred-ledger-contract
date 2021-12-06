@@ -22,7 +22,7 @@ contract StreetCred is Ownable {
     return true;
   }
 
-  function getItems(address _user) public view onlyOwner returns (OwnedNFT[] memory) {
+  function getItems(address _user) public view returns (OwnedNFT[] memory) {
     return ledger[_user];
   }
 
