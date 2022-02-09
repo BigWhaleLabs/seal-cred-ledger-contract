@@ -13,6 +13,8 @@ contract StreetCred is Ownable {
   }
 
   function addItems(OwnedNFT[] memory _items) public onlyOwner returns (bool success) {
+    require(_items.length > 0, "Input data is empty");
+
     for (uint256 i = 0; i < _items.length; i++) {
       ledger[_items[i].userAddress].push(
         OwnedNFT(_items[i].userAddress, _items[i].contractAddress, _items[i].ownedItemIds)
