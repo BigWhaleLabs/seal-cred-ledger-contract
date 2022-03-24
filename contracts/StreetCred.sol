@@ -10,7 +10,7 @@ contract StreetCred is Ownable {
     ledger[_addr] = _root;
   }
 
-  function getRoot(address _addr) external view onlyOwner returns (bytes32) {
+  function getRoot(address _addr) external view returns (bytes32) {
     return ledger[_addr];
   }
 
