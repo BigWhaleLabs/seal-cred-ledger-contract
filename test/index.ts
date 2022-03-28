@@ -1,43 +1,33 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
+import { StreetCred } from '../typechain'
 
-const dataMock = {
-  userAddress: '0x829bd824b016326a401d083b33d092293333a830',
-  contractAddress: '0x829bd824b016326a401d083b33d092293333a830',
-  ownedItemIds: [0, 1, 2, 3],
-}
-
-/*
-// Tuple mock
-[
-  ["0x829bd824b016326a401d083b33d092293333a830", "0x829bd824b016326a401d083b33d092293333a830", [0, 1, 2, 3]],
-  ["0x5B38Da6a701c568545dCfcB03FcB875f56beddC4", "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4", [0, 1, 2, 3, 4, 5, 6]]
-]
-*/
+const ADDRESS_MOCK = '0x6079dcdfb2aff3ec70ed233baa2a5ce665e59b3b'
+const ROOT_MOCK =
+  '0x810bc6dd779a50755716f6aa85ed810c9671479036a3a6d6795eef6e34e3d213'
 
 describe('StreetCred', () => {
-  let StreetCred: any
-  let streetCred: any
-  let owner: any
-  let addr1: any
+  let contract: StreetCred
 
   beforeEach(async () => {
-    StreetCred = await ethers.getContractFactory('StreetCred')
-    ;[owner, addr1] = await ethers.getSigners()
+    const factory = await ethers.getContractFactory('StreetCred')
+    contract = await factory.deploy()
+    await contract.deployed()
 
-    streetCred = await StreetCred.deploy()
+    await contract.addRoot(ADDRESS_MOCK, ROOT_MOCK)
   })
 
   describe('Storage', () => {
-    it('Should write data to the storage', async () => {
-      const addItemTx = await streetCred.addItem([dataMock])
-
-      expect(addItemTx.confirmations).to.equal(1)
+    it('Write to storage', async () => {
+      expect(await contract.addRoot(ADDRESS_MOCK, ROOT_MOCK))
     })
-    it('Writed data should exist in storage', async () => {
-      const item = await streetCred.getItem(dataMock.userAddress)
+    it('Get from storage', async () => {
+      const item = await contract.getRoot(ADDRESS_MOCK)
 
-      expect(item).to.equal(dataMock)
+      expect(item).to.equal(ROOT_MOCK)
+    })
+    it('Delete from storage', async () => {
+      expect(await contract.deleteRoot(ADDRESS_MOCK))
     })
   })
 })
