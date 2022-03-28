@@ -1310,9 +1310,9 @@ __metadata:
   linkType: hard
 
 "@types/sinonjs__fake-timers@npm:*":
-  version: 8.1.1
-  resolution: "@types/sinonjs__fake-timers@npm:8.1.1"
-  checksum: ca09d54d47091d87020824a73f026300fa06b17cd9f2f9b9387f28b549364b141ef194ee28db762f6588de71d8febcd17f753163cb7ea116b8387c18e80ebd5c
+  version: 8.1.2
+  resolution: "@types/sinonjs__fake-timers@npm:8.1.2"
+  checksum: bbc73a5ab6c0ec974929392f3d6e1e8db4ebad97ec506d785301e1c3d8a4f98a35b1aa95b97035daef02886fd8efd7788a2fa3ced2ec7105988bfd8dce61eedd
   languageName: node
   linkType: hard
 
@@ -1765,11 +1765,9 @@ __metadata:
   linkType: hard
 
 "antlr4ts@npm:^0.5.0-alpha.4":
-  version: 0.5.0-dev
-  resolution: "antlr4ts@npm:0.5.0-dev"
-  dependencies:
-    source-map-support: ^0.5.16
-  checksum: 640dae2229124372b0329315e9614ae983bb80b1af237d8c0b3e90a2d85fb534e851c51d65d1897c92b36d27851d041ad8d95aab44af19cf7355b3ad11a3ddbf
+  version: 0.5.0-alpha.4
+  resolution: "antlr4ts@npm:0.5.0-alpha.4"
+  checksum: 37948499d59477f5b5a8ea71dfb8b5330e71d5a7cee60f57351dd744219b8619fa6aac1a5b6ec1a9991846e8ddc9ca47680eb166c59b44333369b3115e7aa358
   languageName: node
   linkType: hard
 
@@ -3082,7 +3080,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cacache@npm:^16.0.0":
+"cacache@npm:^16.0.2":
   version: 16.0.3
   resolution: "cacache@npm:16.0.3"
   dependencies:
@@ -8466,7 +8464,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:^7.5.1, lru-cache@npm:^7.7.1":
+"lru-cache@npm:^7.7.1":
   version: 7.7.1
   resolution: "lru-cache@npm:7.7.1"
   checksum: f362c5a2cfa8ad6fe557ec43dc1b7a9695cce84a5652a43ff813609f782f5da576631e7dfad41878bf19a7a69438f38375178635ee80de269aa314280ca2f59e
@@ -8502,16 +8500,16 @@ __metadata:
   linkType: hard
 
 "make-fetch-happen@npm:^10.0.3":
-  version: 10.0.6
-  resolution: "make-fetch-happen@npm:10.0.6"
+  version: 10.1.0
+  resolution: "make-fetch-happen@npm:10.1.0"
   dependencies:
     agentkeepalive: ^4.2.1
-    cacache: ^16.0.0
+    cacache: ^16.0.2
     http-cache-semantics: ^4.1.0
     http-proxy-agent: ^5.0.0
     https-proxy-agent: ^5.0.0
     is-lambda: ^1.0.1
-    lru-cache: ^7.5.1
+    lru-cache: ^7.7.1
     minipass: ^3.1.6
     minipass-collect: ^1.0.2
     minipass-fetch: ^2.0.3
@@ -8521,7 +8519,7 @@ __metadata:
     promise-retry: ^2.0.1
     socks-proxy-agent: ^6.1.1
     ssri: ^8.0.1
-  checksum: cf3e745567f114bf161e13dbde402cff916482930936c102543b5c6e5e6409921b05d38d6400c92ed0b43011b185c8f39a9f504c9a1bdb956eeeed39929451a6
+  checksum: fae1c2f255f6467bf6731344c2c04dd0e1f1899d8ae4698d98e2c86131ba899a418746ebc564493b85d1651d43c93b49f7825a2773edda4285a1c4c5e5ba9168
   languageName: node
   linkType: hard
 
@@ -8837,8 +8835,8 @@ __metadata:
   linkType: hard
 
 "minipass-fetch@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "minipass-fetch@npm:2.0.3"
+  version: 2.1.0
+  resolution: "minipass-fetch@npm:2.1.0"
   dependencies:
     encoding: ^0.1.13
     minipass: ^3.1.6
@@ -8847,7 +8845,7 @@ __metadata:
   dependenciesMeta:
     encoding:
       optional: true
-  checksum: 78a4a509b1e73f5e63b84065969790373b36b04da586744815c7f7f80013f1d786797842cc33cfa517eba0ad2f2142eb0ac808c46738da1c53e0e3aeed81df11
+  checksum: 1334732859a3f7959ed22589bafd9c40384b885aebb5932328071c33f86b3eb181d54c86919675d1825ab5f1c8e4f328878c863873258d113c29d79a4b0c9c9f
   languageName: node
   linkType: hard
 
@@ -10057,10 +10055,10 @@ __metadata:
   linkType: hard
 
 "prettier-plugin-solidity@npm:^1.0.0-beta.18":
-  version: 1.0.0-dev.21
-  resolution: "prettier-plugin-solidity@npm:1.0.0-dev.21"
+  version: 1.0.0-beta.19
+  resolution: "prettier-plugin-solidity@npm:1.0.0-beta.19"
   dependencies:
-    "@solidity-parser/parser": ^0.14.1
+    "@solidity-parser/parser": ^0.14.0
     emoji-regex: ^10.0.0
     escape-string-regexp: ^4.0.0
     semver: ^7.3.5
@@ -10068,7 +10066,7 @@ __metadata:
     string-width: ^4.2.3
   peerDependencies:
     prettier: ^2.3.0
-  checksum: 3c43bb7404c380091310e59be718ec0161d268e4674e5e658723f7a7bc9b0f541df9816a8e7bd93b9e73a289f1e13ea1eab58027d4ee51d25460ea6e63c0c99e
+  checksum: 830297e27551137bd38d153b96ca2977ef6d8438fd0857cad8b7168d984ba054b401871892d0409aadfb4ea10212d4da95de0a5949f55c113d3307cd156cd719
   languageName: node
   linkType: hard
 
@@ -11569,7 +11567,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-support@npm:^0.5.13, source-map-support@npm:^0.5.16":
+"source-map-support@npm:^0.5.13":
   version: 0.5.21
   resolution: "source-map-support@npm:0.5.21"
   dependencies:
