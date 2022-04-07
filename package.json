@@ -1,8 +1,12 @@
 {
-  "name": "hardhat-project",
+  "name": "street-cred-ledger",
   "scripts": {
-    "compile": "npx hardhat compile",
-    "test": "npx hardhat test"
+    "compile": "yarn hardhat compile",
+    "deploy": "yarn hardhat run --network ropsten scripts/deploy.ts",
+    "test": "yarn hardhat test",
+    "lint:eth": "yarn solhint 'contracts/**/*.sol'",
+    "pretty": "prettier --write .",
+    "lint": "yarn pretty && eslint --max-warnings 0 --ext ts,tsx,json && yarn lint:eth"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",

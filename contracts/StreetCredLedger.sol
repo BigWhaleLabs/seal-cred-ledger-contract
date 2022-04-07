@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract StreetCred is Ownable {
+contract StreetCredLedger is Ownable {
   mapping(address => bytes32) public ledger;
 
   function addRoot(address _addr, bytes32 _root) external onlyOwner {

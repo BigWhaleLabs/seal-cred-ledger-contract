@@ -1,5 +1,6 @@
 # StreetCred Contract
-  - v0.0.1 — [0x656BA8D49AF74821B97bc9f7a2E0dB7a509EC7F9](https://rinkeby.etherscan.io/address/0x656BA8D49AF74821B97bc9f7a2E0dB7a509EC7F9)
+
+- v0.0.1 — [0x656BA8D49AF74821B97bc9f7a2E0dB7a509EC7F9](https://rinkeby.etherscan.io/address/0x656BA8D49AF74821B97bc9f7a2E0dB7a509EC7F9)
 
 # Advanced Sample Hardhat Project
 
