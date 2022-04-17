@@ -1,0 +1,22 @@
+name: Compile and lint
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  compile-code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "12.x"
+          registry-url: "https://registry.npmjs.org"
+      - name: Install modules
+        run: yarn
+      - name: Compile code
+        run: yarn compile
+      - name: Lint code
+        run: yarn lint

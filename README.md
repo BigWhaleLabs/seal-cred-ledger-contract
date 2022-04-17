@@ -1,4 +1,4 @@
-# Street Cred Ledger contract
+# StreetCred Ledger contract
 
 ## Usage
 

@@ -2,7 +2,7 @@
 # Manual changes might be lost - proceed with caution!
 
 __metadata:
-  version: 6
+  version: 5
   cacheKey: 8
 
 "@babel/code-frame@npm:^7.0.0":
@@ -42,14 +42,15 @@ __metadata:
     "@openzeppelin/contracts": ^4.5.0
     "@typechain/ethers-v5": ^10.0.0
     "@typechain/hardhat": ^6.0.0
-    "@types/chai": ^4.3.0
+    "@types/chai": ^4.3.1
     "@types/mocha": ^9.1.0
-    "@types/node": ^17.0.23
-    "@typescript-eslint/eslint-plugin": ^5.18.0
-    "@typescript-eslint/parser": ^5.18.0
+    "@types/node": ^17.0.24
+    "@typescript-eslint/eslint-plugin": ^5.19.0
+    "@typescript-eslint/parser": ^5.19.0
     chai: ^4.3.6
     dotenv: ^16.0.0
-    eslint: ^8.12.0
+    envalid: ^7.3.1
+    eslint: ^8.13.0
     eslint-config-prettier: ^8.5.0
     eslint-config-standard: ^16.0.3
     eslint-plugin-import: ^2.26.0
@@ -57,7 +58,7 @@ __metadata:
     eslint-plugin-prettier: ^4.0.0
     eslint-plugin-promise: ^6.0.0
     ethereum-waffle: ^3.4.4
-    ethers: ^5.6.2
+    ethers: ^5.6.4
     hardhat: ^2.9.3
     hardhat-gas-reporter: ^1.0.8
     np: ^7.6.1
@@ -1214,7 +1215,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chai@npm:*, @types/chai@npm:^4.3.0":
+"@types/chai@npm:*, @types/chai@npm:^4.3.1":
   version: 4.3.1
   resolution: "@types/chai@npm:4.3.1"
   checksum: 2ee246b76c469cd620a7a1876a73bc597074361b67d547b4bd96a0c1adb43597ede2d8589ab626192e14349d83cbb646cc11e2c179eeeb43ff11596de94d82c4
@@ -1351,7 +1352,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^17.0.23":
+"@types/node@npm:*, @types/node@npm:^17.0.24":
   version: 17.0.24
   resolution: "@types/node@npm:17.0.24"
   checksum: 9e7c4f863601b2430b4c2429a89935f22eba692956f5013c90a4c7fb0e1401ed8add8c4307453c5d6b8b985384500f8c3f644427ab88632640cc396159af479a
@@ -1486,7 +1487,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^5.18.0":
+"@typescript-eslint/eslint-plugin@npm:^5.19.0":
   version: 5.19.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.19.0"
   dependencies:
@@ -1509,7 +1510,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^5.18.0":
+"@typescript-eslint/parser@npm:^5.19.0":
   version: 5.19.0
   resolution: "@typescript-eslint/parser@npm:5.19.0"
   dependencies:
@@ -4822,6 +4823,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"envalid@npm:^7.3.1":
+  version: 7.3.1
+  resolution: "envalid@npm:7.3.1"
+  dependencies:
+    tslib: 2.3.1
+  checksum: dea10ada13e007f684318474a7dd1b528bbe4ed8ca702918e276d26505bd3807f1e93c4045b7acadd1a4639f207ae4c5375ca0afdff973efab9ea7ead655240f
+  languageName: node
+  linkType: hard
+
 "err-code@npm:^2.0.2":
   version: 2.0.3
   resolution: "err-code@npm:2.0.3"
@@ -5234,7 +5244,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.12.0":
+"eslint@npm:^8.13.0":
   version: 8.13.0
   resolution: "eslint@npm:8.13.0"
   dependencies:
@@ -5884,7 +5894,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.5.2, ethers@npm:^5.6.2":
+"ethers@npm:^5.0.1, ethers@npm:^5.0.2, ethers@npm:^5.5.2, ethers@npm:^5.6.4":
   version: 5.6.4
   resolution: "ethers@npm:5.6.4"
   dependencies:
@@ -13859,6 +13869,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:2.3.1":
+  version: 2.3.1
+  resolution: "tslib@npm:2.3.1"
+  checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9
+  languageName: node
+  linkType: hard
+
 "tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
@@ -14086,11 +14103,11 @@ __metadata:
 
 "typescript@patch:typescript@^4.6.3#~builtin<compat/typescript>":
   version: 4.6.3
-  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=bda367"
+  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=493e53"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 6bf45caf847062420592e711bc9c28bf5f9a9a7fa8245343b81493e4ededae33f1774009d1234d911422d1646a2c839f44e1a23ecb111b40a60ac2ea4c1482a8
+  checksum: fe6bdc1afb2f145ddb7b0a3a31f96352209f6a5704d97f038414ea22ff9d8dd42f32cfb6652e30458d7d958d2d4e85de2df11c574899c6f750a6b3c0e90a3a76
   languageName: node
   linkType: hard
 
