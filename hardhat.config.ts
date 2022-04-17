@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-
+import { cleanEnv, str } from 'envalid'
 import { HardhatUserConfig } from 'hardhat/config'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
@@ -9,26 +9,30 @@ import 'solidity-coverage'
 
 dotenv.config()
 
+const { CONTRACT_OWNER_PRIVATE_KEY, ROPSTEN_RPC_URL, ETHERSCAN_API_KEY } =
+  cleanEnv(process.env, {
+    CONTRACT_OWNER_PRIVATE_KEY: str(),
+    ROPSTEN_RPC_URL: str(),
+    ETHERSCAN_API_KEY: str(),
+  })
+
 const config: HardhatUserConfig = {
   solidity: '0.8.4',
   networks: {
     ropsten: {
-      url: process.env.ROPSTEN_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
-    rinkeby: {
-      url: process.env.RINKEBY_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      url: ROPSTEN_RPC_URL,
+      accounts: [CONTRACT_OWNER_PRIVATE_KEY],
     },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: 'USD',
+    enabled: true,
+    currency: 'ETH',
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: ETHERSCAN_API_KEY,
+  },
+  typechain: {
+    outDir: 'typechain',
   },
 }
 

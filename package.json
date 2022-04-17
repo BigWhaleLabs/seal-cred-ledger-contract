@@ -1,17 +1,38 @@
 {
-  "name": "street-cred-ledger",
+  "name": "@big-whale-labs/street-cred-ledger-contract",
+  "description": "Street Cred Ledger contract code",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BigWhaleLabs/street-cred-ledger-contract"
+  },
+  "private": true,
+  "license": "MIT",
+  "np": {
+    "2fa": false,
+    "tests": false,
+    "cleanup": false,
+    "yarn": false
+  },
+  "files": [
+    "typechain/**/*"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "compile": "yarn hardhat compile",
-    "deploy": "yarn hardhat run --network ropsten scripts/deploy.ts",
     "test": "yarn hardhat test",
-    "lint:eth": "yarn solhint 'contracts/**/*.sol'",
-    "pretty": "prettier --write .",
-    "lint": "yarn pretty && eslint --max-warnings 0 --ext ts,tsx,json && yarn lint:eth"
+    "deploy": "yarn hardhat run --network ropsten scripts/deploy.ts",
+    "eth-lint": "yarn solhint 'contracts/**/*.sol'",
+    "lint": "prettier --check . && eslint --max-warnings 0 --ext ts scripts && yarn eth-lint",
+    "prettify": "prettier --write .",
+    "release": "np",
+    "prepublish": "yarn tsc"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@openzeppelin/contracts": "^4.5.0",
     "@typechain/ethers-v5": "^10.0.0",
     "@typechain/hardhat": "^6.0.0",
     "@types/chai": "^4.3.0",
@@ -32,6 +53,7 @@
     "ethers": "^5.6.2",
     "hardhat": "^2.9.3",
     "hardhat-gas-reporter": "^1.0.8",
+    "np": "^7.6.1",
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint": "^3.3.7",
@@ -39,9 +61,6 @@
     "ts-node": "^10.7.0",
     "typechain": "^8.0.0",
     "typescript": "^4.6.3"
-  },
-  "dependencies": {
-    "@openzeppelin/contracts": "^4.5.0"
   },
   "packageManager": "yarn@3.2.0"
 }
