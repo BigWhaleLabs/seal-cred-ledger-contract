@@ -5,7 +5,7 @@ async function main() {
   // Deploy the contract
   console.log('Deploying contracts with the account:', deployer.address)
   console.log('Account balance:', (await deployer.getBalance()).toString())
-  const StreetCred = await ethers.getContractFactory('StreetCred')
+  const StreetCred = await ethers.getContractFactory('StreetCredLedger')
   const streetCred = await StreetCred.deploy()
   console.log('Deploy tx gas price:', streetCred.deployTransaction.gasPrice)
   console.log('Deploy tx gas limit:', streetCred.deployTransaction.gasLimit)
