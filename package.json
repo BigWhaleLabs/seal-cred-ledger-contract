@@ -22,12 +22,11 @@
     "compile": "yarn hardhat compile",
     "test": "yarn hardhat test",
     "deploy": "yarn hardhat run --network ropsten scripts/deploy.ts",
-    "build-ts": "tsc --skipLibCheck",
     "eth-lint": "yarn solhint 'contracts/**/*.sol'",
     "lint": "prettier --check . && eslint --max-warnings 0 --ext ts scripts && yarn eth-lint",
     "prettify": "prettier --write .",
     "release": "np",
-    "prepublishOnly": "yarn compile && yarn build-ts"
+    "prepublishOnly": "yarn compile && yarn tsc"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
