@@ -16,8 +16,8 @@
   "files": [
     "typechain/**/*"
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "typechain/index.ts",
+  "types": "typechain/index.ts",
   "scripts": {
     "compile": "yarn hardhat compile",
     "test": "yarn hardhat test",
