@@ -1,6 +1,6 @@
 {
   "name": "@big-whale-labs/street-cred-ledger-contract",
-  "version": "0.0.3",
+  "version": "0.0.4-4",
   "description": "StreetCred Ledger contract code",
   "repository": {
     "type": "git",
@@ -14,10 +14,10 @@
     "yarn": false
   },
   "files": [
-    "typechain/**/*"
+    "dist/typechain/**/*"
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/typechain/index.js",
+  "types": "dist/typechain/index.d.ts",
   "scripts": {
     "compile": "yarn hardhat compile",
     "test": "yarn hardhat test",
@@ -26,7 +26,7 @@
     "lint": "prettier --check . && eslint --max-warnings 0 --ext ts scripts && yarn eth-lint",
     "prettify": "prettier --write .",
     "release": "np",
-    "prepublish": "yarn tsc"
+    "prepublishOnly": "yarn compile && yarn tsc"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
