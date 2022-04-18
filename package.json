@@ -14,7 +14,7 @@
     "yarn": false
   },
   "files": [
-    "dist/typechain/*"
+    "dist/typechain/**/*"
   ],
   "main": "dist/typechain/index.js",
   "types": "dist/typechain/index.d.ts",
