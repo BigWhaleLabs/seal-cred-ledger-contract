@@ -17,6 +17,7 @@ contract StreetCredLedger is Ownable {
   Verifier private verifier;
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
+  event DeleteMerkleRoot(address tokenAddress);
 
   constructor() {
     verifier = new Verifier();
@@ -78,5 +79,6 @@ contract StreetCredLedger is Ownable {
   function deleteRoot(address tokenAddress) external onlyOwner {
     delete ledger[tokenAddress];
     delete tokenToDerivative[tokenAddress];
+    emit DeleteMerkleRoot(tokenAddress);
   }
 }
