@@ -27,11 +27,17 @@ contract StreetCredLedger is Ownable {
     onlyOwner
   {
     IERC721Metadata metadata = IERC721Metadata(tokenAddress);
+    string memory derivativeName = string(
+      bytes.concat(bytes(metadata.name()), bytes("-d"))
+    );
+    string memory derivativeSymbol = string(
+      bytes.concat(bytes(metadata.symbol()), bytes("-d"))
+    );
     SCERC721Derivative derivative = new SCERC721Derivative(
       tokenAddress,
       address(this),
-      metadata.name(),
-      metadata.symbol()
+      derivativeName,
+      derivativeSymbol
     );
     ledger[tokenAddress] = merkleRoot;
     tokenToDerivative[tokenAddress] = address(derivative);
