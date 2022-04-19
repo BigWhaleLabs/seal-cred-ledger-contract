@@ -12,9 +12,9 @@ import "./Verifier.sol";
  */
 contract StreetCredLedger is Ownable {
   // State
-  mapping(address => bytes32) public ledger;
-  mapping(address => address) public tokenToDerivative;
-  Verifier public verifier;
+  mapping(address => bytes32) private ledger;
+  mapping(address => address) private tokenToDerivative;
+  Verifier private verifier;
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
 
@@ -37,7 +37,8 @@ contract StreetCredLedger is Ownable {
       tokenAddress,
       address(this),
       derivativeName,
-      derivativeSymbol
+      derivativeSymbol,
+      verifier
     );
     ledger[tokenAddress] = merkleRoot;
     tokenToDerivative[tokenAddress] = address(derivative);

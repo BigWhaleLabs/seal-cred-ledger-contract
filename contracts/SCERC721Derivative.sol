@@ -7,21 +7,24 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./StreetCredLedger.sol";
 import "./Verifier.sol";
 
-contract SCERC721Derivative is ERC721, Verifier, Ownable {
+contract SCERC721Derivative is ERC721, Ownable {
   using Counters for Counters.Counter;
 
   Counters.Counter public tokenId;
   StreetCredLedger public streetCred;
   address public immutable streetCredMapAddress;
+  address private verifier;
 
   constructor(
     address _streetCredMapAddress,
     address _streetCredContractAddress,
     string memory tokenName,
-    string memory tokenSymbol
+    string memory tokenSymbol,
+    Verifier _verifier
   ) ERC721(tokenName, tokenSymbol) {
     streetCred = StreetCredLedger(_streetCredContractAddress);
     streetCredMapAddress = _streetCredMapAddress;
+    verifier = address(_verifier);
   }
 
   function mint(
@@ -34,7 +37,7 @@ contract SCERC721Derivative is ERC721, Verifier, Ownable {
       bytes32(input[1]) == streetCred.getRoot(streetCredMapAddress),
       "Merkle Root does not match the contract"
     );
-    require(verifyProof(a, b, c, input), "Invalid Proof");
+    require(Verifier(verifier).verifyProof(a, b, c, input), "Invalid Proof");
     uint256 _tokenId = tokenId.current();
     _safeMint(msg.sender, _tokenId);
     tokenId.increment();
