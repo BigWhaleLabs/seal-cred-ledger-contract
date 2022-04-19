@@ -27,17 +27,11 @@ contract StreetCredLedger is Ownable {
     onlyOwner
   {
     IERC721Metadata metadata = IERC721Metadata(tokenAddress);
-    string memory derivativeName = string(
-      bytes.concat(bytes(metadata.name()), bytes("( derivative)"))
-    );
-    string memory derivativeSymbol = string(
-      bytes.concat(bytes(metadata.symbol()), bytes("-d"))
-    );
     SCERC721Derivative derivative = new SCERC721Derivative(
       tokenAddress,
       address(this),
-      derivativeName,
-      derivativeSymbol,
+      string(bytes.concat(bytes(metadata.name()), bytes("( derivative)"))),
+      string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
       address(verifier)
     );
     ledger[tokenAddress] = merkleRoot;
@@ -52,6 +46,10 @@ contract StreetCredLedger is Ownable {
     external
     onlyOwner
   {
+    require(
+      ledger[tokenAddress] != 0,
+      "No existing derivative. addRoot should be called first"
+    );
     ledger[tokenAddress] = merkleRoot;
     emit SetMerkleRoot(tokenAddress, merkleRoot);
   }
