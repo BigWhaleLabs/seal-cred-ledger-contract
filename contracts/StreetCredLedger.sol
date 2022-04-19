@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "./SCERC721Derivative.sol";
 import "./Verifier.sol";
 
@@ -21,17 +22,16 @@ contract StreetCredLedger is Ownable {
     verifier = new Verifier();
   }
 
-  function addRoot(
-    address tokenAddress,
-    bytes32 merkleRoot,
-    string memory tokenName,
-    string memory tokenSymbol
-  ) external onlyOwner {
+  function addRoot(address tokenAddress, bytes32 merkleRoot)
+    external
+    onlyOwner
+  {
+    IERC721Metadata metadata = IERC721Metadata(tokenAddress);
     SCERC721Derivative derivative = new SCERC721Derivative(
       tokenAddress,
       address(this),
-      tokenName,
-      tokenSymbol
+      metadata.name(),
+      metadata.symbol()
     );
     ledger[tokenAddress] = merkleRoot;
     tokenToDerivative[tokenAddress] = address(derivative);

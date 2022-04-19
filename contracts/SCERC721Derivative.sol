@@ -4,14 +4,14 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./IStreetCredLedger.sol";
+import "./StreetCredLedger.sol";
 import "./Verifier.sol";
 
 contract SCERC721Derivative is ERC721, Verifier, Ownable {
   using Counters for Counters.Counter;
 
   Counters.Counter public tokenId;
-  IStreetCredLedger public streetCred;
+  StreetCredLedger public streetCred;
   address public immutable streetCredMapAddress;
 
   constructor(
@@ -20,7 +20,7 @@ contract SCERC721Derivative is ERC721, Verifier, Ownable {
     string memory tokenName,
     string memory tokenSymbol
   ) ERC721(tokenName, tokenSymbol) {
-    streetCred = IStreetCredLedger(_streetCredContractAddress);
+    streetCred = StreetCredLedger(_streetCredContractAddress);
     streetCredMapAddress = _streetCredMapAddress;
   }
 
