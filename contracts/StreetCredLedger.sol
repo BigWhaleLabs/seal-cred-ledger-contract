@@ -46,9 +46,21 @@ contract StreetCredLedger is Ownable {
   }
 
   /**
+   * @dev Returns the drivative of a given ERC-721 token
+   */
+  function getDerivativeAddress(address tokenAddress)
+    external
+    view
+    returns (address)
+  {
+    return tokenToDerivative[tokenAddress];
+  }
+
+  /**
    * @dev Deletes the Merkle root for a given ERC-721 token
    */
   function deleteRoot(address tokenAddress) external onlyOwner {
     delete ledger[tokenAddress];
+    delete tokenToDerivative[tokenAddress];
   }
 }
