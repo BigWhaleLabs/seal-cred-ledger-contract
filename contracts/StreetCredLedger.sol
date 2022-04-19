@@ -28,7 +28,7 @@ contract StreetCredLedger is Ownable {
   {
     IERC721Metadata metadata = IERC721Metadata(tokenAddress);
     string memory derivativeName = string(
-      bytes.concat(bytes(metadata.name()), bytes("-d"))
+      bytes.concat(bytes(metadata.name()), bytes("( derivative)"))
     );
     string memory derivativeSymbol = string(
       bytes.concat(bytes(metadata.symbol()), bytes("-d"))
