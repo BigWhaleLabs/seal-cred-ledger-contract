@@ -39,6 +39,17 @@ contract StreetCredLedger is Ownable {
   }
 
   /**
+   * @dev Sets the Merkle root for a given ERC-721 token
+   */
+  function setRoot(address tokenAddress, bytes32 merkleRoot)
+    external
+    onlyOwner
+  {
+    ledger[tokenAddress] = merkleRoot;
+    emit SetMerkleRoot(tokenAddress, merkleRoot);
+  }
+
+  /**
    * @dev Returns the Merkle root for a given ERC-721 token
    */
   function getRoot(address tokenAddress) external view returns (bytes32) {
@@ -57,7 +68,7 @@ contract StreetCredLedger is Ownable {
   }
 
   /**
-   * @dev Deletes the Merkle root for a given ERC-721 token
+   * @dev Deletes the Merkle root and derivative for a given ERC-721 token
    */
   function deleteRoot(address tokenAddress) external onlyOwner {
     delete ledger[tokenAddress];
