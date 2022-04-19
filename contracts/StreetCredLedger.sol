@@ -17,31 +17,40 @@ contract StreetCredLedger is Ownable {
   Verifier public verifier;
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
+  // Structs
+  struct Root {
+    address tokenAddress;
+    bytes32 merkleRoot;
+  }
 
   constructor() {
     verifier = new Verifier();
   }
 
-  function addRoot(address tokenAddress, bytes32 merkleRoot)
-    external
-    onlyOwner
-  {
-    IERC721Metadata metadata = IERC721Metadata(tokenAddress);
-    string memory derivativeName = string(
-      bytes.concat(bytes(metadata.name()), bytes("( derivative)"))
-    );
-    string memory derivativeSymbol = string(
-      bytes.concat(bytes(metadata.symbol()), bytes("-d"))
-    );
-    SCERC721Derivative derivative = new SCERC721Derivative(
-      tokenAddress,
-      address(this),
-      derivativeName,
-      derivativeSymbol
-    );
-    ledger[tokenAddress] = merkleRoot;
-    tokenToDerivative[tokenAddress] = address(derivative);
-    emit SetMerkleRoot(tokenAddress, merkleRoot);
+  function addRoot(Root[] memory roots) external onlyOwner {
+    for (uint256 i = 0; i < roots.length; i++) {
+      Root memory _currentRoot = roots[i];
+      IERC721Metadata metadata = IERC721Metadata(_currentRoot.tokenAddress);
+
+      string memory derivativeName = string(
+        bytes.concat(bytes(metadata.name()), bytes("( derivative)"))
+      );
+      string memory derivativeSymbol = string(
+        bytes.concat(bytes(metadata.symbol()), bytes("-d"))
+      );
+
+      SCERC721Derivative derivative = new SCERC721Derivative(
+        _currentRoot.tokenAddress,
+        address(this),
+        derivativeName,
+        derivativeSymbol
+      );
+
+      ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
+      tokenToDerivative[_currentRoot.tokenAddress] = address(derivative);
+
+      emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
+    }
   }
 
   /**
