@@ -20,11 +20,11 @@ contract SCERC721Derivative is ERC721, Ownable {
     address _streetCredContractAddress,
     string memory tokenName,
     string memory tokenSymbol,
-    Verifier _verifier
+    address _verifier
   ) ERC721(tokenName, tokenSymbol) {
     streetCred = StreetCredLedger(_streetCredContractAddress);
     streetCredMapAddress = _streetCredMapAddress;
-    verifier = address(_verifier);
+    verifier = _verifier;
   }
 
   function mint(

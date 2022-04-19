@@ -38,7 +38,7 @@ contract StreetCredLedger is Ownable {
       address(this),
       derivativeName,
       derivativeSymbol,
-      verifier
+      address(verifier)
     );
     ledger[tokenAddress] = merkleRoot;
     tokenToDerivative[tokenAddress] = address(derivative);
