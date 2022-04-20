@@ -1,6 +1,6 @@
 {
   "name": "@big-whale-labs/street-cred-ledger-contract",
-  "version": "0.0.4-4",
+  "version": "0.0.5",
   "description": "StreetCred Ledger contract code",
   "repository": {
     "type": "git",

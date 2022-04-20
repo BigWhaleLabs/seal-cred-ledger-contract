@@ -12,11 +12,12 @@ import "./Verifier.sol";
  */
 contract StreetCredLedger is Ownable {
   // State
-  mapping(address => bytes32) public ledger;
-  mapping(address => address) public tokenToDerivative;
-  Verifier public verifier;
+  mapping(address => bytes32) private ledger;
+  mapping(address => address) private tokenToDerivative;
+  Verifier private verifier;
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
+  event DeleteMerkleRoot(address tokenAddress);
   // Structs
   struct Root {
     address tokenAddress;
@@ -31,24 +32,15 @@ contract StreetCredLedger is Ownable {
     for (uint256 i = 0; i < roots.length; i++) {
       Root memory _currentRoot = roots[i];
       IERC721Metadata metadata = IERC721Metadata(_currentRoot.tokenAddress);
-
-      string memory derivativeName = string(
-        bytes.concat(bytes(metadata.name()), bytes("( derivative)"))
-      );
-      string memory derivativeSymbol = string(
-        bytes.concat(bytes(metadata.symbol()), bytes("-d"))
-      );
-
       SCERC721Derivative derivative = new SCERC721Derivative(
         _currentRoot.tokenAddress,
         address(this),
-        derivativeName,
-        derivativeSymbol
+        string(bytes.concat(bytes(metadata.name()), bytes("( derivative)"))),
+        string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
+        address(verifier)
       );
-
       ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
       tokenToDerivative[_currentRoot.tokenAddress] = address(derivative);
-
       emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
     }
   }
@@ -60,6 +52,10 @@ contract StreetCredLedger is Ownable {
     external
     onlyOwner
   {
+    require(
+      ledger[tokenAddress] != 0,
+      "No existing derivative. addRoot should be called first"
+    );
     ledger[tokenAddress] = merkleRoot;
     emit SetMerkleRoot(tokenAddress, merkleRoot);
   }
@@ -88,5 +84,6 @@ contract StreetCredLedger is Ownable {
   function deleteRoot(address tokenAddress) external onlyOwner {
     delete ledger[tokenAddress];
     delete tokenToDerivative[tokenAddress];
+    emit DeleteMerkleRoot(tokenAddress);
   }
 }
