@@ -35,7 +35,7 @@ contract StreetCredLedger is Ownable {
       SCERC721Derivative derivative = new SCERC721Derivative(
         _currentRoot.tokenAddress,
         address(this),
-        string(bytes.concat(bytes(metadata.name()), bytes("( derivative)"))),
+        string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
         string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
         address(verifier)
       );
