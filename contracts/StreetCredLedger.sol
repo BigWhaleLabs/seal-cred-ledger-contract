@@ -48,16 +48,15 @@ contract StreetCredLedger is Ownable {
   /**
    * @dev Sets the Merkle root for a given ERC-721 token
    */
-  function setRoot(address tokenAddress, bytes32 merkleRoot)
-    external
-    onlyOwner
-  {
-    require(
-      ledger[tokenAddress] != 0,
-      "No existing derivative. addRoot should be called first"
-    );
-    ledger[tokenAddress] = merkleRoot;
-    emit SetMerkleRoot(tokenAddress, merkleRoot);
+  function setRoot(Root[] memory roots) external onlyOwner {
+    for (uint256 i = 0; i < roots.length; i++) {
+      Root memory _currentRoot = roots[i];
+
+      if (ledger[_currentRoot.tokenAddress] != 0) {
+        ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
+        emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
+      }
+    }
   }
 
   /**
