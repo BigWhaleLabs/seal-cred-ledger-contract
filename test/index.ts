@@ -1,32 +1,56 @@
 import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { ethers } from 'hardhat'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
-const ADDRESS_MOCK = '0x6079dcdfb2aff3ec70ed233baa2a5ce665e59b3b'
-const ROOT_MOCK =
-  '0x810bc6dd779a50755716f6aa85ed810c9671479036a3a6d6795eef6e34e3d213'
+const ROOTS: string[] = [
+  '0x810bc6dd779a50755716f6aa85ed810c9671479036a3a6d6795eef6e34e3d213',
+  '0xbd77662ec626a22d57dc3d282e48abb0f8af67d8d3e6047ee5896e0bea4d4e61',
+  '0x21da21c8bd9cce3b34010c3ce44294caee894b40718ae9d31d3d55e304183203',
+]
 
 describe('StreetCred', () => {
   let contract: Contract
+  let contractAsOwner: Contract
+  const mockContracts = []
 
-  beforeEach(async () => {
+  let accounts: SignerWithAddress[]
+  let owner: SignerWithAddress
+  const DATA_ROOT_MOCK: string[][] = []
+
+  before(async () => {
+    accounts = await ethers.getSigners()
+    ;[owner] = accounts
+
     const factory = await ethers.getContractFactory('StreetCredLedger')
     contract = await factory.deploy()
+
+    const mockFactory = await ethers.getContractFactory('MockERC721')
+
+    for (let i = 0; i < 3; i++) {
+      const contract = await mockFactory.deploy(`Mock${i}`, `TKN${i}`)
+      mockContracts.push(contract)
+      DATA_ROOT_MOCK.push([contract.address, ROOTS[i]])
+    }
+
+    await (await contract.transferOwnership(owner.address)).wait()
+
+    contractAsOwner = contract.connect(owner)
+
     await contract.deployed()
-    await contract.setRoot(ADDRESS_MOCK, ROOT_MOCK)
   })
 
-  describe('Storage', () => {
-    it('Write to storage', async () => {
-      expect(await contract.setRoot(ADDRESS_MOCK, ROOT_MOCK))
+  describe('addRoot', () => {
+    it('add to storage', async () => {
+      expect(await contractAsOwner.addRoot(DATA_ROOT_MOCK))
     })
-    it('Get from storage', async () => {
-      const item = await contract.getRoot(ADDRESS_MOCK)
-
-      expect(item).to.equal(ROOT_MOCK)
+    it('set to storage', async () => {
+      expect(await contractAsOwner.setRoot(DATA_ROOT_MOCK))
     })
-    it('Delete from storage', async () => {
-      expect(await contract.deleteRoot(ADDRESS_MOCK))
+    it('getRoot by address', async () => {
+      expect(await contractAsOwner.getRoot(DATA_ROOT_MOCK[0][0])).to.be.equal(
+        DATA_ROOT_MOCK[0][1]
+      )
     })
   })
 })
