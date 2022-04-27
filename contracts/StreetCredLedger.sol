@@ -28,7 +28,7 @@ contract StreetCredLedger is Ownable {
     verifier = new Verifier();
   }
 
-  function addRoot(Root[] memory roots) external onlyOwner {
+  function addRoots(Root[] memory roots) external onlyOwner {
     for (uint256 i = 0; i < roots.length; i++) {
       Root memory _currentRoot = roots[i];
       IERC721Metadata metadata = IERC721Metadata(_currentRoot.tokenAddress);
@@ -46,9 +46,9 @@ contract StreetCredLedger is Ownable {
   }
 
   /**
-   * @dev Sets the Merkle root for a given ERC-721 token
+   * @dev Sets the Merkle roots for given ERC-721 tokens
    */
-  function setRoot(Root[] memory roots) external onlyOwner {
+  function setRoots(Root[] memory roots) external onlyOwner {
     for (uint256 i = 0; i < roots.length; i++) {
       Root memory _currentRoot = roots[i];
 
