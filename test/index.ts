@@ -42,10 +42,10 @@ describe('StreetCred', () => {
 
   describe('addRoot', () => {
     it('add to storage', async () => {
-      expect(await contractAsOwner.addRoot(DATA_ROOT_MOCK))
+      expect(await contractAsOwner.addRoots(DATA_ROOT_MOCK))
     })
     it('set to storage', async () => {
-      expect(await contractAsOwner.setRoot(DATA_ROOT_MOCK))
+      expect(await contractAsOwner.setRoots(DATA_ROOT_MOCK))
     })
     it('getRoot by address', async () => {
       expect(await contractAsOwner.getRoot(DATA_ROOT_MOCK[0][0])).to.be.equal(
