@@ -18,6 +18,14 @@ contract StreetCredLedger is Ownable {
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
   event DeleteMerkleRoot(address tokenAddress);
+  event CreateDerivative(
+    address derivativeAddress,
+    address streetCredMapAddress,
+    address streetCredContractAddress,
+    string tokenName,
+    string tokenSymbol,
+    address verifier
+  );
   // Structs
   struct Root {
     address tokenAddress;
@@ -33,6 +41,14 @@ contract StreetCredLedger is Ownable {
       Root memory _currentRoot = roots[i];
       IERC721Metadata metadata = IERC721Metadata(_currentRoot.tokenAddress);
       SCERC721Derivative derivative = new SCERC721Derivative(
+        _currentRoot.tokenAddress,
+        address(this),
+        string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
+        string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
+        address(verifier)
+      );
+      emit CreateDerivative(
+        address(derivative),
         _currentRoot.tokenAddress,
         address(this),
         string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
