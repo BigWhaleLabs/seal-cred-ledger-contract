@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { Contract } from 'ethers'
+import { Contract, Event } from 'ethers'
 import { ethers } from 'hardhat'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
@@ -56,6 +56,14 @@ describe('SealCred', () => {
           DATA_ROOT_MOCK[i][1]
         )
       }
+    })
+    it('prevent re-adding root to storage', async () => {
+      const tx = await contractAsOwner.addRoots([DATA_ROOT_MOCK[0]])
+      const minedTx = await tx.wait()
+      const alreadyCreatedEvent = minedTx.events.find(
+        (e: Event) => e.event === 'DerivativeAlreadyCreated'
+      )
+      expect(alreadyCreatedEvent.event).to.equal('DerivativeAlreadyCreated')
     })
     it('set to storage', async () => {
       await contractAsOwner.setRoots(DATA_ROOT_MOCK)
