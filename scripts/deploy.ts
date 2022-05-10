@@ -5,6 +5,14 @@ async function main() {
   // Deploy the contract
   console.log('Deploying contracts with the account:', deployer.address)
   console.log('Account balance:', (await deployer.getBalance()).toString())
+  const provider = ethers.provider
+  const { chainId } = await provider.getNetwork()
+  const chains = {
+    1: 'mainnet',
+    3: 'ropsten',
+    4: 'rinkeby',
+  } as { [chainId: number]: string }
+  const chainName = chains[chainId]
   const SealCred = await ethers.getContractFactory('SealCredLedger')
   const sealCred = await SealCred.deploy()
   console.log('Deploy tx gas price:', sealCred.deployTransaction.gasPrice)
@@ -28,7 +36,9 @@ async function main() {
   console.log('Contract address:', address)
   console.log(
     'Etherscan URL:',
-    `https://ropsten.etherscan.io/address/${address}`
+    `https://${
+      chainName !== 'mainnet' ? `${chainName}.` : ''
+    }etherscan.io/address/${address}`
   )
 }
 

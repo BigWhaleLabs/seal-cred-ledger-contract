@@ -29,7 +29,7 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    ropsten: {
+    deploy: {
       url: RPC_URL,
       accounts: [CONTRACT_OWNER_PRIVATE_KEY],
     },
