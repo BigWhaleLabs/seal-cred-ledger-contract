@@ -43,28 +43,29 @@ contract SealCredLedger is Ownable {
     for (uint256 i = 0; i < roots.length; i++) {
       Root memory _currentRoot = roots[i];
 
-      if (ledger[_currentRoot.tokenAddress] == 0) {
-        IERC721Metadata metadata = IERC721Metadata(_currentRoot.tokenAddress);
-        SCERC721Derivative derivative = new SCERC721Derivative(
-          _currentRoot.tokenAddress,
-          address(this),
-          string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
-          string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
-          address(verifier)
-        );
-
-        ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
-        tokenToDerivative[_currentRoot.tokenAddress] = address(derivative);
-        emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
-        emit CreateDerivative(
-          address(derivative),
-          _currentRoot.tokenAddress,
-          address(this),
-          string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
-          string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
-          address(verifier)
-        );
+      if (ledger[_currentRoot.tokenAddress] != 0) {
+        continue;
       }
+      IERC721Metadata metadata = IERC721Metadata(_currentRoot.tokenAddress);
+      SCERC721Derivative derivative = new SCERC721Derivative(
+        _currentRoot.tokenAddress,
+        address(this),
+        string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
+        string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
+        address(verifier)
+      );
+
+      ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
+      tokenToDerivative[_currentRoot.tokenAddress] = address(derivative);
+      emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
+      emit CreateDerivative(
+        address(derivative),
+        _currentRoot.tokenAddress,
+        address(this),
+        string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
+        string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
+        address(verifier)
+      );
     }
   }
 
