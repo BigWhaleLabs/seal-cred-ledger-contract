@@ -4,7 +4,7 @@ import FindFiles from 'file-regex'
 
 void (async () => {
   const fileName = await FindFiles(
-    path.join(__dirname, `../artifacts/build-info`),
+    path.join(__dirname, '../artifacts/build-info'),
     /\/.*?\.json$/g,
     5
   )
@@ -13,7 +13,7 @@ void (async () => {
   )
 
   fs.writeFile(
-    'SCERC721Derivative.json',
+    path.join(__dirname, '../typechain/SCERC721Derivative.json'),
     JSON.stringify(compiledContract.input),
     'utf8',
     function (err) {
