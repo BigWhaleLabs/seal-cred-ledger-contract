@@ -14,7 +14,9 @@ contract SealCredLedger is Ownable {
   // State
   mapping(address => bytes32) private ledger;
   mapping(address => address) private tokenToDerivative;
+
   Verifier private verifier;
+
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
   event DeleteMerkleRoot(address tokenAddress);
@@ -26,6 +28,7 @@ contract SealCredLedger is Ownable {
     string tokenSymbol,
     address verifier
   );
+
   // Structs
   struct Root {
     address tokenAddress;
@@ -39,6 +42,10 @@ contract SealCredLedger is Ownable {
   function addRoots(Root[] memory roots) external onlyOwner {
     for (uint256 i = 0; i < roots.length; i++) {
       Root memory _currentRoot = roots[i];
+
+      if (ledger[_currentRoot.tokenAddress] != 0) {
+        continue;
+      }
       IERC721Metadata metadata = IERC721Metadata(_currentRoot.tokenAddress);
       SCERC721Derivative derivative = new SCERC721Derivative(
         _currentRoot.tokenAddress,
@@ -47,6 +54,9 @@ contract SealCredLedger is Ownable {
         string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
         address(verifier)
       );
+
+      ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
+      tokenToDerivative[_currentRoot.tokenAddress] = address(derivative);
       emit CreateDerivative(
         address(derivative),
         _currentRoot.tokenAddress,
@@ -55,8 +65,6 @@ contract SealCredLedger is Ownable {
         string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
         address(verifier)
       );
-      ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
-      tokenToDerivative[_currentRoot.tokenAddress] = address(derivative);
       emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
     }
   }
