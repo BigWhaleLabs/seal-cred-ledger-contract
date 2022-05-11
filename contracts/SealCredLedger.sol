@@ -57,7 +57,6 @@ contract SealCredLedger is Ownable {
 
       ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
       tokenToDerivative[_currentRoot.tokenAddress] = address(derivative);
-      emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
       emit CreateDerivative(
         address(derivative),
         _currentRoot.tokenAddress,
@@ -66,6 +65,7 @@ contract SealCredLedger is Ownable {
         string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
         address(verifier)
       );
+      emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
     }
   }
 
