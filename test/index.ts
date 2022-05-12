@@ -14,7 +14,7 @@ const ZERO_BYTES =
 describe('SealCred', () => {
   let contract: Contract
   let contractAsOwner: Contract
-  const mockContracts = []
+  const mockContracts: Contract[] = []
 
   let accounts: SignerWithAddress[]
   let owner: SignerWithAddress

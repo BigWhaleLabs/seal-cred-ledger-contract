@@ -19,7 +19,8 @@
   "main": "dist/typechain/index.js",
   "types": "dist/typechain/index.d.ts",
   "scripts": {
-    "compile": "yarn hardhat compile && yarn extract-verification-input",
+    "compile": "yarn clean-cache && yarn hardhat compile && yarn extract-verification-input",
+    "clean-cache": "yarn hardhat clean",
     "extract-verification-input": "ts-node scripts/extractVerificationInput.ts",
     "test": "yarn hardhat test",
     "coverage": "yarn hardhat compile --force && node --max_old_space_size=6144 node_modules/.bin/hardhat coverage --testfiles 'test/**/*.ts' --show-stack-traces",
