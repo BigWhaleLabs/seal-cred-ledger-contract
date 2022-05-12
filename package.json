@@ -19,7 +19,8 @@
   "main": "dist/typechain/index.js",
   "types": "dist/typechain/index.d.ts",
   "scripts": {
-    "compile": "yarn hardhat compile",
+    "compile": "yarn hardhat compile && yarn extract-verification-input",
+    "extract-verification-input": "ts-node scripts/extractVerificationInput.ts",
     "test": "yarn hardhat test",
     "coverage": "yarn hardhat compile --force && node --max_old_space_size=6144 node_modules/.bin/hardhat coverage --testfiles 'test/**/*.ts' --show-stack-traces",
     "deploy": "yarn hardhat run --network deploy scripts/deploy.ts",
@@ -54,6 +55,7 @@
     "eslint-plugin-promise": "^6.0.0",
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.6.5",
+    "file-regex": "^3.1.0",
     "hardhat": "^2.9.3",
     "hardhat-gas-reporter": "^1.0.8",
     "np": "^7.6.1",

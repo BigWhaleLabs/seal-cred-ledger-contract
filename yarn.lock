@@ -60,6 +60,7 @@ __metadata:
     eslint-plugin-promise: ^6.0.0
     ethereum-waffle: ^3.4.4
     ethers: ^5.6.5
+    file-regex: ^3.1.0
     hardhat: ^2.9.3
     hardhat-gas-reporter: ^1.0.8
     np: ^7.6.1
@@ -2775,6 +2776,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"babel-polyfill@npm:^6.26.0":
+  version: 6.26.0
+  resolution: "babel-polyfill@npm:6.26.0"
+  dependencies:
+    babel-runtime: ^6.26.0
+    core-js: ^2.5.0
+    regenerator-runtime: ^0.10.5
+  checksum: 6fb1a3c0bfe1b6fc56ce1afcf531878aa629b309277a05fbf3fe950589b24cb4052a6e487db21d318eb5336b68730a21f5ef62166b6cc8aea3406261054d1118
+  languageName: node
+  linkType: hard
+
 "babel-preset-env@npm:^1.7.0":
   version: 1.7.0
   resolution: "babel-preset-env@npm:1.7.0"
@@ -3496,6 +3508,17 @@ __metadata:
     bignumber.js: ^9.0.1
     nofilter: ^1.0.4
   checksum: b3c39dae64370f361526dbec88f51d0f1b47027224cdd21dbd64c228f0fe7eaa945932d349ec5324068a6c6dcdbb1e3b46242852524fd53c526d14cb60514bdc
+  languageName: node
+  linkType: hard
+
+"chai-as-promised@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "chai-as-promised@npm:7.1.1"
+  dependencies:
+    check-error: ^1.0.2
+  peerDependencies:
+    chai: ">= 2.1.2 < 5"
+  checksum: 7262868a5b51a12af4e432838ddf97a893109266a505808e1868ba63a12de7ee1166e9d43b5c501a190c377c1b11ecb9ff8e093c89f097ad96c397e8ec0f8d6a
   languageName: node
   linkType: hard
 
@@ -6276,6 +6299,16 @@ __metadata:
   dependencies:
     flat-cache: ^3.0.4
   checksum: f49701feaa6314c8127c3c2f6173cfefff17612f5ed2daaafc6da13b5c91fd43e3b2a58fd0d63f9f94478a501b167615931e7200e31485e320f74a33885a9c74
+  languageName: node
+  linkType: hard
+
+"file-regex@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "file-regex@npm:3.1.0"
+  dependencies:
+    babel-polyfill: ^6.26.0
+    lib-promise-pool: ^1.0.0
+  checksum: 8c99e53fbb83079c597c6c703818a88925cfbfb8ca5dcd33008f45ef756792f98b9f8603a9ecd156bed3d2e4659a1dc59690ed8755c14d510d5e9b3c168f975a
   languageName: node
   linkType: hard
 
@@ -9161,6 +9194,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lib-promise-pool@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "lib-promise-pool@npm:1.0.1"
+  dependencies:
+    babel-polyfill: ^6.26.0
+    babel-runtime: ^6.26.0
+    chai-as-promised: ^7.1.1
+  checksum: aaa258f95a0989dec0b8f6884c059f06f3caf7a8877704c2fd4b64766ca06879a2a1dcf641b6236ef6eed12a7ad06c0c77ff73b064d3c83480e1acdbb94e7780
+  languageName: node
+  linkType: hard
+
 "lines-and-columns@npm:^1.1.6":
   version: 1.2.4
   resolution: "lines-and-columns@npm:1.2.4"
@@ -11898,6 +11942,13 @@ __metadata:
   version: 1.4.2
   resolution: "regenerate@npm:1.4.2"
   checksum: 3317a09b2f802da8db09aa276e469b57a6c0dd818347e05b8862959c6193408242f150db5de83c12c3fa99091ad95fb42a6db2c3329bfaa12a0ea4cbbeb30cb0
+  languageName: node
+  linkType: hard
+
+"regenerator-runtime@npm:^0.10.5":
+  version: 0.10.5
+  resolution: "regenerator-runtime@npm:0.10.5"
+  checksum: 35b33dbe5381d268b2be98f4ee4b028702acb38b012bff90723df067f915a337e5c979cce4dab4ed23febb223bbebb8820d46902f897742c55818c22c14e2a7c
   languageName: node
   linkType: hard
 
