@@ -13,6 +13,9 @@
     "cleanup": false,
     "yarn": false
   },
+  "exports": {
+    "./SCERC721Derivative.json": "./artifacts/contracts/SCERC721Derivative.sol/SCERC721Derivative.json"
+  },
   "files": [
     "dist/typechain/**/*",
     "artifacts/contracts/SCERC721Derivative.sol/SCERC721Derivative.json"
