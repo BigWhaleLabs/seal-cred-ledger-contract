@@ -1,10 +1,14 @@
 import { ethers, run } from 'hardhat'
 
+const prompt = require('prompt-sync')()
+
 async function main() {
   const [deployer] = await ethers.getSigners()
+
   // Deploy the contract
   console.log('Deploying contracts with the account:', deployer.address)
   console.log('Account balance:', (await deployer.getBalance()).toString())
+
   const provider = ethers.provider
   const { chainId } = await provider.getNetwork()
   const chains = {
@@ -13,16 +17,22 @@ async function main() {
     4: 'rinkeby',
   } as { [chainId: number]: string }
   const chainName = chains[chainId]
+
   const SealCred = await ethers.getContractFactory('SealCredLedger')
-  const verifierAddress = '0x0000000000000000000'
+  const verifierAddress = prompt('Enter Verifier contract address: ')
+  if (verifierAddress == null || verifierAddress === '')
+    throw Error('Verifier contract address invalid')
   const sealCred = await SealCred.deploy(verifierAddress)
+
   console.log('Deploy tx gas price:', sealCred.deployTransaction.gasPrice)
   console.log('Deploy tx gas limit:', sealCred.deployTransaction.gasLimit)
   await sealCred.deployed()
   const address = sealCred.address
+
   console.log('Contract deployed to:', address)
   console.log('Wait for 1 minute to make sure blockchain is updated')
   await new Promise((resolve) => setTimeout(resolve, 60 * 1000))
+
   // Try to verify the contract on Etherscan
   console.log('Verifying contract on Etherscan')
   try {
@@ -32,6 +42,7 @@ async function main() {
   } catch (err) {
     console.log('Error verifiying contract on Etherscan:', err)
   }
+
   // Print out the information
   console.log('SealCred Ledger deployed and verified on Etherscan!')
   console.log('Contract address:', address)
