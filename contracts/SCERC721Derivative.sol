@@ -60,7 +60,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     return super.supportsInterface(_interfaceId);
   }
 
-  function updateVerifierAddress(address _verifier) external onlyOwner {
+  function setVerifierAddress(address _verifier) external onlyOwner {
     verifier = _verifier;
   }
 }
