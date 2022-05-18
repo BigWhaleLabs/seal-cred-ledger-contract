@@ -32,10 +32,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@big-whale-labs/constants@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "@big-whale-labs/constants@npm:0.0.5"
+  checksum: 9e4222f01cfeede87da4bed0dfd408d643af48a584ff63a9fed1cd1ec94ff810e40c9fdba62268e8acebfea4443d58dd556d7154e8e72c0864fea5c2846a007b
+  languageName: node
+  linkType: hard
+
 "@big-whale-labs/seal-cred-ledger-contract@workspace:.":
   version: 0.0.0-use.local
   resolution: "@big-whale-labs/seal-cred-ledger-contract@workspace:."
   dependencies:
+    "@big-whale-labs/constants": ^0.0.5
     "@nomiclabs/hardhat-ethers": ^2.0.6
     "@nomiclabs/hardhat-etherscan": ^3.0.3
     "@nomiclabs/hardhat-waffle": ^2.0.3
