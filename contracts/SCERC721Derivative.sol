@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SealCredLedger.sol";
-import "./Verifier.sol";
 
 contract SCERC721Derivative is ERC721, Ownable {
   using Counters for Counters.Counter;
@@ -37,7 +36,7 @@ contract SCERC721Derivative is ERC721, Ownable {
       bytes32(input[1]) == sealCred.getRoot(sealCredMapAddress),
       "Merkle Root does not match the contract"
     );
-    require(Verifier(verifier).verifyProof(a, b, c, input), "Invalid Proof");
+    require(IVerifier(verifier).verifyProof(a, b, c, input), "Invalid Proof");
     uint256 _tokenId = tokenId.current();
     _safeMint(msg.sender, _tokenId);
     tokenId.increment();
