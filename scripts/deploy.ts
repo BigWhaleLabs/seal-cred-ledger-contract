@@ -14,7 +14,8 @@ async function main() {
   } as { [chainId: number]: string }
   const chainName = chains[chainId]
   const SealCred = await ethers.getContractFactory('SealCredLedger')
-  const sealCred = await SealCred.deploy()
+  const verifierAddress = '0x0000000000000000000'
+  const sealCred = await SealCred.deploy(verifierAddress)
   console.log('Deploy tx gas price:', sealCred.deployTransaction.gasPrice)
   console.log('Deploy tx gas limit:', sealCred.deployTransaction.gasLimit)
   await sealCred.deployed()
