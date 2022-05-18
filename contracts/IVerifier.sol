@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-interface IVerifer {
+interface IVerifier {
   function verifyProof(
     uint256[2] memory a,
     uint256[2][2] memory b,

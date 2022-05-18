@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SealCredLedger.sol";
+import "./IVerifier.sol";
 
 contract SCERC721Derivative is ERC721, Ownable {
   using Counters for Counters.Counter;
@@ -57,5 +58,9 @@ contract SCERC721Derivative is ERC721, Ownable {
     returns (bool)
   {
     return super.supportsInterface(_interfaceId);
+  }
+
+  function updateVerifierAddress(address _verifier) external onlyOwner {
+    verifier = _verifier;
   }
 }

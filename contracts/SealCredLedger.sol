@@ -14,7 +14,7 @@ contract SealCredLedger is Ownable {
   mapping(address => bytes32) private ledger;
   mapping(address => address) private tokenToDerivative;
 
-  address private verifier;
+  address public verifier;
 
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
@@ -107,5 +107,9 @@ contract SealCredLedger is Ownable {
     delete ledger[tokenAddress];
     delete tokenToDerivative[tokenAddress];
     emit DeleteMerkleRoot(tokenAddress);
+  }
+
+  function setVerifierAddress(address _verifier) external onlyOwner {
+    verifier = _verifier;
   }
 }
