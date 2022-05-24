@@ -10,13 +10,15 @@ import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 
 // Task for exluding mock contracts
-subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
-  async (_, __, runSuper) => {
-    const paths = await runSuper()
+if (!process.env.NODE_ENV) {
+  subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
+    async (_, __, runSuper) => {
+      const paths = await runSuper()
 
-    return paths.filter((p) => !p.endsWith('.t.sol'))
-  }
-)
+      return paths.filter((p) => !p.endsWith('.t.sol'))
+    }
+  )
+}
 
 dotenv.config()
 
