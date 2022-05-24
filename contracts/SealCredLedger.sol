@@ -11,8 +11,8 @@ import "./SCERC721Derivative.sol";
  */
 contract SealCredLedger is Ownable {
   // State
-  mapping(address => bytes32) private ledger;
-  mapping(address => address) private tokenToDerivative;
+  mapping(address => bytes32) public ledger;
+  mapping(address => address) public tokenToDerivative;
 
   address public verifier;
 
