@@ -9,25 +9,24 @@ import '@typechain/hardhat'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 
-// Task for exluding mock contracts
-subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
-  async (_, __, runSuper) => {
-    const paths = await runSuper()
-
-    return paths.filter((p) => !p.endsWith('.t.sol'))
-  }
-)
-
 dotenv.config()
 
-const { CONTRACT_OWNER_PRIVATE_KEY, ETH_RPC, ETHERSCAN_API_KEY } = cleanEnv(
-  process.env,
-  {
+const { CONTRACT_OWNER_PRIVATE_KEY, ETH_RPC, ETHERSCAN_API_KEY, isTest } =
+  cleanEnv(process.env, {
     CONTRACT_OWNER_PRIVATE_KEY: str(),
     ETH_RPC: str({ default: FALLBACK_ETH_RPC }),
     ETHERSCAN_API_KEY: str(),
-  }
-)
+  })
+
+// Task for exluding mock contracts
+if (!isTest) {
+  subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
+    async (_, __, runSuper) => {
+      const paths = await runSuper()
+      return paths.filter((p) => !p.endsWith('.t.sol'))
+    }
+  )
+}
 
 const config: HardhatUserConfig = {
   solidity: {
