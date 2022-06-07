@@ -14,8 +14,7 @@
     "yarn": false
   },
   "files": [
-    "dist/typechain/**/*",
-    "artifacts/contracts/SCERC721Derivative.sol/SCERC721Derivative.json"
+    "dist/typechain/**/*"
   ],
   "main": "dist/typechain/index.js",
   "types": "dist/typechain/index.d.ts",
