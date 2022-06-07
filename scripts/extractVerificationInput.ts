@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, appendFileSync } from 'fs'
 import path from 'path'
 import FindFiles from 'file-regex'
+import prettier from 'prettier'
 import { cwd } from 'process'
 ;(async () => {
   const fileName = await FindFiles(
@@ -17,9 +18,11 @@ import { cwd } from 'process'
   )
   writeFileSync(
     path.resolve(cwd(), 'typechain/SCERC721DerivativeConfig.ts'),
-    `export const SCERC721DerivativeConfig = ${JSON.stringify(
-      compiledContract.input
-    )}`,
+    prettier.format(
+      `export const SCERC721DerivativeConfig = ${JSON.stringify(
+        compiledContract.input
+      )}`
+    ),
     'utf8'
   )
   appendFileSync(
