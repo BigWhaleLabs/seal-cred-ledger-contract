@@ -2,31 +2,31 @@ import * as dotenv from 'dotenv'
 import { cleanEnv, str } from 'envalid'
 import { HardhatUserConfig, subtask } from 'hardhat/config'
 import { TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS } from 'hardhat/builtin-tasks/task-names'
+import { ETH_RPC as FALLBACK_ETH_RPC } from '@big-whale-labs/constants'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 
-// Task for exluding mock contracts
-subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
-  async (_, __, runSuper) => {
-    const paths = await runSuper()
-
-    return paths.filter((p) => !p.endsWith('.t.sol'))
-  }
-)
-
 dotenv.config()
 
-const { CONTRACT_OWNER_PRIVATE_KEY, RPC_URL, ETHERSCAN_API_KEY } = cleanEnv(
-  process.env,
-  {
+const { CONTRACT_OWNER_PRIVATE_KEY, ETH_RPC, ETHERSCAN_API_KEY, isTest } =
+  cleanEnv(process.env, {
     CONTRACT_OWNER_PRIVATE_KEY: str(),
-    RPC_URL: str(),
+    ETH_RPC: str({ default: FALLBACK_ETH_RPC }),
     ETHERSCAN_API_KEY: str(),
-  }
-)
+  })
+
+// Task for exluding mock contracts
+if (!isTest) {
+  subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
+    async (_, __, runSuper) => {
+      const paths = await runSuper()
+      return paths.filter((p) => !p.endsWith('.t.sol'))
+    }
+  )
+}
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -40,7 +40,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     deploy: {
-      url: RPC_URL,
+      url: ETH_RPC,
       accounts: [CONTRACT_OWNER_PRIVATE_KEY],
     },
     local: {

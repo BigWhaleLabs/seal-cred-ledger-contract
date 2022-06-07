@@ -4,7 +4,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "./SCERC721Derivative.sol";
-import "./Verifier.sol";
 
 /**
  * @title SealCred Ledger
@@ -12,10 +11,10 @@ import "./Verifier.sol";
  */
 contract SealCredLedger is Ownable {
   // State
-  mapping(address => bytes32) private ledger;
-  mapping(address => address) private tokenToDerivative;
+  mapping(address => bytes32) public ledger;
+  mapping(address => address) public tokenToDerivative;
 
-  Verifier private verifier;
+  address public verifier;
 
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
@@ -35,8 +34,8 @@ contract SealCredLedger is Ownable {
     bytes32 merkleRoot;
   }
 
-  constructor() {
-    verifier = new Verifier();
+  constructor(address _verifier) {
+    verifier = _verifier;
   }
 
   function addRoots(Root[] memory roots) external onlyOwner {
@@ -52,7 +51,7 @@ contract SealCredLedger is Ownable {
         address(this),
         string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
         string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
-        address(verifier)
+        verifier
       );
 
       ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
@@ -63,7 +62,7 @@ contract SealCredLedger is Ownable {
         address(this),
         string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
         string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
-        address(verifier)
+        verifier
       );
       emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
     }
@@ -108,5 +107,9 @@ contract SealCredLedger is Ownable {
     delete ledger[tokenAddress];
     delete tokenToDerivative[tokenAddress];
     emit DeleteMerkleRoot(tokenAddress);
+  }
+
+  function setVerifierAddress(address _verifier) external onlyOwner {
+    verifier = _verifier;
   }
 }

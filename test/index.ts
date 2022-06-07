@@ -8,6 +8,7 @@ const ROOTS: string[] = [
   '0xbd77662ec626a22d57dc3d282e48abb0f8af67d8d3e6047ee5896e0bea4d4e61',
   '0x21da21c8bd9cce3b34010c3ce44294caee894b40718ae9d31d3d55e304183203',
 ]
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const ZERO_BYTES =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
@@ -26,7 +27,7 @@ describe('SealCred', () => {
     ;[owner] = accounts
 
     const factory = await ethers.getContractFactory('SealCredLedger')
-    contract = await factory.deploy()
+    contract = await factory.deploy(ZERO_ADDRESS)
 
     const mockFactory = await ethers.getContractFactory('MockERC721')
 
