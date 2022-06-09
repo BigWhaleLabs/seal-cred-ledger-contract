@@ -1,17 +1,2 @@
-name: Compile and lint
-
-on:
-  release:
-    types: [synchronize, created]
-
-jobs:
-  compile-code:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install modules
-        run: yarn
-      - name: Compile code
-        run: yarn compile
-      - name: Lint code
-        run: yarn lint
+- name: Build and lint code
+  uses: Borodutch/build-and-lint-code@v1.0.0

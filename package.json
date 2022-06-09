@@ -19,7 +19,7 @@
   "main": "dist/typechain/index.js",
   "types": "dist/typechain/index.d.ts",
   "scripts": {
-    "compile": "yarn clean-cache && yarn hardhat compile && yarn extract-verification-input",
+    "build": "yarn clean-cache && yarn hardhat compile && yarn extract-verification-input",
     "clean-cache": "yarn hardhat clean",
     "extract-verification-input": "ts-node scripts/extractVerificationInput.ts",
     "test": "NODE_ENV=test yarn hardhat test",
@@ -29,7 +29,7 @@
     "lint": "prettier --check . && eslint --max-warnings 0 --ext ts scripts && yarn eth-lint",
     "prettify": "prettier --write .",
     "release": "np",
-    "prepublishOnly": "yarn compile && yarn tsc"
+    "prepublishOnly": "yarn build && yarn tsc"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
