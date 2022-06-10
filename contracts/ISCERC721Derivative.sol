@@ -6,6 +6,8 @@ interface ISCERC721Derivative {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[44] memory input,
+    address tokenAddress,
+    string memory pubkey
   ) external returns (bool r);
 }

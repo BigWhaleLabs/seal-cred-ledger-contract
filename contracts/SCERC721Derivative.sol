@@ -31,8 +31,19 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[44] memory input,
+    address tokenAddress,
+    string memory pubkey
   ) external {
+    // check tokenAddress with input's tokenAddress
+    // extract tokenAddress from input
+    // require(tokenAddress == input[?], "Invalid tokenAddress");
+
+    // check EdDSA sig signer pubkey is the same as backend signer pubkey
+    // extract pubkey from input into X and Y?
+    // require((pubKeyX == input[?] && pubKeyY == input[?]), "EdDSA pubkey does not match")
+
+    // EdDSA sig is valid (Verifier) is done on mint fxn in SCERC721Derivative.sol
     require(IVerifier(verifier).verifyProof(a, b, c, input), "Invalid Proof");
     uint256 _tokenId = tokenId.current();
     _safeMint(msg.sender, _tokenId);

@@ -15,7 +15,7 @@ contract SealCredLedger is Ownable {
   mapping(address => address) public tokenToDerivative;
 
   address public verifier;
-  bytes32 public pubkey;
+  string public pubkey;
 
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
@@ -29,7 +29,7 @@ contract SealCredLedger is Ownable {
     address verifier
   );
 
-  constructor(address _verifier, bytes32 _pubkey) {
+  constructor(address _verifier, string memory _pubkey) {
     verifier = _verifier;
     pubkey = _pubkey;
   }
@@ -43,7 +43,14 @@ contract SealCredLedger is Ownable {
   ) external {
     // derivative exists
     if (tokenToDerivative[tokenAddress] != address(0)) {
-      ISCERC721Derivative(tokenToDerivative[tokenAddress]).mint(a, b, c, input);
+      ISCERC721Derivative(tokenToDerivative[tokenAddress]).mint(
+        a,
+        b,
+        c,
+        input,
+        tokenAddress,
+        pubkey
+      );
       return;
     }
 
@@ -67,7 +74,14 @@ contract SealCredLedger is Ownable {
       verifier
     );
 
-    ISCERC721Derivative(address(derivative)).mint(a, b, c, input);
+    ISCERC721Derivative(address(derivative)).mint(
+      a,
+      b,
+      c,
+      input,
+      tokenAddress,
+      pubkey
+    );
   }
 
   /**
