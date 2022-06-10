@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "./SCERC721Derivative.sol";
+import "./ISCERC721Derivative.sol";
 
 /**
  * @title SealCred Ledger
@@ -11,14 +12,14 @@ import "./SCERC721Derivative.sol";
  */
 contract SealCredLedger is Ownable {
   // State
-  mapping(address => bytes32) public ledger;
   mapping(address => address) public tokenToDerivative;
 
   address public verifier;
+  bytes32 public pubkey;
 
   // Events
   event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
-  event DeleteMerkleRoot(address tokenAddress);
+  event DeleteDerivative(address tokenAddress);
   event CreateDerivative(
     address derivativeAddress,
     address sealCredMapAddress,
@@ -28,65 +29,45 @@ contract SealCredLedger is Ownable {
     address verifier
   );
 
-  // Structs
-  struct Root {
-    address tokenAddress;
-    bytes32 merkleRoot;
-  }
-
-  constructor(address _verifier) {
+  constructor(address _verifier, bytes32 _pubkey) {
     verifier = _verifier;
+    pubkey = _pubkey;
   }
 
-  function addRoots(Root[] memory roots) external onlyOwner {
-    for (uint256 i = 0; i < roots.length; i++) {
-      Root memory _currentRoot = roots[i];
-
-      if (ledger[_currentRoot.tokenAddress] != 0) {
-        continue;
-      }
-      IERC721Metadata metadata = IERC721Metadata(_currentRoot.tokenAddress);
-      SCERC721Derivative derivative = new SCERC721Derivative(
-        _currentRoot.tokenAddress,
-        address(this),
-        string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
-        string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
-        verifier
-      );
-
-      ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
-      tokenToDerivative[_currentRoot.tokenAddress] = address(derivative);
-      emit CreateDerivative(
-        address(derivative),
-        _currentRoot.tokenAddress,
-        address(this),
-        string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
-        string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
-        verifier
-      );
-      emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
+  function addToken(
+    address tokenAddress,
+    uint256[2] memory a,
+    uint256[2][2] memory b,
+    uint256[2] memory c,
+    uint256[44] memory input
+  ) external {
+    // derivative exists
+    if (tokenToDerivative[tokenAddress] != address(0)) {
+      ISCERC721Derivative(tokenToDerivative[tokenAddress]).mint(a, b, c, input);
+      return;
     }
-  }
 
-  /**
-   * @dev Sets the Merkle roots for given ERC-721 tokens
-   */
-  function setRoots(Root[] memory roots) external onlyOwner {
-    for (uint256 i = 0; i < roots.length; i++) {
-      Root memory _currentRoot = roots[i];
+    // derivative doesn't exist
+    IERC721Metadata metadata = IERC721Metadata(tokenAddress);
+    SCERC721Derivative derivative = new SCERC721Derivative(
+      tokenAddress,
+      address(this),
+      string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
+      string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
+      verifier
+    );
+    tokenToDerivative[tokenAddress] = address(derivative);
 
-      if (ledger[_currentRoot.tokenAddress] != 0) {
-        ledger[_currentRoot.tokenAddress] = _currentRoot.merkleRoot;
-        emit SetMerkleRoot(_currentRoot.tokenAddress, _currentRoot.merkleRoot);
-      }
-    }
-  }
+    emit CreateDerivative(
+      address(derivative),
+      tokenAddress,
+      address(this),
+      string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
+      string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
+      verifier
+    );
 
-  /**
-   * @dev Returns the Merkle root for a given ERC-721 token
-   */
-  function getRoot(address tokenAddress) external view returns (bytes32) {
-    return ledger[tokenAddress];
+    ISCERC721Derivative(address(derivative)).mint(a, b, c, input);
   }
 
   /**
@@ -103,10 +84,9 @@ contract SealCredLedger is Ownable {
   /**
    * @dev Deletes the Merkle root and derivative for a given ERC-721 token
    */
-  function deleteRoot(address tokenAddress) external onlyOwner {
-    delete ledger[tokenAddress];
+  function deleteDerivativeAddress(address tokenAddress) external onlyOwner {
     delete tokenToDerivative[tokenAddress];
-    emit DeleteMerkleRoot(tokenAddress);
+    emit DeleteDerivative(tokenAddress);
   }
 
   function setVerifierAddress(address _verifier) external onlyOwner {

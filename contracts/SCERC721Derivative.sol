@@ -31,12 +31,8 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[2] memory input
+    uint256[44] memory input
   ) external {
-    require(
-      bytes32(input[1]) == sealCred.getRoot(sealCredMapAddress),
-      "Merkle Root does not match the contract"
-    );
     require(IVerifier(verifier).verifyProof(a, b, c, input), "Invalid Proof");
     uint256 _tokenId = tokenId.current();
     _safeMint(msg.sender, _tokenId);
