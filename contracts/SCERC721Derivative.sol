@@ -36,7 +36,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input // TODO: input is probably of wrong size here
+    uint256[44] memory input
   ) external {
     // TODO: Check if nullifiers[input.nullifier] !== true
 
