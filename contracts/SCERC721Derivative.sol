@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SealCredLedger.sol";
 import "./IVerifier.sol";
@@ -43,12 +44,31 @@ contract SCERC721Derivative is ERC721, Ownable {
     if (nullifiers[nullifier] == true) {
       revert("This ZK proof has already been used");
     }
-    // Check if attestor is the correct one
+    // Check if attestor is correct
     uint256 passedAttestorPublicKey = input[43];
     if (passedAttestorPublicKey != attestorPublicKey) {
       revert("This ZK proof is not from the correct attestor");
     }
-    // TODO: Check if input.tokenAddress === originalContract
+    // Check if tokenAddress is correct
+    // TODO: check the conversions
+    uint256[40] memory passedTokenAddressBytes;
+    for (uint256 i = 0; i < 40; i++) {
+      passedTokenAddressBytes[i] = input[i + 3];
+    }
+    string memory passedTokenAddressString = Strings.toHexString(
+      passedTokenAddressBytes[0],
+      40
+    );
+    string memory originalContractString = Strings.toHexString(
+      uint256(uint160(originalContract)),
+      20
+    );
+    if (
+      keccak256(bytes(originalContractString)) !=
+      keccak256(bytes(passedTokenAddressString))
+    ) {
+      revert("This ZK proof is not from the correct token contract");
+    }
     // Check if zkp is valid
     require(
       IVerifier(verifierContract).verifyProof(a, b, c, input),
