@@ -67,6 +67,10 @@ contract SCERC721Derivative is ERC721, Ownable {
     address _to,
     uint256 _tokenId
   ) internal override(ERC721) {
+    // TODO: check if this is the correct condition, we should only allow to mint, but not to transfer
+    if (_from != address(0)) {
+      revert("This token is soulbound");
+    }
     super._beforeTokenTransfer(_from, _to, _tokenId);
   }
 
