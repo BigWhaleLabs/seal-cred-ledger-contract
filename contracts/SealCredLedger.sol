@@ -13,7 +13,7 @@ contract SealCredLedger is Ownable {
   // State
   mapping(address => address) public originalContractToDerivativeContract;
   address public verifierContract;
-  string public attestorPublicKey;
+  uint256 public attestorPublicKey;
 
   // Events
   event CreateDerivativeContract(
@@ -22,7 +22,7 @@ contract SealCredLedger is Ownable {
   );
   event DeleteOriginalContract(address originalContract);
 
-  constructor(address _verifierContract, string memory _attestorPublicKey) {
+  constructor(address _verifierContract, uint256 _attestorPublicKey) {
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
   }

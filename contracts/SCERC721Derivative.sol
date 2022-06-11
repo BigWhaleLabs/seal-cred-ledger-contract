@@ -14,15 +14,15 @@ contract SCERC721Derivative is ERC721, Ownable {
   address public sealCredContract;
   address public immutable originalContract;
   address public verifierContract;
-  string public attestorPublicKey;
-  mapping(string => bool) public nullifiers;
+  uint256 public attestorPublicKey;
+  mapping(uint256 => bool) public nullifiers;
   Counters.Counter public currentTokenId;
 
   constructor(
     address _sealCredContract,
     address _originalContract,
     address _verifierContract,
-    string memory _attestorPublicKey,
+    uint256 _attestorPublicKey,
     string memory tokenName,
     string memory tokenSymbol
   ) ERC721(tokenName, tokenSymbol) {
@@ -38,22 +38,28 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory c,
     uint256[44] memory input
   ) external {
-    // TODO: Check if nullifiers[input.nullifier] !== true
-
+    // Check if zkp is fresh
+    uint256 nullifier = input[0];
+    if (nullifiers[nullifier] == true) {
+      revert("This ZK proof has already been used");
+    }
+    // Check if attestor is the correct one
+    uint256 passedAttestorPublicKey = input[43];
+    if (passedAttestorPublicKey != attestorPublicKey) {
+      revert("This ZK proof is not from the correct attestor");
+    }
+    // TODO: Check if input.tokenAddress === originalContract
     // Check if zkp is valid
     require(
       IVerifier(verifierContract).verifyProof(a, b, c, input),
       "Invalid ZK proof"
     );
-
-    // TODO: Check if input.tokenAddress === originalContract
-    // TODO: Check if input.pubKeyX === attestorPublicKey
-    // TODO: Set nullifiers[input.nullifier] to true
-
     // Mint
     uint256 _tokenId = currentTokenId.current();
     _safeMint(msg.sender, _tokenId); // TODO: check if msg.sender is the address who called SealCredLedger.mint, and not SealCredLedger contract
     currentTokenId.increment();
+    // Save nullifier
+    nullifiers[nullifier] = true;
   }
 
   function _beforeTokenTransfer(
