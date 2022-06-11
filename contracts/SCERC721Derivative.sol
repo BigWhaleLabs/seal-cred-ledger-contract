@@ -10,44 +10,50 @@ import "./IVerifier.sol";
 contract SCERC721Derivative is ERC721, Ownable {
   using Counters for Counters.Counter;
 
-  Counters.Counter public tokenId;
-  SealCredLedger public sealCred;
-  address public immutable sealCredMapAddress;
-  address public verifier;
+  // State
+  address public sealCredContract;
+  address public immutable originalContract;
+  address public verifierContract;
+  string public attestorPublicKey;
+  mapping(string => bool) public nullifiers;
+  Counters.Counter public currentTokenId;
 
   constructor(
-    address _sealCredMapAddress,
-    address _sealCredContractAddress,
+    address _sealCredContract,
+    address _originalContract,
+    address _verifierContract,
+    string memory _attestorPublicKey,
     string memory tokenName,
-    string memory tokenSymbol,
-    address _verifier
+    string memory tokenSymbol
   ) ERC721(tokenName, tokenSymbol) {
-    sealCred = SealCredLedger(_sealCredContractAddress);
-    sealCredMapAddress = _sealCredMapAddress;
-    verifier = _verifier;
+    sealCredContract = _sealCredContract;
+    originalContract = _originalContract;
+    verifierContract = _verifierContract;
+    attestorPublicKey = _attestorPublicKey;
   }
 
   function mint(
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input,
-    address tokenAddress,
-    string memory pubkey
+    uint256[44] memory input // TODO: input is probably of wrong size here
   ) external {
-    // check tokenAddress with input's tokenAddress
-    // extract tokenAddress from input
-    // require(tokenAddress == input[?], "Invalid tokenAddress");
+    // TODO: Check if nullifiers[input.nullifier] !== true
 
-    // check EdDSA sig signer pubkey is the same as backend signer pubkey
-    // extract pubkey from input into X and Y?
-    // require((pubKeyX == input[?] && pubKeyY == input[?]), "EdDSA pubkey does not match")
+    // Check if zkp is valid
+    require(
+      IVerifier(verifierContract).verifyProof(a, b, c, input),
+      "Invalid ZK proof"
+    );
 
-    // EdDSA sig is valid (Verifier) is done on mint fxn in SCERC721Derivative.sol
-    require(IVerifier(verifier).verifyProof(a, b, c, input), "Invalid Proof");
-    uint256 _tokenId = tokenId.current();
+    // TODO: Check if input.tokenAddress === originalContract
+    // TODO: Check if input.pubKeyX === attestorPublicKey
+    // TODO: Set nullifiers[input.nullifier] to true
+
+    // Mint
+    uint256 _tokenId = currentTokenId.current();
     _safeMint(msg.sender, _tokenId);
-    tokenId.increment();
+    currentTokenId.increment();
   }
 
   function _beforeTokenTransfer(
@@ -67,7 +73,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     return super.supportsInterface(_interfaceId);
   }
 
-  function setVerifierAddress(address _verifier) external onlyOwner {
-    verifier = _verifier;
+  function setVerifierContract(address _verifierContract) external onlyOwner {
+    verifierContract = _verifierContract;
   }
 }

@@ -4,106 +4,88 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "./SCERC721Derivative.sol";
-import "./ISCERC721Derivative.sol";
 
 /**
  * @title SealCred Ledger
- * @dev Holds the Merkle roots for the registered ERC-721 tokens
+ * @dev Creates SCERC721Derivatives, remembers them and proxies mint calls to them
  */
 contract SealCredLedger is Ownable {
   // State
-  mapping(address => address) public tokenToDerivative;
-
-  address public verifier;
-  string public pubkey;
+  mapping(address => address) public originalContractToDerivativeContract;
+  address public verifierContract;
+  string public attestorPublicKey;
 
   // Events
-  event SetMerkleRoot(address tokenAddress, bytes32 merkleRoot);
-  event DeleteDerivative(address tokenAddress);
-  event CreateDerivative(
-    address derivativeAddress,
-    address sealCredMapAddress,
-    address sealCredContractAddress,
-    string tokenName,
-    string tokenSymbol,
-    address verifier
+  event CreateDerivativeContract(
+    address originalContract,
+    address derivativeContract
   );
+  event DeleteOriginalContract(address originalContract);
 
-  constructor(address _verifier, string memory _pubkey) {
-    verifier = _verifier;
-    pubkey = _pubkey;
-  }
-
-  function addToken(
-    address tokenAddress,
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[44] memory input
-  ) external {
-    // derivative exists
-    if (tokenToDerivative[tokenAddress] != address(0)) {
-      ISCERC721Derivative(tokenToDerivative[tokenAddress]).mint(
-        a,
-        b,
-        c,
-        input,
-        tokenAddress,
-        pubkey
-      );
-      return;
-    }
-
-    // derivative doesn't exist
-    IERC721Metadata metadata = IERC721Metadata(tokenAddress);
-    SCERC721Derivative derivative = new SCERC721Derivative(
-      tokenAddress,
-      address(this),
-      string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
-      string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
-      verifier
-    );
-    tokenToDerivative[tokenAddress] = address(derivative);
-
-    emit CreateDerivative(
-      address(derivative),
-      tokenAddress,
-      address(this),
-      string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
-      string(bytes.concat(bytes(metadata.symbol()), bytes("-d"))),
-      verifier
-    );
-
-    ISCERC721Derivative(address(derivative)).mint(
-      a,
-      b,
-      c,
-      input,
-      tokenAddress,
-      pubkey
-    );
+  constructor(address _verifierContract, string memory _attestorPublicKey) {
+    verifierContract = _verifierContract;
+    attestorPublicKey = _attestorPublicKey;
   }
 
   /**
-   * @dev Returns the drivative of a given ERC-721 token
+   * @dev Returns derivative contract of given original contract
    */
-  function getDerivativeAddress(address tokenAddress)
+  function getDerivativeContract(address originalContract)
     external
     view
     returns (address)
   {
-    return tokenToDerivative[tokenAddress];
+    return originalContractToDerivativeContract[originalContract];
   }
 
   /**
-   * @dev Deletes the Merkle root and derivative for a given ERC-721 token
+   * @dev Deletes originalContract record from the ledger
    */
-  function deleteDerivativeAddress(address tokenAddress) external onlyOwner {
-    delete tokenToDerivative[tokenAddress];
-    emit DeleteDerivative(tokenAddress);
+  function deleteOriginalContract(address originalContract) external onlyOwner {
+    delete originalContractToDerivativeContract[originalContract];
+    emit DeleteOriginalContract(originalContract);
   }
 
-  function setVerifierAddress(address _verifier) external onlyOwner {
-    verifier = _verifier;
+  /**
+   * @dev Returns verifier contract
+   */
+  function setVerifierContract(address _verifierContract) external onlyOwner {
+    verifierContract = _verifierContract;
+  }
+
+  /**
+   * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
+   */
+  function mint(
+    address originalContract,
+    uint256[2] memory a,
+    uint256[2][2] memory b,
+    uint256[2] memory c,
+    uint256[44] memory input // TODO: input is probably of wrong size here
+  ) external {
+    // Check if derivative already exists
+    if (originalContractToDerivativeContract[originalContract] != address(0)) {
+      // Proxy mint call
+      SCERC721Derivative(originalContractToDerivativeContract[originalContract])
+        .mint(a, b, c, input);
+      return;
+    }
+    // Create derivative
+    IERC721Metadata metadata = IERC721Metadata(originalContract);
+    SCERC721Derivative derivative = new SCERC721Derivative(
+      address(this),
+      originalContract,
+      verifierContract,
+      attestorPublicKey,
+      string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
+      string(bytes.concat(bytes(metadata.symbol()), bytes("-d")))
+    );
+    originalContractToDerivativeContract[originalContract] = address(
+      derivative
+    );
+    // Emit creation event
+    emit CreateDerivativeContract(originalContract, address(derivative));
+    // Proxy mint call
+    SCERC721Derivative(address(derivative)).mint(a, b, c, input);
   }
 }
