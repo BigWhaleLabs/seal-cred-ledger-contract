@@ -52,7 +52,7 @@ contract SCERC721Derivative is ERC721, Ownable {
 
     // Mint
     uint256 _tokenId = currentTokenId.current();
-    _safeMint(msg.sender, _tokenId);
+    _safeMint(msg.sender, _tokenId); // TODO: check if msg.sender is the address who called SealCredLedger.mint, and not SealCredLedger contract
     currentTokenId.increment();
   }
 
