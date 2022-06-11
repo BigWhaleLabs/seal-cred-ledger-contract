@@ -41,14 +41,16 @@ contract SCERC721Derivative is ERC721, Ownable {
   ) external {
     // Check if zkp is fresh
     uint256 nullifier = input[0];
-    if (nullifiers[nullifier] == true) {
-      revert("This ZK proof has already been used");
-    }
+    require(
+      nullifiers[nullifier] != true,
+      "This ZK proof has already been used"
+    );
     // Check if attestor is correct
     uint256 passedAttestorPublicKey = input[43];
-    if (passedAttestorPublicKey != attestorPublicKey) {
-      revert("This ZK proof is not from the correct attestor");
-    }
+    require(
+      passedAttestorPublicKey == attestorPublicKey,
+      "This ZK proof is not from the correct attestor"
+    );
     // Check if tokenAddress is correct
     // TODO: check the conversions
     uint256[40] memory passedTokenAddressBytes;
@@ -63,12 +65,11 @@ contract SCERC721Derivative is ERC721, Ownable {
       uint256(uint160(originalContract)),
       20
     );
-    if (
-      keccak256(bytes(originalContractString)) !=
-      keccak256(bytes(passedTokenAddressString))
-    ) {
-      revert("This ZK proof is not from the correct token contract");
-    }
+    require(
+      keccak256(bytes(originalContractString)) ==
+        keccak256(bytes(passedTokenAddressString)),
+      "This ZK proof is not from the correct token contract"
+    );
     // Check if zkp is valid
     require(
       IVerifier(verifierContract).verifyProof(a, b, c, input),
@@ -88,9 +89,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256 _tokenId
   ) internal override(ERC721) {
     // TODO: check if this is the correct condition, we should only allow to mint, but not to transfer
-    if (_from != address(0)) {
-      revert("This token is soulbound");
-    }
+    require(_from != address(0), "This token is soulbound");
     super._beforeTokenTransfer(_from, _to, _tokenId);
   }
 
