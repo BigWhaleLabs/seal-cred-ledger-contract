@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-import { cleanEnv, str } from 'envalid'
+import { cleanEnv, str, testOnly } from 'envalid'
 import { HardhatUserConfig } from 'hardhat/config'
 import { ETH_RPC as FALLBACK_ETH_RPC } from '@big-whale-labs/constants'
 import '@nomiclabs/hardhat-etherscan'
@@ -16,10 +16,10 @@ const {
   ETHERSCAN_API_KEY,
   COINMARKETCAP_API_KEY,
 } = cleanEnv(process.env, {
-  CONTRACT_OWNER_PRIVATE_KEY: str(),
+  CONTRACT_OWNER_PRIVATE_KEY: str({ devDefault: testOnly('') }),
   ETH_RPC: str({ default: FALLBACK_ETH_RPC }),
-  ETHERSCAN_API_KEY: str(),
-  COINMARKETCAP_API_KEY: str(),
+  ETHERSCAN_API_KEY: str({ devDefault: testOnly('') }),
+  COINMARKETCAP_API_KEY: str({ devDefault: testOnly('') }),
 })
 
 const config: HardhatUserConfig = {
