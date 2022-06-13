@@ -13,7 +13,7 @@ contract SealCredLedger is Ownable {
   // State
   mapping(address => address) public originalContractToDerivativeContract;
   address public verifierContract;
-  uint256 public attestorPublicKey;
+  uint256 public immutable attestorPublicKey;
 
   // Events
   event CreateDerivativeContract(

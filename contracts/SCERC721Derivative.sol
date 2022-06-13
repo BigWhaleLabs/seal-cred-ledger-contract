@@ -12,10 +12,10 @@ contract SCERC721Derivative is ERC721, Ownable {
   using Counters for Counters.Counter;
 
   // State
-  address public sealCredContract;
+  address public immutable sealCredContract;
   address public immutable originalContract;
+  uint256 public immutable attestorPublicKey;
   address public verifierContract;
-  uint256 public attestorPublicKey;
   mapping(uint256 => bool) public nullifiers;
   Counters.Counter public currentTokenId;
 
