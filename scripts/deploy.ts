@@ -42,6 +42,7 @@ async function main() {
   try {
     await run('verify:verify', {
       address,
+      constructorArguments: [verifierAddress, attestorPublicKey],
     })
   } catch (err) {
     console.log('Error verifiying contract on Etherscan:', err)
