@@ -1,8 +1,67 @@
+//                                                                        ,-,
+//                            *                      .                   /.(              .
+//                                       \|/                             \ {
+//    .                 _    .  ,   .    -*-       .                      `-`
+//     ,'-.         *  / \_ *  / \_      /|\         *   /\'__        *.                 *
+//    (____".         /    \  /    \,     __      .    _/  /  \  * .               .
+//               .   /\/\  /\/ :' __ \_  /  \       _^/  ^/    `—./\    /\   .
+//   *       _      /    \/  \  _/  \-‘\/  ` \ /\  /.' ^_   \_   .’\\  /_/\           ,'-.
+//          /_\   /\  .-   `. \/     \ /.     /  \ ;.  _/ \ -. `_/   \/.   \   _     (____".    *
+//     .   /   \ /  `-.__ ^   / .-'.--\      -    \/  _ `--./ .-'  `-/.     \ / \             .
+//        /     /.       `.  / /       `.   /   `  .-'      '-._ `._         /.  \
+// ~._,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'2_,-'
+// ~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~ ~~~~~~~~
+// ~~    ~~~~    ~~~~     ~~~~   ~~~~    ~~~~    ~~~~    ~~~~    ~~~~    ~~~~    ~~~~    ~~~~    ~~
+//     ~~     ~~      ~~      ~~      ~~      ~~      ~~      ~~       ~~     ~~      ~~      ~~
+//                          ๐
+//                                                                              _
+//                                                  ₒ                         ><_>
+//                                  _______     __      _______
+//          .-'                    |   _  "\   |" \    /" _   "|                               ๐
+//     '--./ /     _.---.          (. |_)  :)  ||  |  (: ( \___)
+//     '-,  (__..-`       \        |:     \/   |:  |   \/ \
+//        \          .     |       (|  _  \\   |.  |   //  \ ___
+//         `,.__.   ,__.--/        |: |_)  :)  |\  |   (:   _(  _|
+//           '._/_.'___.-`         (_______/   |__\|    \_______)                 ๐
+//
+//                  __   __  ___   __    __         __       ___         _______
+//                 |"  |/  \|  "| /" |  | "\       /""\     |"  |       /"     "|
+//      ๐          |'  /    \:  |(:  (__)  :)     /    \    ||  |      (: ______)
+//                 |: /'        | \/      \/     /' /\  \   |:  |   ₒ   \/    |
+//                  \//  /\'    | //  __  \\    //  __'  \   \  |___    // ___)_
+//                  /   /  \\   |(:  (  )  :)  /   /  \\  \ ( \_|:  \  (:      "|
+//                 |___/    \___| \__|  |__/  (___/    \___) \_______)  \_______)
+//                                                                                     ₒ৹
+//                          ___             __       _______     ________
+//         _               |"  |     ₒ     /""\     |   _  "\   /"       )
+//       ><_>              ||  |          /    \    (. |_)  :) (:   \___/
+//                         |:  |         /' /\  \   |:     \/   \___  \
+//                          \  |___     //  __'  \  (|  _  \\    __/  \\          \_____)\_____
+//                         ( \_|:  \   /   /  \\  \ |: |_)  :)  /" \   :)         /--v____ __`<
+//                          \_______) (___/    \___)(_______/  (_______/                  )/
+//                                                                                        '
+//
+//            ๐                          .    '    ,                                           ₒ
+//                         ₒ               _______
+//                                 ____  .`_|___|_`.  ____
+//                                        \ \   / /                        ₒ৹
+//                                          \ ' /                         ๐
+//   ₒ                                        \/
+//                                   ₒ     /      \       )                                 (
+//           (   ₒ৹               (                      (                                  )
+//            )                   )               _      )                )                (
+//           (        )          (       (      ><_>    (       (        (                  )
+//     )      )      (     (      )       )              )       )        )         )      (
+//    (      (        )     )    (       (              (       (        (         (        )
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SealCredLedger.sol";
 import "./IVerifier.sol";
@@ -10,37 +69,87 @@ import "./IVerifier.sol";
 contract SCERC721Derivative is ERC721, Ownable {
   using Counters for Counters.Counter;
 
-  Counters.Counter public tokenId;
-  SealCredLedger public sealCred;
-  address public immutable sealCredMapAddress;
-  address public verifier;
+  // State
+  address public immutable sealCredContract;
+  address public immutable originalContract;
+  uint256 public immutable attestorPublicKey;
+  address public verifierContract;
+  mapping(uint256 => bool) public nullifiers;
+  Counters.Counter public currentTokenId;
 
   constructor(
-    address _sealCredMapAddress,
-    address _sealCredContractAddress,
+    address _sealCredContract,
+    address _originalContract,
+    address _verifierContract,
+    uint256 _attestorPublicKey,
     string memory tokenName,
-    string memory tokenSymbol,
-    address _verifier
+    string memory tokenSymbol
   ) ERC721(tokenName, tokenSymbol) {
-    sealCred = SealCredLedger(_sealCredContractAddress);
-    sealCredMapAddress = _sealCredMapAddress;
-    verifier = _verifier;
+    sealCredContract = _sealCredContract;
+    originalContract = _originalContract;
+    verifierContract = _verifierContract;
+    attestorPublicKey = _attestorPublicKey;
   }
 
   function mint(
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[2] memory input
+    uint256[44] memory input
   ) external {
+    _mint(msg.sender, a, b, c, input);
+  }
+
+  function mintWithSender(
+    address sender,
+    uint256[2] memory a,
+    uint256[2][2] memory b,
+    uint256[2] memory c,
+    uint256[44] memory input
+  ) external onlyOwner {
+    _mint(sender, a, b, c, input);
+  }
+
+  function _mint(
+    address sender,
+    uint256[2] memory a,
+    uint256[2][2] memory b,
+    uint256[2] memory c,
+    uint256[44] memory input
+  ) internal {
+    // Check if zkp is fresh
+    uint256 nullifier = input[0];
     require(
-      bytes32(input[1]) == sealCred.getRoot(sealCredMapAddress),
-      "Merkle Root does not match the contract"
+      nullifiers[nullifier] != true,
+      "This ZK proof has already been used"
     );
-    require(IVerifier(verifier).verifyProof(a, b, c, input), "Invalid Proof");
-    uint256 _tokenId = tokenId.current();
-    _safeMint(msg.sender, _tokenId);
-    tokenId.increment();
+    // Check if attestor is correct
+    uint256 passedAttestorPublicKey = input[43];
+    require(
+      passedAttestorPublicKey == attestorPublicKey,
+      "This ZK proof is not from the correct attestor"
+    );
+    // Check if tokenAddress is correct
+    bytes memory originalContractBytes = bytes(
+      Strings.toHexString(uint256(uint160(originalContract)), 20)
+    );
+    for (uint8 i = 0; i < 42; i++) {
+      require(
+        uint8(input[i + 1]) == uint8(originalContractBytes[i]),
+        "This ZK proof is not from the correct token contract"
+      );
+    }
+    // Check if zkp is valid
+    require(
+      IVerifier(verifierContract).verifyProof(a, b, c, input),
+      "Invalid ZK proof"
+    );
+    // Mint
+    uint256 _tokenId = currentTokenId.current();
+    _safeMint(sender, _tokenId);
+    currentTokenId.increment();
+    // Save nullifier
+    nullifiers[nullifier] = true;
   }
 
   function _beforeTokenTransfer(
@@ -48,6 +157,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     address _to,
     uint256 _tokenId
   ) internal override(ERC721) {
+    require(_from == address(0), "This token is soulbound");
     super._beforeTokenTransfer(_from, _to, _tokenId);
   }
 
@@ -60,7 +170,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     return super.supportsInterface(_interfaceId);
   }
 
-  function setVerifierAddress(address _verifier) external onlyOwner {
-    verifier = _verifier;
+  function setVerifierContract(address _verifierContract) external onlyOwner {
+    verifierContract = _verifierContract;
   }
 }

@@ -15,6 +15,7 @@ async function main() {
     1: 'mainnet',
     3: 'ropsten',
     4: 'rinkeby',
+    5: 'goerli',
   } as { [chainId: number]: string }
   const chainName = chains[chainId]
 
@@ -22,7 +23,10 @@ async function main() {
   const verifierAddress = prompt('Enter Verifier contract address: ')
   if (verifierAddress == null || verifierAddress === '')
     throw Error('Verifier contract address invalid')
-  const sealCred = await SealCred.deploy(verifierAddress)
+  const attestorPublicKey = prompt('Enter Attestor public key: ')
+  if (attestorPublicKey == null || attestorPublicKey === '')
+    throw Error('Attestor public key invalid')
+  const sealCred = await SealCred.deploy(verifierAddress, attestorPublicKey)
 
   console.log('Deploy tx gas price:', sealCred.deployTransaction.gasPrice)
   console.log('Deploy tx gas limit:', sealCred.deployTransaction.gasLimit)
@@ -38,6 +42,7 @@ async function main() {
   try {
     await run('verify:verify', {
       address,
+      constructorArguments: [verifierAddress, attestorPublicKey],
     })
   } catch (err) {
     console.log('Error verifiying contract on Etherscan:', err)
