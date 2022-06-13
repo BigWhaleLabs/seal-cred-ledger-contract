@@ -28,25 +28,6 @@ contract SealCredLedger is Ownable {
   }
 
   /**
-   * @dev Returns derivative contract of given original contract
-   */
-  function getDerivativeContract(address originalContract)
-    external
-    view
-    returns (address)
-  {
-    return originalContractToDerivativeContract[originalContract];
-  }
-
-  /**
-   * @dev Deletes originalContract record from the ledger
-   */
-  function deleteOriginalContract(address originalContract) external onlyOwner {
-    delete originalContractToDerivativeContract[originalContract];
-    emit DeleteOriginalContract(originalContract);
-  }
-
-  /**
    * @dev Returns verifier contract
    */
   function setVerifierContract(address _verifierContract) external onlyOwner {
@@ -67,7 +48,7 @@ contract SealCredLedger is Ownable {
     if (originalContractToDerivativeContract[originalContract] != address(0)) {
       // Proxy mint call
       SCERC721Derivative(originalContractToDerivativeContract[originalContract])
-        .mint(a, b, c, input);
+        .mintWithSender(msg.sender, a, b, c, input);
       return;
     }
     // Create derivative
@@ -86,6 +67,31 @@ contract SealCredLedger is Ownable {
     // Emit creation event
     emit CreateDerivativeContract(originalContract, address(derivative));
     // Proxy mint call
-    SCERC721Derivative(address(derivative)).mint(a, b, c, input);
+    SCERC721Derivative(address(derivative)).mintWithSender(
+      msg.sender,
+      a,
+      b,
+      c,
+      input
+    );
+  }
+
+  /**
+   * @dev Returns derivative contract of given original contract
+   */
+  function getDerivativeContract(address originalContract)
+    external
+    view
+    returns (address)
+  {
+    return originalContractToDerivativeContract[originalContract];
+  }
+
+  /**
+   * @dev Deletes originalContract record from the ledger
+   */
+  function deleteOriginalContract(address originalContract) external onlyOwner {
+    delete originalContractToDerivativeContract[originalContract];
+    emit DeleteOriginalContract(originalContract);
   }
 }

@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv'
 import { cleanEnv, str } from 'envalid'
-import { HardhatUserConfig, subtask } from 'hardhat/config'
-import { TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS } from 'hardhat/builtin-tasks/task-names'
+import { HardhatUserConfig } from 'hardhat/config'
 import { ETH_RPC as FALLBACK_ETH_RPC } from '@big-whale-labs/constants'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
@@ -11,22 +10,14 @@ import 'solidity-coverage'
 
 dotenv.config()
 
-const { CONTRACT_OWNER_PRIVATE_KEY, ETH_RPC, ETHERSCAN_API_KEY, isTest } =
-  cleanEnv(process.env, {
+const { CONTRACT_OWNER_PRIVATE_KEY, ETH_RPC, ETHERSCAN_API_KEY } = cleanEnv(
+  process.env,
+  {
     CONTRACT_OWNER_PRIVATE_KEY: str(),
     ETH_RPC: str({ default: FALLBACK_ETH_RPC }),
     ETHERSCAN_API_KEY: str(),
-  })
-
-// Task for exluding mock contracts
-if (!isTest) {
-  subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
-    async (_, __, runSuper) => {
-      const paths = await runSuper()
-      return paths.filter((p) => !p.endsWith('.t.sol'))
-    }
-  )
-}
+  }
+)
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -35,6 +26,11 @@ const config: HardhatUserConfig = {
       optimizer: {
         enabled: true,
         runs: 200,
+      },
+      outputSelection: {
+        '*': {
+          '*': ['storageLayout'],
+        },
       },
     },
   },

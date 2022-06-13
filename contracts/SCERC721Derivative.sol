@@ -39,6 +39,26 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory c,
     uint256[44] memory input
   ) external {
+    _mint(msg.sender, a, b, c, input);
+  }
+
+  function mintWithSender(
+    address sender,
+    uint256[2] memory a,
+    uint256[2][2] memory b,
+    uint256[2] memory c,
+    uint256[44] memory input
+  ) external onlyOwner {
+    _mint(sender, a, b, c, input);
+  }
+
+  function _mint(
+    address sender,
+    uint256[2] memory a,
+    uint256[2][2] memory b,
+    uint256[2] memory c,
+    uint256[44] memory input
+  ) internal {
     // Check if zkp is fresh
     uint256 nullifier = input[0];
     require(
@@ -52,24 +72,15 @@ contract SCERC721Derivative is ERC721, Ownable {
       "This ZK proof is not from the correct attestor"
     );
     // Check if tokenAddress is correct
-    // TODO: check the conversions
-    uint256[40] memory passedTokenAddressBytes;
-    for (uint256 i = 0; i < 40; i++) {
-      passedTokenAddressBytes[i] = input[i + 3];
+    bytes memory originalContractBytes = bytes(
+      Strings.toHexString(uint256(uint160(originalContract)), 20)
+    );
+    for (uint8 i = 0; i < 42; i++) {
+      require(
+        uint8(input[i + 1]) == uint8(originalContractBytes[i]),
+        "This ZK proof is not from the correct token contract"
+      );
     }
-    string memory passedTokenAddressString = Strings.toHexString(
-      passedTokenAddressBytes[0],
-      40
-    );
-    string memory originalContractString = Strings.toHexString(
-      uint256(uint160(originalContract)),
-      20
-    );
-    require(
-      keccak256(bytes(originalContractString)) ==
-        keccak256(bytes(passedTokenAddressString)),
-      "This ZK proof is not from the correct token contract"
-    );
     // Check if zkp is valid
     require(
       IVerifier(verifierContract).verifyProof(a, b, c, input),
@@ -77,7 +88,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     );
     // Mint
     uint256 _tokenId = currentTokenId.current();
-    _safeMint(msg.sender, _tokenId); // TODO: check if msg.sender is the address who called SealCredLedger.mint, and not SealCredLedger contract
+    _safeMint(sender, _tokenId);
     currentTokenId.increment();
     // Save nullifier
     nullifiers[nullifier] = true;
@@ -88,8 +99,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     address _to,
     uint256 _tokenId
   ) internal override(ERC721) {
-    // TODO: check if this is the correct condition, we should only allow to mint, but not to transfer
-    require(_from != address(0), "This token is soulbound");
+    require(_from == address(0), "This token is soulbound");
     super._beforeTokenTransfer(_from, _to, _tokenId);
   }
 
