@@ -16,7 +16,11 @@ const {
   ETHERSCAN_API_KEY,
   COINMARKETCAP_API_KEY,
 } = cleanEnv(process.env, {
-  CONTRACT_OWNER_PRIVATE_KEY: str({ devDefault: testOnly('') }),
+  CONTRACT_OWNER_PRIVATE_KEY: str({
+    devDefault: testOnly(
+      '0000000000000000000000000000000000000000000000000000000000000000'
+    ),
+  }),
   ETH_RPC: str({ default: FALLBACK_ETH_RPC }),
   ETHERSCAN_API_KEY: str({ devDefault: testOnly('') }),
   COINMARKETCAP_API_KEY: str({ devDefault: testOnly('') }),
