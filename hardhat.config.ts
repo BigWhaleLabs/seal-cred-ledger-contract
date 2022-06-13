@@ -10,14 +10,17 @@ import 'solidity-coverage'
 
 dotenv.config()
 
-const { CONTRACT_OWNER_PRIVATE_KEY, ETH_RPC, ETHERSCAN_API_KEY } = cleanEnv(
-  process.env,
-  {
-    CONTRACT_OWNER_PRIVATE_KEY: str(),
-    ETH_RPC: str({ default: FALLBACK_ETH_RPC }),
-    ETHERSCAN_API_KEY: str(),
-  }
-)
+const {
+  CONTRACT_OWNER_PRIVATE_KEY,
+  ETH_RPC,
+  ETHERSCAN_API_KEY,
+  COINMARKETCAP_API_KEY,
+} = cleanEnv(process.env, {
+  CONTRACT_OWNER_PRIVATE_KEY: str(),
+  ETH_RPC: str({ default: FALLBACK_ETH_RPC }),
+  ETHERSCAN_API_KEY: str(),
+  COINMARKETCAP_API_KEY: str(),
+})
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -46,7 +49,8 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: true,
-    currency: 'ETH',
+    currency: 'USD',
+    coinmarketcap: COINMARKETCAP_API_KEY,
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,
