@@ -7,6 +7,9 @@ const zeroAddress = '0x0000000000000000000000000000000000000000'
 const attestorPublicKey = BigNumber.from(
   '13578469780849928704623562188688413596472689853032556827882124682666588837591'
 )
+const invalidAttestorPublicKey = BigNumber.from(
+  '135784697808499287046235621886884135'
+)
 
 describe('SealCredLedger contract tests', () => {
   before(async function () {
@@ -99,6 +102,44 @@ describe('SealCredLedger contract tests', () => {
           getFakeVerifierInput(0, this.fakeERC721.address)
         )
       ).to.emit(this.sealCredContract, 'Mint')
+    })
+    it('should not mint if all the attestor is incorrect', async function () {
+      await expect(
+        this.sealCredContract.mint(
+          this.fakeERC721.address,
+          [1, 2],
+          [
+            [1, 2],
+            [3, 4],
+          ],
+          [1, 2],
+          [
+            0,
+            ...ethers.utils.toUtf8Bytes(this.fakeERC721.address.toLowerCase()),
+            invalidAttestorPublicKey,
+          ]
+        )
+      ).to.be.revertedWith('This ZK proof is not from the correct attestor')
+    })
+    it('should not mint if proof has already been used', async function () {
+      await expect(
+        this.sealCredContract.mint(
+          this.fakeERC721.address,
+          [1, 2],
+          [
+            [1, 2],
+            [3, 4],
+          ],
+          [1, 2],
+          [
+            0,
+            ...ethers.utils.toUtf8Bytes(zeroAddress.toLowerCase()),
+            attestorPublicKey,
+          ]
+        )
+      ).to.be.revertedWith(
+        'This ZK proof is not from the correct token contract'
+      )
     })
   })
 })
