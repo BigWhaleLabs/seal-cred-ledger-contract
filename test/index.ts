@@ -163,13 +163,12 @@ describe('SealCredLedger contract tests', () => {
         )
       ).to.be.revertedWith('This ZK proof has already been used')
     })
-    it('should not mint if nullifier has already been used', async function () {
+    it('should not mint if the zk proof is invalid', async function () {
       const fakeVerifierContract = await getFakeVerifier(false)
       const sealCredContract = await this.factory.deploy(
         fakeVerifierContract.address,
         attestorPublicKey
       )
-
       await expect(
         sealCredContract.mint(
           this.fakeERC721.address,
