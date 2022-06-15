@@ -4,6 +4,7 @@ import { ethers } from 'hardhat'
 import { smock } from '@defi-wonderland/smock'
 
 const zeroAddress = '0x0000000000000000000000000000000000000000'
+const nonZeroAddress = '0x0000000000000000000000000000000000000001'
 const attestorPublicKey = BigNumber.from(
   '13578469780849928704623562188688413596472689853032556827882124682666588837591'
 )
@@ -181,6 +182,17 @@ describe('SealCredLedger contract tests', () => {
           getFakeVerifierInput(0, this.fakeERC721.address)
         )
       ).to.be.revertedWith('Invalid ZK proof')
+    })
+  })
+  describe('before tokens transfer', function () {
+    it('from must be zero and minted for to', async function () {
+      const sealCredContract = await this.factory.deploy(
+        zeroAddress,
+        attestorPublicKey
+      )
+      await expect(
+        sealCredContract._beforeTokenTransfer(nonZeroAddress, nonZeroAddress, 1)
+      ).to.be.revertedWith('From address is non-zero')
     })
   })
 })
