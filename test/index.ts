@@ -36,7 +36,6 @@ describe('SealCredLedger contract tests', () => {
 
   describe('Owner-only calls from non-owner', function () {
     beforeEach(async function () {
-      // const factory = await ethers.getContractFactory('SealCredLedger')
       this.sealCredContractWithIncorrectOwner = await this.factory
         .connect(this.accounts[1])
         .deploy(zeroAddress, attestorPublicKey)
@@ -102,7 +101,7 @@ describe('SealCredLedger contract tests', () => {
         )
       ).to.emit(this.sealCredContract, 'Mint')
     })
-    it('should not mint if all the attestor is incorrect', async function () {
+    it('should not mint if the attestor is incorrect', async function () {
       await expect(
         this.sealCredContract.mint(
           this.fakeERC721.address,
