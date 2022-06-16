@@ -145,8 +145,7 @@ contract SCERC721Derivative is ERC721, Ownable {
       "Invalid ZK proof"
     );
     // Mint
-    uint256 _tokenId = currentTokenId.current();
-    _safeMint(sender, _tokenId);
+    _safeMint(sender, currentTokenId.current());
     currentTokenId.increment();
     // Save nullifier
     nullifiers[nullifier] = true;
