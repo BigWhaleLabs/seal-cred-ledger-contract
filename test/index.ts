@@ -124,7 +124,7 @@ describe('SealCredLedger contract tests', () => {
       console.log(await transfer.wait())
       expect(await tx.wait())
     })
-    it('should not transfer', async function () {
+    it('should not transfer if the from address is non-zero', async function () {
       await this.sealCredContract.mint(
         this.fakeERC721.address,
         [1, 2],
@@ -136,8 +136,8 @@ describe('SealCredLedger contract tests', () => {
         getFakeVerifierInput(0, this.fakeERC721.address)
       )
       await expect(
-        this.derivativeContract.transferFrom(zeroAddress, nonZeroAddress, 1)
-      )
+        this.derivativeContract.transferFrom(nonZeroAddress, nonZeroAddress, 1)
+      ).to.be.revertedWith('This token is soulbound')
     })
     it('should not mint if the attestor is incorrect', async function () {
       await expect(
@@ -157,7 +157,7 @@ describe('SealCredLedger contract tests', () => {
         )
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
     })
-    it('should not mint if proof has already been used', async function () {
+    it('should not mint if the token contract is incorrect', async function () {
       await expect(
         this.sealCredContract.mint(
           this.fakeERC721.address,
