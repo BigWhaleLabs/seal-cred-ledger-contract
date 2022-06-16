@@ -116,17 +116,21 @@ describe('SealCredLedger contract tests', () => {
       )
       console.log(await this.derivativeContract.owner())
 
-      const transfer = await this.derivativeContract.transferFrom(
-        zeroAddress,
-        nonZeroAddress,
-        0
+      const derivativeTx = await this.derivativeContract.mint(
+        [1, 2],
+        [
+          [1, 2],
+          [3, 4],
+        ],
+        [1, 2],
+        getFakeVerifierInput(0, this.fakeERC721.address)
       )
-      console.log(await transfer.wait())
+
       expect(await tx.wait())
+      expect(await derivativeTx.wait())
     })
     it('should not transfer if the from address is non-zero', async function () {
-      await this.sealCredContract.mint(
-        this.fakeERC721.address,
+      this.derivativeContract.mint(
         [1, 2],
         [
           [1, 2],
@@ -136,7 +140,11 @@ describe('SealCredLedger contract tests', () => {
         getFakeVerifierInput(0, this.fakeERC721.address)
       )
       await expect(
-        this.derivativeContract.transferFrom(nonZeroAddress, nonZeroAddress, 1)
+        this.derivativeContract.transferFrom(
+          this.derivativeContract.owner(),
+          nonZeroAddress,
+          0
+        )
       ).to.be.revertedWith('This token is soulbound')
     })
     it('should not mint if the attestor is incorrect', async function () {
