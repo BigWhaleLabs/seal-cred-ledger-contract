@@ -1,65 +1,59 @@
 import { expect } from 'chai'
-import { BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
-import { smock } from '@defi-wonderland/smock'
+import {
+  zeroAddress,
+  attestorPublicKey,
+  invalidAttestorPublicKey,
+  nonZeroAddress,
+  getFakeERC721,
+  getFakeERC721Verifier,
+  getFakeVerifierInput,
+  // eslint-disable-next-line node/no-missing-import
+} from './utils'
 
-const zeroAddress = '0x0000000000000000000000000000000000000000'
-const nonZeroAddress = '0x0000000000000000000000000000000000000001'
-const attestorPublicKey = BigNumber.from(
-  '13578469780849928704623562188688413596472689853032556827882124682666588837591'
-)
-const invalidAttestorPublicKey = BigNumber.from(
-  '135784697808499287046235621886884135'
-)
-
-describe('SealCredLedger contract tests', () => {
+describe('SealCredERC721Ledger contract tests', () => {
   before(async function () {
     this.accounts = await ethers.getSigners()
     this.owner = this.accounts[0]
     this.user = this.accounts[1]
-    this.factory = await ethers.getContractFactory('SealCredLedger')
+    this.factory = await ethers.getContractFactory('SealCredERC721Ledger')
   })
 
   describe('Constructor', function () {
     it('should deploy the contract with the correct fields', async function () {
-      const sealCredContractWithIncorrectOwner = await this.factory.deploy(
+      const contractWithIncorrectOwner = await this.factory.deploy(
         zeroAddress,
         attestorPublicKey
       )
-      expect(
-        await sealCredContractWithIncorrectOwner.verifierContract()
-      ).to.equal(zeroAddress)
-      expect(
-        await sealCredContractWithIncorrectOwner.attestorPublicKey()
-      ).to.equal(attestorPublicKey)
+      expect(await contractWithIncorrectOwner.verifierContract()).to.equal(
+        zeroAddress
+      )
+      expect(await contractWithIncorrectOwner.attestorPublicKey()).to.equal(
+        attestorPublicKey
+      )
     })
   })
 
   describe('Owner-only calls from non-owner', function () {
-    beforeEach(async function () {
-      this.sealCredContractWithIncorrectOwner = await this.factory
-        .connect(this.accounts[1])
-        .deploy(zeroAddress, attestorPublicKey)
-      await this.sealCredContractWithIncorrectOwner.deployed()
+    before(async function () {
+      this.contract = await this.factory.deploy(zeroAddress, attestorPublicKey)
+
+      await this.contract.deployed()
+
+      this.contractWithIncorrectOwner = this.contract.connect(this.user)
     })
     it('should have the correct owner', async function () {
-      expect(await this.sealCredContractWithIncorrectOwner.owner()).to.equal(
-        this.accounts[1].address
-      )
+      expect(await this.contract.owner()).to.equal(this.owner.address)
     })
     it('should not be able to call setVerifierContract', async function () {
       await expect(
-        this.sealCredContractWithIncorrectOwner
-          .connect(this.owner)
-          .setVerifierContract(zeroAddress)
+        this.contractWithIncorrectOwner.setVerifierContract(zeroAddress)
       ).to.be.revertedWith('Ownable: caller is not the owner')
     })
 
     it('should not be able to call deleteOriginalContract', async function () {
       await expect(
-        this.sealCredContractWithIncorrectOwner
-          .connect(this.owner)
-          .deleteOriginalContract(zeroAddress)
+        this.contractWithIncorrectOwner.deleteOriginalContract(zeroAddress)
       ).to.be.revertedWith('Ownable: caller is not the owner')
     })
   })
@@ -80,7 +74,7 @@ describe('SealCredLedger contract tests', () => {
 
   describe('Minting and derivatives', function () {
     beforeEach(async function () {
-      this.fakeVerifierContract = await getFakeVerifier(true)
+      this.fakeVerifierContract = await getFakeERC721Verifier(true)
       this.fakeERC721 = await getFakeERC721()
       this.sealCredContract = await this.factory.deploy(
         this.fakeVerifierContract.address,
@@ -114,7 +108,6 @@ describe('SealCredLedger contract tests', () => {
         [1, 2],
         getFakeVerifierInput(0, this.fakeERC721.address)
       )
-      console.log(await this.derivativeContract.owner())
 
       const derivativeTx = await this.derivativeContract.mint(
         [1, 2],
@@ -210,7 +203,7 @@ describe('SealCredLedger contract tests', () => {
       ).to.be.revertedWith('This ZK proof has already been used')
     })
     it('should not mint if the zk proof is invalid', async function () {
-      const fakeVerifierContract = await getFakeVerifier(false)
+      const fakeVerifierContract = await getFakeERC721Verifier(false)
       const sealCredContract = await this.factory.deploy(
         fakeVerifierContract.address,
         attestorPublicKey
@@ -230,56 +223,3 @@ describe('SealCredLedger contract tests', () => {
     })
   })
 })
-
-async function getFakeVerifier(result: boolean) {
-  const fake = await smock.fake([
-    {
-      inputs: [
-        {
-          internalType: 'uint256[2]',
-          name: 'a',
-          type: 'uint256[2]',
-        },
-        {
-          internalType: 'uint256[2][2]',
-          name: 'b',
-          type: 'uint256[2][2]',
-        },
-        {
-          internalType: 'uint256[2]',
-          name: 'c',
-          type: 'uint256[2]',
-        },
-        {
-          internalType: 'uint256[44]',
-          name: 'input',
-          type: 'uint256[44]',
-        },
-      ],
-      name: 'verifyProof',
-      outputs: [
-        {
-          internalType: 'bool',
-          name: 'r',
-          type: 'bool',
-        },
-      ],
-      stateMutability: 'view',
-      type: 'function',
-    },
-  ])
-  fake.verifyProof.returns(result)
-  return fake
-}
-
-function getFakeERC721() {
-  return smock.fake('ERC721')
-}
-
-function getFakeVerifierInput(nullifier: number, originalContract: string) {
-  return [
-    nullifier,
-    ...ethers.utils.toUtf8Bytes(originalContract.toLowerCase()),
-    attestorPublicKey,
-  ]
-}
