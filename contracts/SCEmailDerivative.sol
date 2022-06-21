@@ -123,7 +123,7 @@ contract SCEmailDerivative is ERC721, Ownable {
       "This ZK proof has already been used"
     );
     // Check if attestor is correct
-    uint256 passedAttestorPublicKey = input[43];
+    uint256 passedAttestorPublicKey = input[91];
     require(
       passedAttestorPublicKey == attestorPublicKey,
       "This ZK proof is not from the correct attestor"
