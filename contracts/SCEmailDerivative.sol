@@ -63,29 +63,29 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./IERC721OwnershipCheckerVerifier.sol";
+import "./IEmailOwnershipCheckerVerifier.sol";
 
-contract SCERC721Derivative is ERC721, Ownable {
+contract SCEmailDerivative is ERC721, Ownable {
   using Counters for Counters.Counter;
 
   // State
-  address public immutable sealCredERC721Contract;
-  address public immutable originalContract;
+  address public immutable sealCredEmailContract;
+  string public email;
   uint256 public immutable attestorPublicKey;
   address public verifierContract;
   mapping(uint256 => bool) public nullifiers;
   Counters.Counter public currentTokenId;
 
   constructor(
-    address _sealCredERC721Contract,
-    address _originalContract,
+    address _sealCredEmailContract,
+    string memory _email,
     address _verifierContract,
     uint256 _attestorPublicKey,
     string memory tokenName,
     string memory tokenSymbol
   ) ERC721(tokenName, tokenSymbol) {
-    sealCredERC721Contract = _sealCredERC721Contract;
-    originalContract = _originalContract;
+    sealCredEmailContract = _sealCredEmailContract;
+    email = _email;
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
   }
@@ -94,7 +94,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[92] memory input
   ) external {
     _mint(msg.sender, a, b, c, input);
   }
@@ -104,7 +104,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[92] memory input
   ) external onlyOwner {
     _mint(sender, a, b, c, input);
   }
@@ -114,7 +114,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[92] memory input
   ) internal {
     // Check if zkp is fresh
     uint256 nullifier = input[0];
@@ -129,18 +129,16 @@ contract SCERC721Derivative is ERC721, Ownable {
       "This ZK proof is not from the correct attestor"
     );
     // Check if tokenAddress is correct
-    bytes memory originalContractBytes = bytes(
-      Strings.toHexString(uint256(uint160(originalContract)), 20)
-    );
-    for (uint8 i = 0; i < 42; i++) {
+    bytes memory emailBytes = bytes(email);
+    for (uint8 i = 0; i < 90; i++) {
       require(
-        uint8(input[i + 1]) == uint8(originalContractBytes[i]),
-        "This ZK proof is not from the correct token contract"
+        uint8(input[i + 1]) == uint8(emailBytes[i]),
+        "This ZK proof is not from the correct email"
       );
     }
     // Check if zkp is valid
     require(
-      IERC721OwnershipCheckerVerifier(verifierContract).verifyProof(
+      IEmailOwnershipCheckerVerifier(verifierContract).verifyProof(
         a,
         b,
         c,

@@ -59,121 +59,96 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./IERC721OwnershipCheckerVerifier.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import "./SCEmailDerivative.sol";
 
-contract SCERC721Derivative is ERC721, Ownable {
-  using Counters for Counters.Counter;
-
+/**
+ * @title SealCred Email Ledger
+ * @dev Creates EmailDerivatives, remembers them and proxies mint calls to them
+ */
+contract SealCredEmailLedger is Ownable {
   // State
-  address public immutable sealCredERC721Contract;
-  address public immutable originalContract;
-  uint256 public immutable attestorPublicKey;
+  mapping(string => address) public emailToDerivativeContract;
   address public verifierContract;
-  mapping(uint256 => bool) public nullifiers;
-  Counters.Counter public currentTokenId;
+  uint256 public immutable attestorPublicKey;
 
-  constructor(
-    address _sealCredERC721Contract,
-    address _originalContract,
-    address _verifierContract,
-    uint256 _attestorPublicKey,
-    string memory tokenName,
-    string memory tokenSymbol
-  ) ERC721(tokenName, tokenSymbol) {
-    sealCredERC721Contract = _sealCredERC721Contract;
-    originalContract = _originalContract;
+  // Events
+  event CreateDerivativeContract(string email, address derivativeContract);
+  event DeleteEmail(string email);
+
+  constructor(address _verifierContract, uint256 _attestorPublicKey) {
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
   }
 
+  /**
+   * @dev Returns verifier contract
+   */
+  function setVerifierContract(address _verifierContract) external onlyOwner {
+    verifierContract = _verifierContract;
+  }
+
+  /**
+   * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
+   */
   function mint(
+    string memory email,
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[92] memory input
   ) external {
-    _mint(msg.sender, a, b, c, input);
-  }
-
-  function mintWithSender(
-    address sender,
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[44] memory input
-  ) external onlyOwner {
-    _mint(sender, a, b, c, input);
-  }
-
-  function _mint(
-    address sender,
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[44] memory input
-  ) internal {
-    // Check if zkp is fresh
-    uint256 nullifier = input[0];
-    require(
-      nullifiers[nullifier] != true,
-      "This ZK proof has already been used"
-    );
-    // Check if attestor is correct
-    uint256 passedAttestorPublicKey = input[43];
-    require(
-      passedAttestorPublicKey == attestorPublicKey,
-      "This ZK proof is not from the correct attestor"
-    );
-    // Check if tokenAddress is correct
-    bytes memory originalContractBytes = bytes(
-      Strings.toHexString(uint256(uint160(originalContract)), 20)
-    );
-    for (uint8 i = 0; i < 42; i++) {
-      require(
-        uint8(input[i + 1]) == uint8(originalContractBytes[i]),
-        "This ZK proof is not from the correct token contract"
-      );
-    }
-    // Check if zkp is valid
-    require(
-      IERC721OwnershipCheckerVerifier(verifierContract).verifyProof(
+    // Check if derivative already exists
+    if (emailToDerivativeContract[email] != address(0)) {
+      // Proxy mint call
+      SCEmailDerivative(emailToDerivativeContract[email]).mintWithSender(
+        msg.sender,
         a,
         b,
         c,
         input
-      ),
-      "Invalid ZK proof"
+      );
+      return;
+    }
+    // Create derivative
+    SCEmailDerivative derivative = new SCEmailDerivative(
+      address(this),
+      email,
+      verifierContract,
+      attestorPublicKey,
+      string(bytes.concat(bytes(email), bytes(" (derivative)"))),
+      string(bytes.concat(bytes(email), bytes("-d")))
     );
-    // Mint
-    _safeMint(sender, currentTokenId.current());
-    currentTokenId.increment();
-    // Save nullifier
-    nullifiers[nullifier] = true;
+    emailToDerivativeContract[email] = address(derivative);
+    // Emit creation event
+    emit CreateDerivativeContract(email, address(derivative));
+    // Proxy mint call
+    SCEmailDerivative(address(derivative)).mintWithSender(
+      msg.sender,
+      a,
+      b,
+      c,
+      input
+    );
   }
 
-  function _beforeTokenTransfer(
-    address _from,
-    address _to,
-    uint256 _tokenId
-  ) internal override(ERC721) {
-    require(_from == address(0), "This token is soulbound");
-    super._beforeTokenTransfer(_from, _to, _tokenId);
-  }
-
-  function supportsInterface(bytes4 _interfaceId)
-    public
+  /**
+   * @dev Returns derivative contract of given email
+   */
+  function getDerivativeContract(string memory email)
+    external
     view
-    override(ERC721)
-    returns (bool)
+    returns (address)
   {
-    return super.supportsInterface(_interfaceId);
+    return emailToDerivativeContract[email];
   }
 
-  function setVerifierContract(address _verifierContract) external onlyOwner {
-    verifierContract = _verifierContract;
+  /**
+   * @dev Deletes email record from the ledger
+   */
+  function deleteEmail(string memory email) external onlyOwner {
+    delete emailToDerivativeContract[email];
+    emit DeleteEmail(email);
   }
 }

@@ -59,7 +59,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-interface IVerifier {
+interface IERC721OwnershipCheckerVerifier {
   function verifyProof(
     uint256[2] memory a,
     uint256[2][2] memory b,

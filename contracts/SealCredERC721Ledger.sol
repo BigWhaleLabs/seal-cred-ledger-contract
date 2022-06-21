@@ -64,10 +64,10 @@ import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "./SCERC721Derivative.sol";
 
 /**
- * @title SealCred Ledger
+ * @title SealCred ERC721 Ledger
  * @dev Creates SCERC721Derivatives, remembers them and proxies mint calls to them
  */
-contract SealCredLedger is Ownable {
+contract SealCredERC721Ledger is Ownable {
   // State
   mapping(address => address) public originalContractToDerivativeContract;
   address public verifierContract;
