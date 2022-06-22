@@ -130,7 +130,8 @@ contract SCEmailDerivative is ERC721, Ownable {
     );
     // Check if tokenAddress is correct
     bytes memory emailBytes = bytes(email);
-    for (uint8 i = 0; i < 90; i++) {
+
+    for (uint8 i = 0; i < bytes(email).length; i++) {
       require(
         uint8(input[i + 1]) == uint8(emailBytes[i]),
         "This ZK proof is not from the correct email"
