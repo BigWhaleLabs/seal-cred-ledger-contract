@@ -12,7 +12,7 @@ export const invalidAttestorPublicKey = BigNumber.from(
   '35964726898530325568278821246826665888375911357846978084992870462356218868841'
 )
 
-const MAX_DOMAIN_LENGHT = 90
+export const MAX_DOMAIN_LENGHT = 90
 
 export async function getFakeERC721Verifier(result: boolean) {
   const fake = await smock.fake([
@@ -117,7 +117,7 @@ export function getFakeEmailVerifierInput(nullifier: number, domain: string) {
   return [nullifier, ...domainBytes, attestorPublicKey]
 }
 
-function padZeroesOnRightUint8(array: Uint8Array, length: number) {
+export function padZeroesOnRightUint8(array: Uint8Array, length: number) {
   const padding = new Uint8Array(length - array.length)
   return ethers.utils.concat([array, padding])
 }
