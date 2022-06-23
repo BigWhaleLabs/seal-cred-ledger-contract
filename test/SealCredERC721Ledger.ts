@@ -61,33 +61,28 @@ describe('SealCredERC721Ledger contract tests', () => {
   })
 
   it('should set verifier contract', async function () {
-    const sealCredContract = await this.factory.deploy(
-      zeroAddress,
-      attestorPublicKey
-    )
-    await sealCredContract.deployed()
-    expect(await sealCredContract.verifierContract()).to.equal(zeroAddress)
+    const contract = await this.factory.deploy(zeroAddress, attestorPublicKey)
+    await contract.deployed()
+    expect(await contract.verifierContract()).to.equal(zeroAddress)
     const newVerifierAddress = this.accounts[1].address
-    await sealCredContract.setVerifierContract(newVerifierAddress)
-    expect(await sealCredContract.verifierContract()).to.equal(
-      newVerifierAddress
-    )
+    await contract.setVerifierContract(newVerifierAddress)
+    expect(await contract.verifierContract()).to.equal(newVerifierAddress)
   })
 
   describe('Minting and derivatives', function () {
     beforeEach(async function () {
       this.fakeVerifierContract = await getFakeERC721Verifier(true)
       this.fakeERC721 = await getFakeERC721()
-      this.sealCredContract = await this.factory.deploy(
+      this.contract = await this.factory.deploy(
         this.fakeVerifierContract.address,
         attestorPublicKey
       )
       const derivativeFactory = await ethers.getContractFactory(
         'SCERC721Derivative'
       )
-      await this.sealCredContract.deployed()
+      await this.contract.deployed()
       this.derivativeContract = await derivativeFactory.deploy(
-        this.sealCredContract.address,
+        this.contract.address,
         this.fakeERC721.address,
         this.fakeVerifierContract.address,
         attestorPublicKey,
@@ -97,9 +92,7 @@ describe('SealCredERC721Ledger contract tests', () => {
       this.derivativeContract.connect(this.user)
     })
     it('should mint if all the correct info is there', async function () {
-      const sealCredContractAsUser = await this.sealCredContract.connect(
-        this.user
-      )
+      const sealCredContractAsUser = await this.contract.connect(this.user)
       const tx = await sealCredContractAsUser.mint(
         this.fakeERC721.address,
         [1, 2],
@@ -130,6 +123,38 @@ describe('SealCredERC721Ledger contract tests', () => {
       expect(await tx.wait())
       expect(await derivativeTx.wait())
     })
+    it('should save nullifier correctly', async function () {
+      const contractAsUser = await this.contract.connect(this.user)
+      const nullifier = getNullifier()
+      const bytesNullifier = utils.toUtf8Bytes(nullifier)
+      const hexNullifier = utils.hexlify(bytesNullifier)
+
+      const tx = await contractAsUser.mint(
+        this.fakeERC721.address,
+        [1, 2],
+        [
+          [1, 2],
+          [3, 4],
+        ],
+        [1, 2],
+        getFakeERC721VerifierInput(bytesNullifier, this.fakeERC721.address)
+      )
+      const derivativeTx = await this.derivativeContract.mint(
+        [1, 2],
+        [
+          [1, 2],
+          [3, 4],
+        ],
+        [1, 2],
+        getFakeERC721VerifierInput(bytesNullifier, this.fakeERC721.address)
+      )
+      await tx.wait()
+      await derivativeTx.wait()
+
+      expect(await this.derivativeContract.nullifiers(hexNullifier)).to.equal(
+        true
+      )
+    })
     it('should not transfer if the from address is non-zero', async function () {
       this.derivativeContract.mint(
         [1, 2],
@@ -153,7 +178,7 @@ describe('SealCredERC721Ledger contract tests', () => {
     })
     it('should not mint if the attestor is incorrect', async function () {
       await expect(
-        this.sealCredContract.mint(
+        this.contract.mint(
           this.fakeERC721.address,
           [1, 2],
           [
@@ -171,7 +196,7 @@ describe('SealCredERC721Ledger contract tests', () => {
     })
     it('should not mint if the token contract is incorrect', async function () {
       await expect(
-        this.sealCredContract.mint(
+        this.contract.mint(
           this.fakeERC721.address,
           [1, 2],
           [
@@ -191,7 +216,7 @@ describe('SealCredERC721Ledger contract tests', () => {
     })
     it('should not mint if nullifier has already been used', async function () {
       const nullifierBytes = utils.toUtf8Bytes(getNullifier())
-      await this.sealCredContract.mint(
+      await this.contract.mint(
         this.fakeERC721.address,
         [1, 2],
         [
@@ -202,7 +227,7 @@ describe('SealCredERC721Ledger contract tests', () => {
         getFakeERC721VerifierInput(nullifierBytes, this.fakeERC721.address)
       )
       await expect(
-        this.sealCredContract.mint(
+        this.contract.mint(
           this.fakeERC721.address,
           [1, 2],
           [
@@ -216,12 +241,12 @@ describe('SealCredERC721Ledger contract tests', () => {
     })
     it('should not mint if the zk proof is invalid', async function () {
       const fakeVerifierContract = await getFakeERC721Verifier(false)
-      const sealCredContract = await this.factory.deploy(
+      const contract = await this.factory.deploy(
         fakeVerifierContract.address,
         attestorPublicKey
       )
       await expect(
-        sealCredContract.mint(
+        contract.mint(
           this.fakeERC721.address,
           [1, 2],
           [
