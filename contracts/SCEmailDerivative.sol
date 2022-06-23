@@ -117,13 +117,13 @@ contract SCEmailDerivative is ERC721, Ownable {
     uint256[105] memory input
   ) internal {
     // Check if zkp is fresh
-    string memory nullifier = Strings.toHexString(input[0], 14);
+    string memory nullifier = _extractNullifier(input);
     require(
       nullifiers[nullifier] != true,
       "This ZK proof has already been used"
     );
     // Check if attestor is correct
-    uint256 passedAttestorPublicKey = input[91];
+    uint256 passedAttestorPublicKey = input[104];
     require(
       passedAttestorPublicKey == attestorPublicKey,
       "This ZK proof is not from the correct attestor"
@@ -133,7 +133,7 @@ contract SCEmailDerivative is ERC721, Ownable {
 
     for (uint8 i = 0; i < bytes(email).length; i++) {
       require(
-        uint8(input[i + 1]) == uint8(emailBytes[i]),
+        uint8(input[i + 14]) == uint8(emailBytes[i]),
         "This ZK proof is not from the correct email"
       );
     }
@@ -152,6 +152,22 @@ contract SCEmailDerivative is ERC721, Ownable {
     currentTokenId.increment();
     // Save nullifier
     nullifiers[nullifier] = true;
+  }
+
+  function _extractNullifier(uint256[105] memory input)
+    internal
+    pure
+    returns (string memory)
+  {
+    string memory _nullifier;
+
+    for (uint256 i = 0; i < 14; i++) {
+      _nullifier = string(
+        abi.encodePacked(_nullifier, Strings.toHexString(input[i]))
+      );
+    }
+
+    return _nullifier;
   }
 
   function _beforeTokenTransfer(

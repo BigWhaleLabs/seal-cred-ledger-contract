@@ -177,10 +177,8 @@ describe('SealCredEmailLedger contract tests', () => {
       ).to.be.revertedWith('This ZK proof is not from the correct email')
     })
     it('should not mint if nullifier has already been used', async function () {
-      const invalidInput = padZeroesOnRightUint8(
-        ethers.utils.toUtf8Bytes(zeroEmail),
-        MAX_DOMAIN_LENGHT
-      )
+      const nullifier = utils.toUtf8Bytes(getNullifier())
+
       await this.contract.mint(
         zeroEmail,
         [1, 2],
@@ -189,7 +187,7 @@ describe('SealCredEmailLedger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        [utils.toUtf8Bytes(getNullifier()), ...invalidInput, attestorPublicKey]
+        getFakeEmailVerifierInput(nullifier, zeroEmail)
       )
       await expect(
         this.contract.mint(
@@ -200,11 +198,7 @@ describe('SealCredEmailLedger contract tests', () => {
             [3, 4],
           ],
           [1, 2],
-          [
-            utils.toUtf8Bytes(getNullifier()),
-            ...invalidInput,
-            attestorPublicKey,
-          ]
+          getFakeEmailVerifierInput(nullifier, zeroEmail)
         )
       ).to.be.revertedWith('This ZK proof has already been used')
     })
