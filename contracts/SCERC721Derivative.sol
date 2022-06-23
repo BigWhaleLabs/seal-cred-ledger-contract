@@ -117,7 +117,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[57] memory input
   ) internal {
     // Check if zkp is fresh
-    string memory nullifier = Strings.toHexString(input[0], 14);
+    string memory nullifier = _extractNullifier(input);
     require(
       nullifiers[nullifier] != true,
       "This ZK proof has already been used"
@@ -134,7 +134,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     );
     for (uint8 i = 0; i < 42; i++) {
       require(
-        uint8(input[14 + i]) == uint8(originalContractBytes[i]),
+        uint8(input[i + 14]) == uint8(originalContractBytes[i]),
         "This ZK proof is not from the correct token contract"
       );
     }
@@ -153,6 +153,44 @@ contract SCERC721Derivative is ERC721, Ownable {
     currentTokenId.increment();
     // Save nullifier
     nullifiers[nullifier] = true;
+  }
+
+  function _extractNullifier(uint256[57] memory input)
+    internal
+    pure
+    returns (string memory)
+  {
+    string memory _nullifier;
+
+    for (uint256 i = 0; i < 14; i++) {
+      if (i == 0) {
+        _nullifier = string(
+          abi.encodePacked(_nullifier, Strings.toHexString(input[i]))
+        );
+      } else {
+        _nullifier = string(
+          abi.encodePacked(
+            _nullifier,
+            _cut0x(Strings.toHexString(input[i]), 2, 4)
+          )
+        );
+      }
+    }
+
+    return _nullifier;
+  }
+
+  function _cut0x(
+    string memory str,
+    uint8 startIndex,
+    uint8 endIndex
+  ) internal pure returns (string memory) {
+    bytes memory strBytes = bytes(str);
+    bytes memory result = new bytes(endIndex - startIndex);
+    for (uint256 i = startIndex; i < endIndex; i++) {
+      result[i - startIndex] = strBytes[i];
+    }
+    return string(result);
   }
 
   function _beforeTokenTransfer(
