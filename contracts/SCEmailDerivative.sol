@@ -73,7 +73,7 @@ contract SCEmailDerivative is ERC721, Ownable {
   string public email;
   uint256 public immutable attestorPublicKey;
   address public verifierContract;
-  mapping(uint256 => bool) public nullifiers;
+  mapping(string => bool) public nullifiers;
   Counters.Counter public currentTokenId;
 
   constructor(
@@ -94,7 +94,7 @@ contract SCEmailDerivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[92] memory input
+    uint256[105] memory input
   ) external {
     _mint(msg.sender, a, b, c, input);
   }
@@ -104,7 +104,7 @@ contract SCEmailDerivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[92] memory input
+    uint256[105] memory input
   ) external onlyOwner {
     _mint(sender, a, b, c, input);
   }
@@ -114,25 +114,26 @@ contract SCEmailDerivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[92] memory input
+    uint256[105] memory input
   ) internal {
     // Check if zkp is fresh
-    uint256 nullifier = input[0];
+    string memory nullifier = _extractNullifier(input);
     require(
       nullifiers[nullifier] != true,
       "This ZK proof has already been used"
     );
     // Check if attestor is correct
-    uint256 passedAttestorPublicKey = input[43];
+    uint256 passedAttestorPublicKey = input[104];
     require(
       passedAttestorPublicKey == attestorPublicKey,
       "This ZK proof is not from the correct attestor"
     );
     // Check if tokenAddress is correct
     bytes memory emailBytes = bytes(email);
-    for (uint8 i = 0; i < 90; i++) {
+
+    for (uint8 i = 0; i < bytes(email).length; i++) {
       require(
-        uint8(input[i + 1]) == uint8(emailBytes[i]),
+        uint8(input[i + 14]) == uint8(emailBytes[i]),
         "This ZK proof is not from the correct email"
       );
     }
@@ -151,6 +152,44 @@ contract SCEmailDerivative is ERC721, Ownable {
     currentTokenId.increment();
     // Save nullifier
     nullifiers[nullifier] = true;
+  }
+
+  function _extractNullifier(uint256[105] memory input)
+    internal
+    pure
+    returns (string memory)
+  {
+    string memory _nullifier;
+
+    for (uint256 i = 0; i < 14; i++) {
+      if (i == 0) {
+        _nullifier = string(
+          abi.encodePacked(_nullifier, Strings.toHexString(input[i]))
+        );
+      } else {
+        _nullifier = string(
+          abi.encodePacked(
+            _nullifier,
+            _cut0x(Strings.toHexString(input[i]), 2, 4)
+          )
+        );
+      }
+    }
+
+    return _nullifier;
+  }
+
+  function _cut0x(
+    string memory str,
+    uint8 startIndex,
+    uint8 endIndex
+  ) internal pure returns (string memory) {
+    bytes memory strBytes = bytes(str);
+    bytes memory result = new bytes(endIndex - startIndex);
+    for (uint256 i = startIndex; i < endIndex; i++) {
+      result[i - startIndex] = strBytes[i];
+    }
+    return string(result);
   }
 
   function _beforeTokenTransfer(
