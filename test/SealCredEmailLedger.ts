@@ -119,6 +119,38 @@ describe('SealCredEmailLedger contract tests', () => {
       expect(await tx.wait())
       expect(await derivativeTx.wait())
     })
+    it('should save nullifier correctly', async function () {
+      const contractAsUser = await this.contract.connect(this.user)
+      const nullifier = getNullifier()
+      const bytesNullifier = utils.toUtf8Bytes(nullifier)
+      const hexNullifier = utils.hexlify(bytesNullifier)
+
+      const tx = await contractAsUser.mint(
+        zeroEmail,
+        [1, 2],
+        [
+          [1, 2],
+          [3, 4],
+        ],
+        [1, 2],
+        getFakeEmailVerifierInput(bytesNullifier, zeroEmail)
+      )
+      const derivativeTx = await this.derivativeContract.mint(
+        [1, 2],
+        [
+          [1, 2],
+          [3, 4],
+        ],
+        [1, 2],
+        getFakeEmailVerifierInput(bytesNullifier, zeroEmail)
+      )
+      await tx.wait()
+      await derivativeTx.wait()
+
+      expect(await this.derivativeContract.nullifiers(hexNullifier)).to.equal(
+        true
+      )
+    })
     it('should not transfer if the from address is non-zero', async function () {
       this.derivativeContract.mint(
         [1, 2],
