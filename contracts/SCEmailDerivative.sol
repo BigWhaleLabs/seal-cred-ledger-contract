@@ -162,12 +162,34 @@ contract SCEmailDerivative is ERC721, Ownable {
     string memory _nullifier;
 
     for (uint256 i = 0; i < 14; i++) {
-      _nullifier = string(
-        abi.encodePacked(_nullifier, Strings.toHexString(input[i]))
-      );
+      if (i == 0) {
+        _nullifier = string(
+          abi.encodePacked(_nullifier, Strings.toHexString(input[i]))
+        );
+      } else {
+        _nullifier = string(
+          abi.encodePacked(
+            _nullifier,
+            _cut0x(Strings.toHexString(input[i]), 2, 4)
+          )
+        );
+      }
     }
 
     return _nullifier;
+  }
+
+  function _cut0x(
+    string memory str,
+    uint8 startIndex,
+    uint8 endIndex
+  ) internal pure returns (string memory) {
+    bytes memory strBytes = bytes(str);
+    bytes memory result = new bytes(endIndex - startIndex);
+    for (uint256 i = startIndex; i < endIndex; i++) {
+      result[i - startIndex] = strBytes[i];
+    }
+    return string(result);
   }
 
   function _beforeTokenTransfer(
