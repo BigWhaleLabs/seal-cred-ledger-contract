@@ -73,7 +73,7 @@ contract SCERC721Derivative is ERC721, Ownable {
   address public immutable originalContract;
   uint256 public immutable attestorPublicKey;
   address public verifierContract;
-  mapping(uint256 => bool) public nullifiers;
+  mapping(string => bool) public nullifiers;
   Counters.Counter public currentTokenId;
 
   constructor(
@@ -94,7 +94,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[57] memory input
   ) external {
     _mint(msg.sender, a, b, c, input);
   }
@@ -104,7 +104,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[57] memory input
   ) external onlyOwner {
     _mint(sender, a, b, c, input);
   }
@@ -114,16 +114,16 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[57] memory input
   ) internal {
     // Check if zkp is fresh
-    uint256 nullifier = input[0];
+    string memory nullifier = Strings.toHexString(input[0], 14);
     require(
       nullifiers[nullifier] != true,
       "This ZK proof has already been used"
     );
     // Check if attestor is correct
-    uint256 passedAttestorPublicKey = input[43];
+    uint256 passedAttestorPublicKey = input[56];
     require(
       passedAttestorPublicKey == attestorPublicKey,
       "This ZK proof is not from the correct attestor"
@@ -134,7 +134,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     );
     for (uint8 i = 0; i < 42; i++) {
       require(
-        uint8(input[i + 1]) == uint8(originalContractBytes[i]),
+        uint8(input[14 + i]) == uint8(originalContractBytes[i]),
         "This ZK proof is not from the correct token contract"
       );
     }

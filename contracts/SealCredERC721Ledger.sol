@@ -100,7 +100,7 @@ contract SealCredERC721Ledger is Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[44] memory input
+    uint256[57] memory input
   ) external {
     // Check if derivative already exists
     if (originalContractToDerivativeContract[originalContract] != address(0)) {

@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import { utils } from 'ethers'
 import { ethers } from 'hardhat'
 import {
   zeroAddress,
@@ -7,7 +8,8 @@ import {
   nonZeroAddress,
   getFakeERC721,
   getFakeERC721Verifier,
-  getFakeVerifierInput,
+  getFakeERC721VerifierInput,
+  getNullifier,
   // eslint-disable-next-line node/no-missing-import
 } from './utils'
 
@@ -106,7 +108,10 @@ describe('SealCredERC721Ledger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeVerifierInput(0, this.fakeERC721.address)
+        getFakeERC721VerifierInput(
+          utils.toUtf8Bytes(getNullifier()),
+          this.fakeERC721.address
+        )
       )
 
       const derivativeTx = await this.derivativeContract.mint(
@@ -116,7 +121,10 @@ describe('SealCredERC721Ledger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeVerifierInput(0, this.fakeERC721.address)
+        getFakeERC721VerifierInput(
+          utils.toUtf8Bytes(getNullifier()),
+          this.fakeERC721.address
+        )
       )
 
       expect(await tx.wait())
@@ -130,7 +138,10 @@ describe('SealCredERC721Ledger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeVerifierInput(0, this.fakeERC721.address)
+        getFakeERC721VerifierInput(
+          utils.toUtf8Bytes(getNullifier()),
+          this.fakeERC721.address
+        )
       )
       await expect(
         this.derivativeContract.transferFrom(
@@ -151,7 +162,7 @@ describe('SealCredERC721Ledger contract tests', () => {
           ],
           [1, 2],
           [
-            0,
+            ...utils.toUtf8Bytes(getNullifier()),
             ...ethers.utils.toUtf8Bytes(this.fakeERC721.address.toLowerCase()),
             invalidAttestorPublicKey,
           ]
@@ -169,7 +180,7 @@ describe('SealCredERC721Ledger contract tests', () => {
           ],
           [1, 2],
           [
-            0,
+            ...utils.toUtf8Bytes(getNullifier()),
             ...ethers.utils.toUtf8Bytes(zeroAddress.toLowerCase()),
             attestorPublicKey,
           ]
@@ -179,6 +190,7 @@ describe('SealCredERC721Ledger contract tests', () => {
       )
     })
     it('should not mint if nullifier has already been used', async function () {
+      const nullifierBytes = utils.toUtf8Bytes(getNullifier())
       await this.sealCredContract.mint(
         this.fakeERC721.address,
         [1, 2],
@@ -187,7 +199,7 @@ describe('SealCredERC721Ledger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeVerifierInput(0, this.fakeERC721.address)
+        getFakeERC721VerifierInput(nullifierBytes, this.fakeERC721.address)
       )
       await expect(
         this.sealCredContract.mint(
@@ -198,7 +210,7 @@ describe('SealCredERC721Ledger contract tests', () => {
             [3, 4],
           ],
           [1, 2],
-          getFakeVerifierInput(0, this.fakeERC721.address)
+          getFakeERC721VerifierInput(nullifierBytes, this.fakeERC721.address)
         )
       ).to.be.revertedWith('This ZK proof has already been used')
     })
@@ -217,7 +229,10 @@ describe('SealCredERC721Ledger contract tests', () => {
             [3, 4],
           ],
           [1, 2],
-          getFakeVerifierInput(0, this.fakeERC721.address)
+          getFakeERC721VerifierInput(
+            utils.toUtf8Bytes(getNullifier()),
+            this.fakeERC721.address
+          )
         )
       ).to.be.revertedWith('Invalid ZK proof')
     })

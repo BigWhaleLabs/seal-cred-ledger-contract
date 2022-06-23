@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import { utils } from 'ethers'
 import { ethers } from 'hardhat'
 import {
   zeroAddress,
@@ -7,11 +8,11 @@ import {
   invalidAttestorPublicKey,
   nonZeroAddress,
   getFakeEmailVerifier,
-  getFakeVerifierInput,
   getFakeEmailVerifierInput,
   padZeroesOnRightUint8,
   MAX_DOMAIN_LENGHT,
   nonZeroEmail,
+  getNullifier,
   // eslint-disable-next-line node/no-missing-import
 } from './utils'
 
@@ -102,7 +103,7 @@ describe('SealCredEmailLedger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeEmailVerifierInput(0, zeroEmail)
+        getFakeEmailVerifierInput(utils.toUtf8Bytes(getNullifier()), zeroEmail)
       )
 
       const derivativeTx = await this.derivativeContract.mint(
@@ -112,7 +113,7 @@ describe('SealCredEmailLedger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeEmailVerifierInput(0, zeroEmail)
+        getFakeEmailVerifierInput(utils.toUtf8Bytes(getNullifier()), zeroEmail)
       )
 
       expect(await tx.wait())
@@ -126,7 +127,7 @@ describe('SealCredEmailLedger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeVerifierInput(0, zeroEmail)
+        getFakeEmailVerifierInput(utils.toUtf8Bytes(getNullifier()), zeroEmail)
       )
       await expect(
         this.derivativeContract.transferFrom(
@@ -150,7 +151,11 @@ describe('SealCredEmailLedger contract tests', () => {
             [3, 4],
           ],
           [1, 2],
-          [1, ...invalidInput, invalidAttestorPublicKey]
+          [
+            ...utils.toUtf8Bytes(getNullifier()),
+            ...invalidInput,
+            invalidAttestorPublicKey,
+          ]
         )
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
     })
@@ -164,7 +169,10 @@ describe('SealCredEmailLedger contract tests', () => {
             [3, 4],
           ],
           [1, 2],
-          getFakeEmailVerifierInput(1, nonZeroEmail)
+          getFakeEmailVerifierInput(
+            utils.toUtf8Bytes(getNullifier()),
+            nonZeroEmail
+          )
         )
       ).to.be.revertedWith('This ZK proof is not from the correct email')
     })
@@ -181,7 +189,7 @@ describe('SealCredEmailLedger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        [1, ...invalidInput, attestorPublicKey]
+        [utils.toUtf8Bytes(getNullifier()), ...invalidInput, attestorPublicKey]
       )
       await expect(
         this.contract.mint(
@@ -192,7 +200,11 @@ describe('SealCredEmailLedger contract tests', () => {
             [3, 4],
           ],
           [1, 2],
-          [1, ...invalidInput, attestorPublicKey]
+          [
+            utils.toUtf8Bytes(getNullifier()),
+            ...invalidInput,
+            attestorPublicKey,
+          ]
         )
       ).to.be.revertedWith('This ZK proof has already been used')
     })
@@ -211,7 +223,10 @@ describe('SealCredEmailLedger contract tests', () => {
             [3, 4],
           ],
           [1, 2],
-          getFakeEmailVerifierInput(0, zeroEmail)
+          getFakeEmailVerifierInput(
+            utils.toUtf8Bytes(getNullifier()),
+            zeroEmail
+          )
         )
       ).to.be.revertedWith('Invalid ZK proof')
     })
