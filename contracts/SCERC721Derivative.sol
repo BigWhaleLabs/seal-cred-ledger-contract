@@ -61,9 +61,9 @@ pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IERC721OwnershipCheckerVerifier.sol";
+import "./Utils.sol";
 
 contract SCERC721Derivative is ERC721, Ownable {
   using Counters for Counters.Counter;
@@ -123,9 +123,8 @@ contract SCERC721Derivative is ERC721, Ownable {
       "This ZK proof has already been used"
     );
     // Check if attestor is correct
-    uint256 passedAttestorPublicKey = input[56];
     require(
-      passedAttestorPublicKey == attestorPublicKey,
+      input[56] == attestorPublicKey,
       "This ZK proof is not from the correct attestor"
     );
     // Check if tokenAddress is correct
@@ -171,26 +170,13 @@ contract SCERC721Derivative is ERC721, Ownable {
         _nullifier = string(
           abi.encodePacked(
             _nullifier,
-            _cut0x(Strings.toHexString(input[i]), 2, 4)
+            Utils.cut0x(Strings.toHexString(input[i]))
           )
         );
       }
     }
 
     return _nullifier;
-  }
-
-  function _cut0x(
-    string memory str,
-    uint8 startIndex,
-    uint8 endIndex
-  ) internal pure returns (string memory) {
-    bytes memory strBytes = bytes(str);
-    bytes memory result = new bytes(endIndex - startIndex);
-    for (uint256 i = startIndex; i < endIndex; i++) {
-      result[i - startIndex] = strBytes[i];
-    }
-    return string(result);
   }
 
   function _beforeTokenTransfer(
