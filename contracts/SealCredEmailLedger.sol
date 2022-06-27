@@ -117,7 +117,7 @@ contract SealCredEmailLedger is Ownable {
       email,
       verifierContract,
       attestorPublicKey,
-      string(bytes.concat(bytes(email), bytes(" (derivative)"))),
+      string(bytes.concat(bytes("@"), bytes(email), bytes(" email"))),
       string(bytes.concat(bytes(email), bytes("-d")))
     );
     emailToDerivativeContract[email] = address(derivative);
