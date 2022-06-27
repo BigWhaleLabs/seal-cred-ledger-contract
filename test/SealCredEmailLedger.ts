@@ -13,7 +13,6 @@ import {
   MAX_DOMAIN_LENGHT,
   nonZeroEmail,
   getNullifier,
-  // eslint-disable-next-line node/no-missing-import
 } from './utils'
 
 describe('SealCredEmailLedger contract tests', () => {

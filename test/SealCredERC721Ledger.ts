@@ -10,7 +10,6 @@ import {
   getFakeERC721Verifier,
   getFakeERC721VerifierInput,
   getNullifier,
-  // eslint-disable-next-line node/no-missing-import
 } from './utils'
 
 describe('SealCredERC721Ledger contract tests', () => {
