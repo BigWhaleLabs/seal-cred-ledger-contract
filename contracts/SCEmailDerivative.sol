@@ -63,7 +63,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IEmailOwnershipCheckerVerifier.sol";
-import "./Utils.sol";
 
 contract SCEmailDerivative is ERC721, Ownable {
   using Counters for Counters.Counter;
@@ -73,7 +72,7 @@ contract SCEmailDerivative is ERC721, Ownable {
   string public email;
   uint256 public immutable attestorPublicKey;
   address public verifierContract;
-  mapping(string => bool) public nullifiers;
+  mapping(uint256 => bool) public nullifiers;
   Counters.Counter public currentTokenId;
 
   constructor(
@@ -94,7 +93,7 @@ contract SCEmailDerivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[105] memory input
+    uint256[92] memory input
   ) external {
     _mint(msg.sender, a, b, c, input);
   }
@@ -104,7 +103,7 @@ contract SCEmailDerivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[105] memory input
+    uint256[92] memory input
   ) external onlyOwner {
     _mint(sender, a, b, c, input);
   }
@@ -114,25 +113,24 @@ contract SCEmailDerivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[105] memory input
+    uint256[92] memory input
   ) internal {
     // Check if zkp is fresh
-    string memory nullifier = _extractNullifier(input);
+    uint256 nullifier = input[90];
     require(
       nullifiers[nullifier] != true,
       "This ZK proof has already been used"
     );
     // Check if attestor is correct
     require(
-      input[104] == attestorPublicKey,
+      input[91] == attestorPublicKey,
       "This ZK proof is not from the correct attestor"
     );
-    // Check if tokenAddress is correct
+    // Check if email is correct
     bytes memory emailBytes = bytes(email);
-
     for (uint8 i = 0; i < bytes(email).length; i++) {
       require(
-        uint8(input[i + 14]) == uint8(emailBytes[i]),
+        uint8(input[i]) == uint8(emailBytes[i]),
         "This ZK proof is not from the correct email"
       );
     }
@@ -151,31 +149,6 @@ contract SCEmailDerivative is ERC721, Ownable {
     currentTokenId.increment();
     // Save nullifier
     nullifiers[nullifier] = true;
-  }
-
-  function _extractNullifier(uint256[105] memory input)
-    internal
-    pure
-    returns (string memory)
-  {
-    string memory _nullifier;
-
-    for (uint256 i = 0; i < 14; i++) {
-      if (i == 0) {
-        _nullifier = string(
-          abi.encodePacked(_nullifier, Strings.toHexString(input[i]))
-        );
-      } else {
-        _nullifier = string(
-          abi.encodePacked(
-            _nullifier,
-            Utils.cut0x(Strings.toHexString(input[i]))
-          )
-        );
-      }
-    }
-
-    return _nullifier;
   }
 
   function _beforeTokenTransfer(

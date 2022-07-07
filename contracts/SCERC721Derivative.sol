@@ -62,8 +62,8 @@ pragma solidity ^0.8.14;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./IERC721OwnershipCheckerVerifier.sol";
 import "./Utils.sol";
+import "./IBalanceCheckerVerifier.sol";
 
 contract SCERC721Derivative is ERC721, Ownable {
   using Counters for Counters.Counter;
@@ -72,8 +72,9 @@ contract SCERC721Derivative is ERC721, Ownable {
   address public immutable sealCredERC721Contract;
   address public immutable originalContract;
   uint256 public immutable attestorPublicKey;
+  uint256 public immutable originalNetwork;
   address public verifierContract;
-  mapping(string => bool) public nullifiers;
+  mapping(uint256 => bool) public nullifiers;
   Counters.Counter public currentTokenId;
 
   constructor(
@@ -81,6 +82,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     address _originalContract,
     address _verifierContract,
     uint256 _attestorPublicKey,
+    uint256 _originalNetwork,
     string memory tokenName,
     string memory tokenSymbol
   ) ERC721(tokenName, tokenSymbol) {
@@ -88,13 +90,14 @@ contract SCERC721Derivative is ERC721, Ownable {
     originalContract = _originalContract;
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
+    originalNetwork = _originalNetwork;
   }
 
   function mint(
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[57] memory input
+    uint256[46] memory input
   ) external {
     _mint(msg.sender, a, b, c, input);
   }
@@ -104,7 +107,7 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[57] memory input
+    uint256[46] memory input
   ) external onlyOwner {
     _mint(sender, a, b, c, input);
   }
@@ -114,37 +117,36 @@ contract SCERC721Derivative is ERC721, Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[57] memory input
+    uint256[46] memory input
   ) internal {
+    // Check the network
+    require(originalNetwork == input[42], "Unexpected network");
     // Check if zkp is fresh
-    string memory nullifier = _extractNullifier(input);
+    uint256 nullifier = input[43];
     require(
       nullifiers[nullifier] != true,
       "This ZK proof has already been used"
     );
     // Check if attestor is correct
     require(
-      input[56] == attestorPublicKey,
+      input[45] == attestorPublicKey,
       "This ZK proof is not from the correct attestor"
     );
+    // Check if threshold is correct
+    require(input[44] > 0, "The threshold should be greater than 0");
     // Check if tokenAddress is correct
-    bytes memory originalContractBytes = bytes(
+    bytes memory tokenBytes = bytes(
       Strings.toHexString(uint256(uint160(originalContract)), 20)
     );
     for (uint8 i = 0; i < 42; i++) {
       require(
-        uint8(input[i + 14]) == uint8(originalContractBytes[i]),
+        uint8(input[i]) == uint8(tokenBytes[i]),
         "This ZK proof is not from the correct token contract"
       );
     }
     // Check if zkp is valid
     require(
-      IERC721OwnershipCheckerVerifier(verifierContract).verifyProof(
-        a,
-        b,
-        c,
-        input
-      ),
+      IBalanceCheckerVerifier(verifierContract).verifyProof(a, b, c, input),
       "Invalid ZK proof"
     );
     // Mint
@@ -152,31 +154,6 @@ contract SCERC721Derivative is ERC721, Ownable {
     currentTokenId.increment();
     // Save nullifier
     nullifiers[nullifier] = true;
-  }
-
-  function _extractNullifier(uint256[57] memory input)
-    internal
-    pure
-    returns (string memory)
-  {
-    string memory _nullifier;
-
-    for (uint256 i = 0; i < 14; i++) {
-      if (i == 0) {
-        _nullifier = string(
-          abi.encodePacked(_nullifier, Strings.toHexString(input[i]))
-        );
-      } else {
-        _nullifier = string(
-          abi.encodePacked(
-            _nullifier,
-            Utils.cut0x(Strings.toHexString(input[i]))
-          )
-        );
-      }
-    }
-
-    return _nullifier;
   }
 
   function _beforeTokenTransfer(

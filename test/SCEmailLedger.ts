@@ -1,48 +1,41 @@
 import { expect } from 'chai'
-import { utils } from 'ethers'
 import { ethers } from 'hardhat'
 import {
   zeroAddress,
   attestorPublicKey,
-  invalidAttestorPublicKey,
   nonZeroAddress,
-  getFakeERC721,
-  getFakeERC721Verifier,
-  getFakeERC721VerifierInput,
-  getNullifier,
+  getFakeEmailVerifier,
+  getFakeEmailVerifierInput,
+  invalidAttestorPublicKey,
+  domains,
 } from './utils'
 
-describe('SealCredERC721Ledger contract tests', () => {
+describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
   before(async function () {
     this.accounts = await ethers.getSigners()
     this.owner = this.accounts[0]
     this.user = this.accounts[1]
-    this.factory = await ethers.getContractFactory('SealCredERC721Ledger')
+    this.factory = await ethers.getContractFactory('SCEmailLedger')
+    this.derivativeFactory = await ethers.getContractFactory(
+      'SCEmailDerivative'
+    )
   })
 
   describe('Constructor', function () {
     it('should deploy the contract with the correct fields', async function () {
-      const contractWithIncorrectOwner = await this.factory.deploy(
-        zeroAddress,
-        attestorPublicKey
-      )
-      expect(await contractWithIncorrectOwner.verifierContract()).to.equal(
-        zeroAddress
-      )
-      expect(await contractWithIncorrectOwner.attestorPublicKey()).to.equal(
-        attestorPublicKey
-      )
+      const contract = await this.factory.deploy(zeroAddress, attestorPublicKey)
+      expect(await contract.verifierContract()).to.equal(zeroAddress)
+      expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
     })
   })
 
   describe('Owner-only calls from non-owner', function () {
     before(async function () {
       this.contract = await this.factory.deploy(zeroAddress, attestorPublicKey)
-
       await this.contract.deployed()
-
       this.contractWithIncorrectOwner = this.contract.connect(this.user)
     })
+
     it('should have the correct owner', async function () {
       expect(await this.contract.owner()).to.equal(this.owner.address)
     })
@@ -52,9 +45,9 @@ describe('SealCredERC721Ledger contract tests', () => {
       ).to.be.revertedWith('Ownable: caller is not the owner')
     })
 
-    it('should not be able to call deleteOriginalContract', async function () {
+    it('should not be able to call deleteEmail', async function () {
       await expect(
-        this.contractWithIncorrectOwner.deleteOriginalContract(zeroAddress)
+        this.contractWithIncorrectOwner.deleteEmail(zeroAddress)
       ).to.be.revertedWith('Ownable: caller is not the owner')
     })
   })
@@ -63,49 +56,46 @@ describe('SealCredERC721Ledger contract tests', () => {
     const contract = await this.factory.deploy(zeroAddress, attestorPublicKey)
     await contract.deployed()
     expect(await contract.verifierContract()).to.equal(zeroAddress)
-    const newVerifierAddress = this.accounts[1].address
+    const newVerifierAddress = this.accounts[2].address
     await contract.setVerifierContract(newVerifierAddress)
     expect(await contract.verifierContract()).to.equal(newVerifierAddress)
   })
 
   describe('Minting and derivatives', function () {
     beforeEach(async function () {
-      this.fakeVerifierContract = await getFakeERC721Verifier(true)
-      this.fakeERC721 = await getFakeERC721()
+      this.fakeEmailVerifierContract = await getFakeEmailVerifier(true)
       this.contract = await this.factory.deploy(
-        this.fakeVerifierContract.address,
+        this.fakeEmailVerifierContract.address,
         attestorPublicKey
       )
-      const derivativeFactory = await ethers.getContractFactory(
-        'SCERC721Derivative'
-      )
       await this.contract.deployed()
-      this.derivativeContract = await derivativeFactory.deploy(
+      this.contract.connect(this.user)
+      const domain = domains[0]
+      this.derivativeContract = await this.derivativeFactory.deploy(
         this.contract.address,
-        this.fakeERC721.address,
-        this.fakeVerifierContract.address,
+        domain,
+        this.fakeEmailVerifierContract.address,
         attestorPublicKey,
-        'fakeERC721 (derivative)',
-        'fakeERC721-d'
+        `@${domain} email`,
+        `${domain}-d`
       )
+      await this.derivativeContract.deployed()
       this.derivativeContract.connect(this.user)
     })
-    it('should mint if all the correct info is there', async function () {
-      const sealCredContractAsUser = await this.contract.connect(this.user)
-      const tx = await sealCredContractAsUser.mint(
-        this.fakeERC721.address,
+
+    it('should mint from the ledger if all the correct info is there', async function () {
+      const tx = await this.contract.mint(
         [1, 2],
         [
           [1, 2],
           [3, 4],
         ],
         [1, 2],
-        getFakeERC721VerifierInput(
-          utils.toUtf8Bytes(getNullifier()),
-          this.fakeERC721.address
-        )
+        getFakeEmailVerifierInput(123, domains[0])
       )
-
+      expect(await tx.wait())
+    })
+    it('should mint from the derivative if all the correct info is there', async function () {
       const derivativeTx = await this.derivativeContract.mint(
         [1, 2],
         [
@@ -113,31 +103,12 @@ describe('SealCredERC721Ledger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeERC721VerifierInput(
-          utils.toUtf8Bytes(getNullifier()),
-          this.fakeERC721.address
-        )
+        getFakeEmailVerifierInput(123, domains[0])
       )
-
-      expect(await tx.wait())
       expect(await derivativeTx.wait())
     })
-    it('should save nullifier correctly', async function () {
-      const contractAsUser = await this.contract.connect(this.user)
-      const nullifier = getNullifier()
-      const bytesNullifier = utils.toUtf8Bytes(nullifier)
-      const hexNullifier = utils.hexlify(bytesNullifier)
-
-      const tx = await contractAsUser.mint(
-        this.fakeERC721.address,
-        [1, 2],
-        [
-          [1, 2],
-          [3, 4],
-        ],
-        [1, 2],
-        getFakeERC721VerifierInput(bytesNullifier, this.fakeERC721.address)
-      )
+    it('should save nullifier correctly when minting from derivative', async function () {
+      const nullifier = 123
       const derivativeTx = await this.derivativeContract.mint(
         [1, 2],
         [
@@ -145,14 +116,10 @@ describe('SealCredERC721Ledger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeERC721VerifierInput(bytesNullifier, this.fakeERC721.address)
+        getFakeEmailVerifierInput(nullifier, domains[0])
       )
-      await tx.wait()
       await derivativeTx.wait()
-
-      expect(await this.derivativeContract.nullifiers(hexNullifier)).to.equal(
-        true
-      )
+      expect(await this.derivativeContract.nullifiers(nullifier)).to.equal(true)
     })
     it('should not transfer if the from address is non-zero', async function () {
       this.derivativeContract.mint(
@@ -162,10 +129,7 @@ describe('SealCredERC721Ledger contract tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeERC721VerifierInput(
-          utils.toUtf8Bytes(getNullifier()),
-          this.fakeERC721.address
-        )
+        getFakeEmailVerifierInput(123, domains[0])
       )
       await expect(
         this.derivativeContract.transferFrom(
@@ -176,87 +140,71 @@ describe('SealCredERC721Ledger contract tests', () => {
       ).to.be.revertedWith('This token is soulbound')
     })
     it('should not mint if the attestor is incorrect', async function () {
+      const input = getFakeEmailVerifierInput(123, domains[0])
       await expect(
         this.contract.mint(
-          this.fakeERC721.address,
           [1, 2],
           [
             [1, 2],
             [3, 4],
           ],
           [1, 2],
-          [
-            ...utils.toUtf8Bytes(getNullifier()),
-            ...ethers.utils.toUtf8Bytes(this.fakeERC721.address.toLowerCase()),
-            invalidAttestorPublicKey,
-          ]
+          [...input.slice(0, -1), invalidAttestorPublicKey]
         )
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
     })
-    it('should not mint if the token contract is incorrect', async function () {
+    it('should not mint if the email is incorrect', async function () {
       await expect(
-        this.contract.mint(
-          this.fakeERC721.address,
+        this.derivativeContract.mint(
           [1, 2],
           [
             [1, 2],
             [3, 4],
           ],
           [1, 2],
-          [
-            ...utils.toUtf8Bytes(getNullifier()),
-            ...ethers.utils.toUtf8Bytes(zeroAddress.toLowerCase()),
-            attestorPublicKey,
-          ]
+          getFakeEmailVerifierInput(123, domains[1])
         )
-      ).to.be.revertedWith(
-        'This ZK proof is not from the correct token contract'
-      )
+      ).to.be.revertedWith('This ZK proof is not from the correct email')
     })
     it('should not mint if nullifier has already been used', async function () {
-      const nullifierBytes = utils.toUtf8Bytes(getNullifier())
+      const nullifier = 123
+
       await this.contract.mint(
-        this.fakeERC721.address,
         [1, 2],
         [
           [1, 2],
           [3, 4],
         ],
         [1, 2],
-        getFakeERC721VerifierInput(nullifierBytes, this.fakeERC721.address)
+        getFakeEmailVerifierInput(nullifier, domains[0])
       )
       await expect(
         this.contract.mint(
-          this.fakeERC721.address,
           [1, 2],
           [
             [1, 2],
             [3, 4],
           ],
           [1, 2],
-          getFakeERC721VerifierInput(nullifierBytes, this.fakeERC721.address)
+          getFakeEmailVerifierInput(nullifier, domains[0])
         )
       ).to.be.revertedWith('This ZK proof has already been used')
     })
     it('should not mint if the zk proof is invalid', async function () {
-      const fakeVerifierContract = await getFakeERC721Verifier(false)
+      const fakeEmailVerifierContract = await getFakeEmailVerifier(false)
       const contract = await this.factory.deploy(
-        fakeVerifierContract.address,
+        fakeEmailVerifierContract.address,
         attestorPublicKey
       )
       await expect(
         contract.mint(
-          this.fakeERC721.address,
           [1, 2],
           [
             [1, 2],
             [3, 4],
           ],
           [1, 2],
-          getFakeERC721VerifierInput(
-            utils.toUtf8Bytes(getNullifier()),
-            this.fakeERC721.address
-          )
+          getFakeEmailVerifierInput(123, domains[0])
         )
       ).to.be.revertedWith('Invalid ZK proof')
     })
