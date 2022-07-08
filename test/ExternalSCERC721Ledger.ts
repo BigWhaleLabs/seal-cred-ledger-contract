@@ -12,7 +12,7 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
 const mintFunctionSignature =
-  'mint(uint256[2],uint256[2][2],uint256[2],uint256[46],bytes32,bytes)'
+  'mint(uint256[2],uint256[2][2],uint256[2],uint256[46],bytes,bytes)'
 
 describe('ExternalSCERC721Ledger contract tests', () => {
   before(async function () {

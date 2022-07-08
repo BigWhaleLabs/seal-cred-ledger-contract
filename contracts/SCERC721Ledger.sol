@@ -104,7 +104,7 @@ contract SCERC721Ledger is Ownable {
   ) external virtual {
     (, address originalContract) = _extractAddress(input, 0);
     // Check if derivative already exists
-    if (originalContractToDerivativeContract[originalContract] != address(0)) {
+    if (_checkIfDerivativeExists(originalContract)) {
       // Proxy mint call
       _mint(
         SCERC721Derivative(
@@ -126,6 +126,17 @@ contract SCERC721Ledger is Ownable {
       bytes.concat(bytes(metadata.symbol()), bytes("-d"))
     );
     _mintSpawningNewDerivative(originalContract, a, b, c, input, name, symbol);
+  }
+
+  /**
+   * @dev Checks if derivative exists
+   */
+  function _checkIfDerivativeExists(address originalContract)
+    internal
+    view
+    returns (bool)
+  {
+    return originalContractToDerivativeContract[originalContract] != address(0);
   }
 
   /**
