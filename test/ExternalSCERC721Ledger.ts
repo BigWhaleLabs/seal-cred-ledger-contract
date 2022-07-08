@@ -56,7 +56,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       await this.contract.deployed()
       this.contract.connect(this.user)
     })
-    it.only('should mint with ledger if all the correct info is there', async function () {
+    it.skip('should mint with ledger if all the correct info is there', async function () {
       const name = 'MyERC721'
       const symbol = 'ME7'
       // Check the mint transaction
