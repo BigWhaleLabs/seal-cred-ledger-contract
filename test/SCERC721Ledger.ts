@@ -95,7 +95,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
+        getFakeBalanceVerifierInput(
+          this.fakeERC721.address,
+          Network.goerli,
+          123,
+          1
+        )
       )
       expect(await tx.wait())
     })
@@ -107,7 +112,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
+        getFakeBalanceVerifierInput(
+          this.fakeERC721.address,
+          Network.goerli,
+          123,
+          1
+        )
       )
       expect(await derivativeTx.wait())
     })
@@ -120,7 +130,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             [3, 4],
           ],
           [1, 2],
-          getFakeBalanceVerifierInput(this.fakeERC721.address, 'm', 123, 1)
+          getFakeBalanceVerifierInput(
+            this.fakeERC721.address,
+            Network.mainnet,
+            123,
+            1
+          )
         )
       ).to.be.revertedWith('Unexpected network')
     })
@@ -133,7 +148,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', nullifier, 1)
+        getFakeBalanceVerifierInput(
+          this.fakeERC721.address,
+          Network.goerli,
+          nullifier,
+          1
+        )
       )
       expect(await derivativeTx.wait())
       expect(await this.derivativeContract.nullifiers(nullifier)).to.equal(true)
@@ -146,7 +166,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
+        getFakeBalanceVerifierInput(
+          this.fakeERC721.address,
+          Network.goerli,
+          123,
+          1
+        )
       )
       await expect(
         this.derivativeContract.transferFrom(
@@ -159,7 +184,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     it('should not mint if the attestor is incorrect', async function () {
       const input = getFakeBalanceVerifierInput(
         this.fakeERC721.address,
-        'g',
+        Network.goerli,
         123,
         1
       )
@@ -186,7 +211,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           [1, 2],
           getFakeBalanceVerifierInput(
             '0x399f4a0a9d6E8f6f4BD019340e4d1bE0C9a742F0',
-            'g',
+            Network.goerli,
             123,
             1
           )
@@ -203,7 +228,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           [3, 4],
         ],
         [1, 2],
-        getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
+        getFakeBalanceVerifierInput(
+          this.fakeERC721.address,
+          Network.goerli,
+          123,
+          1
+        )
       )
       await expect(
         this.derivativeContract.mint(
@@ -213,7 +243,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             [3, 4],
           ],
           [1, 2],
-          getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
+          getFakeBalanceVerifierInput(
+            this.fakeERC721.address,
+            Network.goerli,
+            123,
+            1
+          )
         )
       ).to.be.revertedWith('This ZK proof has already been used')
     })
@@ -231,7 +266,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             [3, 4],
           ],
           [1, 2],
-          getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
+          getFakeBalanceVerifierInput(
+            this.fakeERC721.address,
+            Network.goerli,
+            123,
+            1
+          )
         )
       ).to.be.revertedWith('Invalid ZK proof')
     })

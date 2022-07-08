@@ -2,7 +2,7 @@ import { BigNumber, Wallet, ethers } from 'ethers'
 import { smock } from '@defi-wonderland/smock'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
-export const emails = ['one@example.com', 'two@example2.com']
+const emails = ['one@example.com', 'two@example2.com']
 export const domains = emails.map((e) => e.split('@')[1])
 export const nonZeroAddress = '0x0000000000000000000000000000000000000001'
 export const attestorPublicKey = BigNumber.from(
@@ -109,13 +109,13 @@ export function getFakeERC721() {
 
 export function getFakeBalanceVerifierInput(
   contract: string,
-  network: 'g' | 'm' = 'g',
+  network: Network,
   nullifier: number,
   threshold: number
 ) {
   return [
     ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
-    ...ethers.utils.toUtf8Bytes(network),
+    network,
     nullifier,
     threshold,
     attestorPublicKey,
@@ -130,11 +130,26 @@ export function getFakeEmailVerifierInput(nullifier: number, domain: string) {
   return [...domainBytes, nullifier, attestorPublicKey]
 }
 
-export function padZeroesOnRightUint8(array: Uint8Array, length: number) {
+export function getEcdsaArguments(
+  contract: string,
+  name: string,
+  symbol: string
+) {
+  const data = [
+    ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
+    ...ethers.utils.toUtf8Bytes(name),
+    0,
+    ...ethers.utils.toUtf8Bytes(symbol),
+  ]
+  const signature = signEcdsa(ethers.utils.hexlify(data))
+  return [data, signature]
+}
+
+function padZeroesOnRightUint8(array: Uint8Array, length: number) {
   const padding = new Uint8Array(length - array.length)
   return ethers.utils.concat([array, padding])
 }
 
-export function signEcdsa(message: string) {
+function signEcdsa(message: string) {
   return ecdsaWallet.signMessage(ethers.utils.toUtf8Bytes(message))
 }

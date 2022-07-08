@@ -2,7 +2,9 @@ import {
   Network,
   attestorPublicKey,
   ecdsaPublicKey,
+  getEcdsaArguments,
   getFakeBalanceVerifier,
+  getFakeBalanceVerifierInput,
   getFakeERC721,
   zeroAddress,
 } from './utils'
@@ -18,7 +20,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
   })
 
   describe('Constructor', function () {
-    it.only('should deploy the contract with the correct fields', async function () {
+    it('should deploy the contract with the correct fields', async function () {
       const contract = await this.factory.deploy(
         zeroAddress,
         attestorPublicKey,
@@ -47,31 +49,25 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       )
       await this.contract.deployed()
       this.contract.connect(this.user)
-      // Derivative
-      this.derivativeContract = await this.derivativeFactory.deploy(
-        this.contract.address,
-        this.fakeERC721.address,
-        this.fakeVerifierContract.address,
-        attestorPublicKey,
-        Network.goerli,
-        'FakeERC721 (derivative)',
-        'FAKE-d'
-      )
-      await this.derivativeContract.deployed()
-      this.derivativeContract.connect(this.user)
     })
-    // it('should mint with ledger if all the correct info is there', async function () {
-    //   const tx = await this.contract.mint(
-    //     [1, 2],
-    //     [
-    //       [1, 2],
-    //       [3, 4],
-    //     ],
-    //     [1, 2],
-    //     getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
-    //   )
-    //   expect(await tx.wait())
-    // })
+    it.only('should mint with ledger if all the correct info is there', async function () {
+      const tx = await this.contract.mint(
+        [1, 2],
+        [
+          [1, 2],
+          [3, 4],
+        ],
+        [1, 2],
+        getFakeBalanceVerifierInput(
+          this.fakeERC721.address,
+          Network.goerli,
+          123,
+          1
+        ),
+        ...getEcdsaArguments(this.fakeERC721.address, 'MyERC721', 'ME7')
+      )
+      expect(await tx.wait())
+    })
     // it('should mint from the derivative if all the correct info is there', async function () {
     //   const derivativeTx = await this.derivativeContract.mint(
     //     [1, 2],
