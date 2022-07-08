@@ -82,16 +82,16 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       )
       expect(await tx.wait())
       // Get the derivative
-      // const derivativeAddress =
-      //   await this.contract.originalContractToDerivativeContract(
-      //     this.fakeERC721.address
-      //   )
-      // const derivativeContract = await this.derivativeFactory.attach(
-      //   derivativeAddress
-      // )
-      // // Check the derivative variables
-      // expect(await derivativeContract.name()).to.equal(name)
-      // expect(await derivativeContract.symbol()).to.equal(symbol)
+      const derivativeAddress =
+        await this.contract.originalContractToDerivativeContract(
+          this.fakeERC721.address
+        )
+      const derivativeContract = await this.derivativeFactory.attach(
+        derivativeAddress
+      )
+      // Check the derivative variables
+      expect(await derivativeContract.name()).to.equal(name)
+      expect(await derivativeContract.symbol()).to.equal(symbol)
     })
   })
 })

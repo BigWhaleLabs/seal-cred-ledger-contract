@@ -78,12 +78,7 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     network = _network;
   }
 
-  function mint(
-    uint256[2] memory,
-    uint256[2][2] memory,
-    uint256[2] memory,
-    uint256[46] memory
-  ) external pure override {
+  function mint(BalanceProof memory) external pure override {
     revert("Mint with ECDSA signature should be used");
   }
 
@@ -91,17 +86,14 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
    * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
    */
   function mint(
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[46] memory input,
+    BalanceProof memory proof,
     bytes memory data,
     bytes memory signature
   ) external {
     (
       string memory originalContractString,
       address originalContract
-    ) = _extractAddress(input, 0);
+    ) = _extractAddress(proof.input, 0);
     // Check if derivative already exists
     if (_checkIfDerivativeExists(originalContract)) {
       // Proxy mint call
@@ -109,10 +101,7 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
         SCERC721Derivative(
           originalContractToDerivativeContract[originalContract]
         ),
-        a,
-        b,
-        c,
-        input
+        proof
       );
       return;
     }
@@ -144,7 +133,7 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       "Wrong token address"
     );
     // Create derivative
-    // _mintSpawningNewDerivative(originalContract, a, b, c, input, name, symbol);
+    _mintSpawningNewDerivative(originalContract, proof, name, symbol);
   }
 
   function _extractMetadata(bytes memory data)

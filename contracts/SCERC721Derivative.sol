@@ -62,8 +62,9 @@ pragma solidity ^0.8.14;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./Utils.sol";
-import "./IBalanceCheckerVerifier.sol";
+import "./helpers/Utils.sol";
+import "./interfaces/IBalanceCheckerVerifier.sol";
+import "./models/BalanceProof.sol";
 
 contract SCERC721Derivative is ERC721, Ownable {
   using Counters for Counters.Counter;
@@ -93,60 +94,51 @@ contract SCERC721Derivative is ERC721, Ownable {
     originalNetwork = _originalNetwork;
   }
 
-  function mint(
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[46] memory input
-  ) external {
-    _mint(msg.sender, a, b, c, input);
+  function mint(BalanceProof memory proof) external {
+    _mint(msg.sender, proof);
   }
 
-  function mintWithSender(
-    address sender,
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[46] memory input
-  ) external onlyOwner {
-    _mint(sender, a, b, c, input);
+  function mintWithSender(address sender, BalanceProof memory proof)
+    external
+    onlyOwner
+  {
+    _mint(sender, proof);
   }
 
-  function _mint(
-    address sender,
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[46] memory input
-  ) internal {
+  function _mint(address sender, BalanceProof memory proof) internal {
     // Check the network
-    require(originalNetwork == input[42], "Unexpected network");
+    require(originalNetwork == proof.input[42], "Unexpected network");
     // Check if zkp is fresh
-    uint256 nullifier = input[43];
+    uint256 nullifier = proof.input[43];
     require(
       nullifiers[nullifier] != true,
       "This ZK proof has already been used"
     );
     // Check if attestor is correct
     require(
-      input[45] == attestorPublicKey,
+      proof.input[45] == attestorPublicKey,
       "This ZK proof is not from the correct attestor"
     );
     // Check if threshold is correct
-    require(input[44] > 0, "The threshold should be greater than 0");
+    require(proof.input[44] > 0, "The threshold should be greater than 0");
     // Check if tokenAddress is correct
     bytes memory tokenBytes = bytes(
       Strings.toHexString(uint256(uint160(originalContract)), 20)
     );
     for (uint8 i = 0; i < 42; i++) {
       require(
-        uint8(input[i]) == uint8(tokenBytes[i]),
+        uint8(proof.input[i]) == uint8(tokenBytes[i]),
         "This ZK proof is not from the correct token contract"
       );
     }
     // Check if zkp is valid
     require(
-      IBalanceCheckerVerifier(verifierContract).verifyProof(a, b, c, input),
+      IBalanceCheckerVerifier(verifierContract).verifyProof(
+        proof.a,
+        proof.b,
+        proof.c,
+        proof.input
+      ),
       "Invalid ZK proof"
     );
     // Mint

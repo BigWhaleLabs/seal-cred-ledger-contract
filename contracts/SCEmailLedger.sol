@@ -61,7 +61,7 @@ pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import "./Utils.sol";
+import "./helpers/Utils.sol";
 import "./SCEmailDerivative.sol";
 
 /**
@@ -93,22 +93,14 @@ contract SCEmailLedger is Ownable {
   /**
    * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
    */
-  function mint(
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[92] memory input
-  ) external {
-    string memory domain = _extractDomain(input, 0, 90);
+  function mint(EmailProof memory proof) external {
+    string memory domain = _extractDomain(proof.input, 0, 90);
     // Check if derivative already exists
     if (emailToDerivativeContract[domain] != address(0)) {
       // Proxy mint call
       SCEmailDerivative(emailToDerivativeContract[domain]).mintWithSender(
         msg.sender,
-        a,
-        b,
-        c,
-        input
+        proof
       );
       return;
     }
@@ -125,13 +117,7 @@ contract SCEmailLedger is Ownable {
     // Emit creation event
     emit CreateDerivativeContract(domain, address(derivative));
     // Proxy mint call
-    SCEmailDerivative(address(derivative)).mintWithSender(
-      msg.sender,
-      a,
-      b,
-      c,
-      input
-    );
+    SCEmailDerivative(address(derivative)).mintWithSender(msg.sender, proof);
   }
 
   /**

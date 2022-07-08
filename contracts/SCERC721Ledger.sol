@@ -96,13 +96,8 @@ contract SCERC721Ledger is Ownable {
   /**
    * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
    */
-  function mint(
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[46] memory input
-  ) external virtual {
-    (, address originalContract) = _extractAddress(input, 0);
+  function mint(BalanceProof memory proof) external virtual {
+    (, address originalContract) = _extractAddress(proof.input, 0);
     // Check if derivative already exists
     if (_checkIfDerivativeExists(originalContract)) {
       // Proxy mint call
@@ -110,10 +105,7 @@ contract SCERC721Ledger is Ownable {
         SCERC721Derivative(
           originalContractToDerivativeContract[originalContract]
         ),
-        a,
-        b,
-        c,
-        input
+        proof
       );
       return;
     }
@@ -125,7 +117,7 @@ contract SCERC721Ledger is Ownable {
     string memory symbol = string(
       bytes.concat(bytes(metadata.symbol()), bytes("-d"))
     );
-    _mintSpawningNewDerivative(originalContract, a, b, c, input, name, symbol);
+    _mintSpawningNewDerivative(originalContract, proof, name, symbol);
   }
 
   /**
@@ -144,10 +136,7 @@ contract SCERC721Ledger is Ownable {
    */
   function _mintSpawningNewDerivative(
     address originalContract,
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[46] memory input,
+    BalanceProof memory proof,
     string memory name,
     string memory symbol
   ) internal {
@@ -166,20 +155,16 @@ contract SCERC721Ledger is Ownable {
     // Emit creation event
     emit CreateDerivativeContract(originalContract, address(derivative));
     // Proxy mint call
-    _mint(SCERC721Derivative(address(derivative)), a, b, c, input);
+    _mint(SCERC721Derivative(address(derivative)), proof);
   }
 
   /**
    * @dev Proxies mint call to derivative
    */
-  function _mint(
-    SCERC721Derivative derivative,
-    uint256[2] memory a,
-    uint256[2][2] memory b,
-    uint256[2] memory c,
-    uint256[46] memory input
-  ) internal {
-    derivative.mintWithSender(msg.sender, a, b, c, input);
+  function _mint(SCERC721Derivative derivative, BalanceProof memory proof)
+    internal
+  {
+    derivative.mintWithSender(msg.sender, proof);
   }
 
   /**
