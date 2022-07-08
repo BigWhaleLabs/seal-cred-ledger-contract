@@ -73,7 +73,12 @@ describe('ExternalSCERC721Ledger contract tests', () => {
           123,
           1
         ),
-        ...(await getEcdsaArguments(this.fakeERC721.address, name, symbol))
+        ...(await getEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          name,
+          symbol
+        ))
       )
       expect(await tx.wait())
       // Get the derivative

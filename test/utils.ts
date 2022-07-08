@@ -132,12 +132,22 @@ export function getFakeEmailVerifierInput(nullifier: number, domain: string) {
 }
 
 export async function getEcdsaArguments(
+  network: Network,
   contract: string,
   name: string,
   symbol: string
 ) {
+  console.log(
+    'Contract length:',
+    ethers.utils.toUtf8Bytes(contract.toLowerCase()).length
+  )
+  console.log('Network length:', 1)
+  console.log('Name length:', ethers.utils.toUtf8Bytes(name).length)
+  console.log('Zero length:', 1)
+  console.log('Symbol length:', ethers.utils.toUtf8Bytes(symbol).length)
   const data = [
     ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
+    network,
     ...ethers.utils.toUtf8Bytes(name),
     0,
     ...ethers.utils.toUtf8Bytes(symbol),

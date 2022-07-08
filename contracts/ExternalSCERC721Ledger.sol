@@ -131,9 +131,12 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     // Extract metadata
     (
       string memory recoveredContractString,
+      uint256 recoveredNetwork,
       string memory name,
       string memory symbol
     ) = _extractMetadata(data);
+    // Check the network
+    require(recoveredNetwork == network, "Wrong network");
     // Confirm this is the correct contract
     require(
       keccak256(bytes(recoveredContractString)) ==
@@ -146,15 +149,18 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
 
   function _extractMetadata(bytes memory data)
     internal
-    pure
+    view
     returns (
-      string memory,
-      string memory,
-      string memory
+      string memory recoveredContractString,
+      uint256 network,
+      string memory name,
+      string memory symbol
     )
   {
     // Get contract string — first 42 characters
     uint256 contractLength = 42;
+    uint256 networkLength = 1;
+    uint256 zeroLength = 1;
     bytes memory contractBytes = new bytes(contractLength);
     for (uint256 i = 0; i < contractLength; i++) {
       contractBytes[i] = data[i];
@@ -168,17 +174,22 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       }
     }
     // Get name string — between the end of contract at 42 and zero
-    uint256 nameLength = zeroIndex - contractLength;
+    uint256 nameLength = zeroIndex - (contractLength + networkLength);
     bytes memory nameBytes = new bytes(nameLength);
-    for (uint256 i = contractLength; i < zeroIndex; i++) {
-      nameBytes[i] = data[i];
+    for (uint256 i = 0; i < nameLength; i++) {
+      nameBytes[i] = data[contractLength + networkLength + i];
     }
     // Get symbol string — the rest of the data
-    uint256 symbolLength = data.length - contractLength - nameLength - 1;
+    uint256 symbolLength = data.length - (zeroIndex + 1);
     bytes memory symbolBytes = new bytes(symbolLength);
-    for (uint256 i = zeroIndex + 1; i < data.length; i++) {
-      symbolBytes[i - zeroIndex - 1] = data[i];
+    for (uint256 i = zeroIndex + zeroLength; i < data.length; i++) {
+      symbolBytes[i - zeroIndex - zeroLength] = data[i];
     }
-    return (string(contractBytes), string(nameBytes), string(symbolBytes));
+    return (
+      string(contractBytes),
+      uint256(uint8(data[contractLength])),
+      string(nameBytes),
+      string(symbolBytes)
+    );
   }
 }
