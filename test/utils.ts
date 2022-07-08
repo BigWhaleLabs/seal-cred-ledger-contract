@@ -104,6 +104,18 @@ export async function getFakeEmailVerifier(result: boolean) {
   return fake
 }
 
+export function getFakeEmailProof(nullifier: number, domain: string) {
+  return {
+    a: [1, 2],
+    b: [
+      [1, 2],
+      [3, 4],
+    ],
+    c: [1, 2],
+    input: getFakeEmailVerifierInput(nullifier, domain),
+  }
+}
+
 export function getFakeERC721() {
   return smock.fake('ERC721')
 }
@@ -123,7 +135,7 @@ export function getFakeBalanceVerifierInput(
   ]
 }
 
-export function getFakeEmailVerifierInput(nullifier: number, domain: string) {
+function getFakeEmailVerifierInput(nullifier: number, domain: string) {
   const domainBytes = padZeroesOnRightUint8(
     ethers.utils.toUtf8Bytes(domain),
     90
