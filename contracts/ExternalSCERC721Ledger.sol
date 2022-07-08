@@ -96,67 +96,44 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     bytes memory data,
     bytes memory signature
   ) external {
-    (
-      string memory originalContractString,
-      address originalContract
-    ) = _extractAddress(input, 0);
-    // Check if derivative already exists
-    if (originalContractToDerivativeContract[originalContract] != address(0)) {
-      // Proxy mint call
-      SCERC721Derivative(originalContractToDerivativeContract[originalContract])
-        .mintWithSender(msg.sender, a, b, c, input);
-      return;
-    }
-    // Confirm the metadata signature is valid
-    bytes32 dataHash = keccak256(data);
-    (address attestorAddress, ECDSA.RecoverError ecdsaError) = ECDSA.tryRecover(
-      dataHash,
-      signature
-    );
-    require(
-      keccak256(abi.encodePacked(attestorAddress)) ==
-        keccak256(abi.encodePacked(attestorEcdsaPublicKey)),
-      "Wrong attestor public key"
-    );
-    require(
-      ecdsaError == ECDSA.RecoverError.NoError,
-      "Error while verifying the ECDSA signature"
-    );
-    // Extract metadata
-    (
-      string memory recoveredContractString,
-      string memory name,
-      string memory symbol
-    ) = _extractMetadata(data);
-    // Confirm this is the correct contract
-    require(
-      keccak256(bytes(recoveredContractString)) ==
-        keccak256(bytes(originalContractString)),
-      "Wrong token address"
-    );
-    // Create derivative
-    SCERC721Derivative derivative = new SCERC721Derivative(
-      address(this),
-      originalContract,
-      verifierContract,
-      attestorPublicKey,
-      network,
-      name,
-      symbol
-    );
-    originalContractToDerivativeContract[originalContract] = address(
-      derivative
-    );
-    // Emit creation event
-    emit CreateDerivativeContract(originalContract, address(derivative));
-    // Proxy mint call
-    SCERC721Derivative(address(derivative)).mintWithSender(
-      msg.sender,
-      a,
-      b,
-      c,
-      input
-    );
+    // (
+    //   string memory originalContractString,
+    //   address originalContract
+    // ) = _extractAddress(input, 0);
+    // // Check if derivative already exists
+    // if (originalContractToDerivativeContract[originalContract] != address(0)) {
+    //   // Proxy mint call
+    //   SCERC721Derivative(originalContractToDerivativeContract[originalContract])
+    //     .mintWithSender(msg.sender, a, b, c, input);
+    //   return;
+    // }
+    // // Confirm the metadata signature is valid
+    // bytes32 dataHash = keccak256(data);
+    // (address attestorAddress, ECDSA.RecoverError ecdsaError) = ECDSA.tryRecover(
+    //   dataHash,
+    //   signature
+    // );
+    // require(
+    //   keccak256(abi.encodePacked(attestorAddress)) ==
+    //     keccak256(abi.encodePacked(attestorEcdsaPublicKey)),
+    //   "Wrong attestor public key"
+    // );
+    // require(
+    //   ecdsaError == ECDSA.RecoverError.NoError,
+    //   "Error while verifying the ECDSA signature"
+    // );
+    // // Extract metadata
+    // (
+    //   string memory recoveredContractString,
+    //   string memory name,
+    //   string memory symbol
+    // ) = _extractMetadata(data);
+    // // Confirm this is the correct contract
+    // require(
+    //   keccak256(bytes(recoveredContractString)) ==
+    //     keccak256(bytes(originalContractString)),
+    //   "Wrong token address"
+    // );
   }
 
   function _extractMetadata(bytes memory data)

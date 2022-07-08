@@ -106,20 +106,48 @@ contract SCERC721Ledger is Ownable {
     // Check if derivative already exists
     if (originalContractToDerivativeContract[originalContract] != address(0)) {
       // Proxy mint call
-      SCERC721Derivative(originalContractToDerivativeContract[originalContract])
-        .mintWithSender(msg.sender, a, b, c, input);
+      _mint(
+        SCERC721Derivative(
+          originalContractToDerivativeContract[originalContract]
+        ),
+        a,
+        b,
+        c,
+        input
+      );
       return;
     }
     // Create derivative
     IERC721Metadata metadata = IERC721Metadata(originalContract);
+    string memory name = string(
+      bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))
+    );
+    string memory symbol = string(
+      bytes.concat(bytes(metadata.symbol()), bytes("-d"))
+    );
+    _mintSpawningNewDerivative(originalContract, a, b, c, input, name, symbol);
+  }
+
+  /**
+   * @dev Creates a new derivative and proxies mint call to it
+   */
+  function _mintSpawningNewDerivative(
+    address originalContract,
+    uint256[2] memory a,
+    uint256[2][2] memory b,
+    uint256[2] memory c,
+    uint256[46] memory input,
+    string memory name,
+    string memory symbol
+  ) internal {
     SCERC721Derivative derivative = new SCERC721Derivative(
       address(this),
       originalContract,
       verifierContract,
       attestorPublicKey,
       network,
-      string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
-      string(bytes.concat(bytes(metadata.symbol()), bytes("-d")))
+      name,
+      symbol
     );
     originalContractToDerivativeContract[originalContract] = address(
       derivative
@@ -127,13 +155,20 @@ contract SCERC721Ledger is Ownable {
     // Emit creation event
     emit CreateDerivativeContract(originalContract, address(derivative));
     // Proxy mint call
-    SCERC721Derivative(address(derivative)).mintWithSender(
-      msg.sender,
-      a,
-      b,
-      c,
-      input
-    );
+    _mint(SCERC721Derivative(address(derivative)), a, b, c, input);
+  }
+
+  /**
+   * @dev Proxies mint call to derivative
+   */
+  function _mint(
+    SCERC721Derivative derivative,
+    uint256[2] memory a,
+    uint256[2][2] memory b,
+    uint256[2] memory c,
+    uint256[46] memory input
+  ) internal {
+    derivative.mintWithSender(msg.sender, a, b, c, input);
   }
 
   /**
