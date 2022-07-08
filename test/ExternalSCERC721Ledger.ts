@@ -8,6 +8,7 @@ import {
   getFakeERC721,
   zeroAddress,
 } from './utils'
+import { SCERC721Derivative__factory } from 'typechain'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
@@ -17,6 +18,9 @@ describe('ExternalSCERC721Ledger contract tests', () => {
     this.owner = this.accounts[0]
     this.user = this.accounts[1]
     this.factory = await ethers.getContractFactory('ExternalSCERC721Ledger')
+    this.derivativeFactory = await ethers.getContractFactory(
+      'SCERC721Derivative'
+    )
   })
 
   describe('Constructor', function () {
@@ -50,7 +54,10 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       await this.contract.deployed()
       this.contract.connect(this.user)
     })
-    it.only('should mint with ledger if all the correct info is there', async function () {
+    it('should mint with ledger if all the correct info is there', async function () {
+      const name = 'MyERC721'
+      const symbol = 'ME7'
+      // Check the mint transaction
       const tx = await this.contract.mint(
         [1, 2],
         [
@@ -64,145 +71,20 @@ describe('ExternalSCERC721Ledger contract tests', () => {
           123,
           1
         ),
-        ...getEcdsaArguments(this.fakeERC721.address, 'MyERC721', 'ME7')
+        ...(await getEcdsaArguments(this.fakeERC721.address, name, symbol))
       )
       expect(await tx.wait())
+      // Get the derivative
+      const derivativeAddress =
+        await this.contract.originalContractToDerivativeContract(
+          this.fakeERC721.address
+        )
+      const derivativeContract = await this.derivativeFactory.attach(
+        derivativeAddress
+      )
+      // Check the derivative variables
+      expect(await derivativeContract.name()).to.equal(name)
+      expect(await derivativeContract.symbol()).to.equal(symbol)
     })
-    // it('should mint from the derivative if all the correct info is there', async function () {
-    //   const derivativeTx = await this.derivativeContract.mint(
-    //     [1, 2],
-    //     [
-    //       [1, 2],
-    //       [3, 4],
-    //     ],
-    //     [1, 2],
-    //     getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
-    //   )
-    //   expect(await derivativeTx.wait())
-    // })
-    // it('should fail if network is incorrect', async function () {
-    //   expect(
-    //     this.contract.mint(
-    //       [1, 2],
-    //       [
-    //         [1, 2],
-    //         [3, 4],
-    //       ],
-    //       [1, 2],
-    //       getFakeBalanceVerifierInput(this.fakeERC721.address, 'm', 123, 1)
-    //     )
-    //   ).to.be.revertedWith('Unexpected network')
-    // })
-    // it('should save nullifier correctly', async function () {
-    //   const nullifier = 123
-    //   const derivativeTx = await this.derivativeContract.mint(
-    //     [1, 2],
-    //     [
-    //       [1, 2],
-    //       [3, 4],
-    //     ],
-    //     [1, 2],
-    //     getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', nullifier, 1)
-    //   )
-    //   expect(await derivativeTx.wait())
-    //   expect(await this.derivativeContract.nullifiers(nullifier)).to.equal(true)
-    // })
-    // it('should not transfer if the from address is non-zero', async function () {
-    //   this.derivativeContract.mint(
-    //     [1, 2],
-    //     [
-    //       [1, 2],
-    //       [3, 4],
-    //     ],
-    //     [1, 2],
-    //     getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
-    //   )
-    //   await expect(
-    //     this.derivativeContract.transferFrom(
-    //       this.derivativeContract.owner(),
-    //       nonZeroAddress,
-    //       0
-    //     )
-    //   ).to.be.revertedWith('This token is soulbound')
-    // })
-    // it('should not mint if the attestor is incorrect', async function () {
-    //   const input = getFakeBalanceVerifierInput(
-    //     this.fakeERC721.address,
-    //     'g',
-    //     123,
-    //     1
-    //   )
-    //   await expect(
-    //     this.contract.mint(
-    //       [1, 2],
-    //       [
-    //         [1, 2],
-    //         [3, 4],
-    //       ],
-    //       [1, 2],
-    //       [...input.slice(0, -1), invalidAttestorPublicKey]
-    //     )
-    //   ).to.be.revertedWith('This ZK proof is not from the correct attestor')
-    // })
-    // it('should not mint if the token contract is incorrect', async function () {
-    //   await expect(
-    //     this.derivativeContract.mint(
-    //       [1, 2],
-    //       [
-    //         [1, 2],
-    //         [3, 4],
-    //       ],
-    //       [1, 2],
-    //       getFakeBalanceVerifierInput(
-    //         '0x399f4a0a9d6E8f6f4BD019340e4d1bE0C9a742F0',
-    //         'g',
-    //         123,
-    //         1
-    //       )
-    //     )
-    //   ).to.be.revertedWith(
-    //     'This ZK proof is not from the correct token contract'
-    //   )
-    // })
-    // it('should not mint if nullifier has already been used', async function () {
-    //   await this.derivativeContract.mint(
-    //     [1, 2],
-    //     [
-    //       [1, 2],
-    //       [3, 4],
-    //     ],
-    //     [1, 2],
-    //     getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
-    //   )
-    //   await expect(
-    //     this.derivativeContract.mint(
-    //       [1, 2],
-    //       [
-    //         [1, 2],
-    //         [3, 4],
-    //       ],
-    //       [1, 2],
-    //       getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
-    //     )
-    //   ).to.be.revertedWith('This ZK proof has already been used')
-    // })
-    // it('should not mint if the zk proof is invalid', async function () {
-    //   const fakeVerifierContract = await getFakeBalanceVerifier(false)
-    //   const contract = await this.factory.deploy(
-    //     fakeVerifierContract.address,
-    //     attestorPublicKey
-    //   )
-    //   await expect(
-    //     contract.mint(
-    //       [1, 2],
-    //       [
-    //         [1, 2],
-    //         [3, 4],
-    //       ],
-    //       [1, 2],
-    //       getFakeBalanceVerifierInput(this.fakeERC721.address, 'g', 123, 1)
-    //     )
-    //   ).to.be.revertedWith('Invalid ZK proof')
-    // })
   })
 })

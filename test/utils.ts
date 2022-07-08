@@ -130,7 +130,7 @@ export function getFakeEmailVerifierInput(nullifier: number, domain: string) {
   return [...domainBytes, nullifier, attestorPublicKey]
 }
 
-export function getEcdsaArguments(
+export async function getEcdsaArguments(
   contract: string,
   name: string,
   symbol: string
@@ -141,7 +141,7 @@ export function getEcdsaArguments(
     0,
     ...ethers.utils.toUtf8Bytes(symbol),
   ]
-  const signature = signEcdsa(ethers.utils.hexlify(data))
+  const signature = await signEcdsa(ethers.utils.hexlify(data))
   return [data, signature]
 }
 
