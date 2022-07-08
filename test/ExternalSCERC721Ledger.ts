@@ -67,7 +67,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         [1, 2],
         getFakeBalanceVerifierInput(
           this.fakeERC721.address,
-          Network.goerli,
+          Network.mainnet,
           123,
           1
         ),

@@ -78,6 +78,15 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     network = _network;
   }
 
+  function mint(
+    uint256[2] memory,
+    uint256[2][2] memory,
+    uint256[2] memory,
+    uint256[46] memory
+  ) external override {
+    revert("Mint with ECDSA signature should be used");
+  }
+
   /**
    * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
    */
