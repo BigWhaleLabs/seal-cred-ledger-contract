@@ -101,7 +101,7 @@ contract SCERC721Ledger is Ownable {
     uint256[2][2] memory b,
     uint256[2] memory c,
     uint256[46] memory input
-  ) external {
+  ) external virtual {
     (, address originalContract) = _extractAddress(input, 0);
     // Check if derivative already exists
     if (originalContractToDerivativeContract[originalContract] != address(0)) {

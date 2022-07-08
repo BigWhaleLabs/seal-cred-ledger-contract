@@ -8,7 +8,6 @@ import {
   getFakeERC721,
   zeroAddress,
 } from './utils'
-import { SCERC721Derivative__factory } from 'typechain'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
@@ -70,8 +69,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1
-        ),
-        ...(await getEcdsaArguments(this.fakeERC721.address, name, symbol))
+        )
+        // ...(await getEcdsaArguments(this.fakeERC721.address, name, symbol))
       )
       expect(await tx.wait())
       // Get the derivative
