@@ -66,15 +66,15 @@ import "hardhat/console.sol";
 
 contract ExternalSCERC721Ledger is SCERC721Ledger {
   // State
-  uint256 public immutable attestorEcdsaPublicKey;
+  address public immutable attestorEcdsaAddress;
 
   constructor(
     address _verifierContract,
     uint256 _attestorEddsaPublicKey,
-    uint256 _attestorEcdsaPublicKey,
+    address _attestorEcdsaAddress,
     uint256 _network
   ) SCERC721Ledger(_verifierContract, _attestorEddsaPublicKey) {
-    attestorEcdsaPublicKey = _attestorEcdsaPublicKey;
+    attestorEcdsaAddress = _attestorEcdsaAddress;
     network = _network;
   }
 
@@ -118,18 +118,17 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     }
     // Confirm the metadata signature is valid
     bytes32 dataHash = keccak256(data);
-    (address attestorAddress, ECDSA.RecoverError ecdsaError) = ECDSA.tryRecover(
-      dataHash,
-      signature
-    );
-    require(
-      keccak256(abi.encodePacked(attestorAddress)) ==
-        keccak256(abi.encodePacked(attestorEcdsaPublicKey)),
-      "Wrong attestor public key"
-    );
+    (address recoveredAttestorAddress, ECDSA.RecoverError ecdsaError) = ECDSA
+      .tryRecover(dataHash, signature);
+    console.log("recoveredAttestorAddress", recoveredAttestorAddress);
+    console.log("attestorEcdsaAddress", attestorEcdsaAddress);
     require(
       ecdsaError == ECDSA.RecoverError.NoError,
       "Error while verifying the ECDSA signature"
+    );
+    require(
+      recoveredAttestorAddress == attestorEcdsaAddress,
+      "Wrong attestor public key"
     );
     // Extract metadata
     (

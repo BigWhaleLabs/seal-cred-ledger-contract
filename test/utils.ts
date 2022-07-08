@@ -14,7 +14,8 @@ export const invalidAttestorPublicKey = BigNumber.from(
 const ecdsaWallet = new Wallet(
   '0xc22d0fdda8dd97029978419bc67b2daf7a8827c507506d1a997ac52bd56e97b8'
 )
-export const ecdsaPublicKey = ecdsaWallet.address
+export const ecdsaAddress = ecdsaWallet.address
+console.log('ECDSA address:', ecdsaAddress)
 
 export enum Network {
   goerli = 103,

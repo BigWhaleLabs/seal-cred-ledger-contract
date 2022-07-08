@@ -1,7 +1,7 @@
 import {
   Network,
   attestorPublicKey,
-  ecdsaPublicKey,
+  ecdsaAddress,
   getEcdsaArguments,
   getFakeBalanceVerifier,
   getFakeBalanceVerifierInput,
@@ -30,12 +30,12 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       const contract = await this.factory.deploy(
         zeroAddress,
         attestorPublicKey,
-        ecdsaPublicKey,
+        ecdsaAddress,
         Network.goerli
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
-      expect(await contract.attestorEcdsaPublicKey()).to.equal(ecdsaPublicKey)
+      expect(await contract.attestorEcdsaPublicKey()).to.equal(ecdsaAddress)
       expect(await contract.network()).to.equal(Network.goerli)
     })
   })
@@ -50,7 +50,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       this.contract = await this.factory.deploy(
         this.fakeVerifierContract.address,
         attestorPublicKey,
-        ecdsaPublicKey,
+        ecdsaAddress,
         Network.mainnet
       )
       await this.contract.deployed()
