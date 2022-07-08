@@ -1,4 +1,5 @@
 import { ethers, run } from 'hardhat'
+import { utils } from 'ethers'
 import prompt from 'prompt'
 
 async function main() {
@@ -6,7 +7,10 @@ async function main() {
 
   // Deploy the contract
   console.log('Deploying contracts with the account:', deployer.address)
-  console.log('Account balance:', (await deployer.getBalance()).toString())
+  console.log(
+    'Account balance:',
+    utils.formatEther(await deployer.getBalance())
+  )
 
   const provider = ethers.provider
   const { chainId } = await provider.getNetwork()
@@ -60,8 +64,14 @@ async function main() {
         )
       : await SealCred.deploy(verifierAddress, attestorPublicKey)
 
-    console.log('Deploy tx gas price:', sealCred.deployTransaction.gasPrice)
-    console.log('Deploy tx gas limit:', sealCred.deployTransaction.gasLimit)
+    console.log(
+      'Deploy tx gas price:',
+      utils.formatEther(sealCred.deployTransaction.gasPrice || 0)
+    )
+    console.log(
+      'Deploy tx gas limit:',
+      utils.formatEther(sealCred.deployTransaction.gasLimit)
+    )
     await sealCred.deployed()
     const address = sealCred.address
 
