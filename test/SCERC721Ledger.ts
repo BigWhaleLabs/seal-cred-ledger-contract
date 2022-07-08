@@ -88,7 +88,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       this.derivativeContract.connect(this.user)
     })
     it('should mint with ledger if all the correct info is there', async function () {
-      const tx = await this.contract.mint(
+      const tx = await this.contract.mint([
         [1, 2],
         [
           [1, 2],
@@ -100,12 +100,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.goerli,
           123,
           1
-        )
-      )
+        ),
+      ])
       expect(await tx.wait())
     })
     it('should mint from the derivative if all the correct info is there', async function () {
-      const derivativeTx = await this.derivativeContract.mint(
+      const derivativeTx = await this.derivativeContract.mint([
         [1, 2],
         [
           [1, 2],
@@ -117,13 +117,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.goerli,
           123,
           1
-        )
-      )
+        ),
+      ])
       expect(await derivativeTx.wait())
     })
     it('should fail if network is incorrect', async function () {
       await expect(
-        this.contract.mint(
+        this.contract.mint([
           [1, 2],
           [
             [1, 2],
@@ -135,13 +135,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             Network.mainnet,
             123,
             1
-          )
-        )
+          ),
+        ])
       ).to.be.revertedWith('Unexpected network')
     })
     it('should save nullifier correctly', async function () {
       const nullifier = 123
-      const derivativeTx = await this.derivativeContract.mint(
+      const derivativeTx = await this.derivativeContract.mint([
         [1, 2],
         [
           [1, 2],
@@ -153,13 +153,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.goerli,
           nullifier,
           1
-        )
-      )
+        ),
+      ])
       expect(await derivativeTx.wait())
       expect(await this.derivativeContract.nullifiers(nullifier)).to.equal(true)
     })
     it('should not transfer if the from address is non-zero', async function () {
-      this.derivativeContract.mint(
+      this.derivativeContract.mint([
         [1, 2],
         [
           [1, 2],
@@ -171,8 +171,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.goerli,
           123,
           1
-        )
-      )
+        ),
+      ])
       await expect(
         this.derivativeContract.transferFrom(
           this.derivativeContract.owner(),
@@ -189,20 +189,20 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         1
       )
       await expect(
-        this.contract.mint(
+        this.contract.mint([
           [1, 2],
           [
             [1, 2],
             [3, 4],
           ],
           [1, 2],
-          [...input.slice(0, -1), invalidAttestorPublicKey]
-        )
+          [...input.slice(0, -1), invalidAttestorPublicKey],
+        ])
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
     })
     it('should not mint if the token contract is incorrect', async function () {
       await expect(
-        this.derivativeContract.mint(
+        this.derivativeContract.mint([
           [1, 2],
           [
             [1, 2],
@@ -214,14 +214,14 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             Network.goerli,
             123,
             1
-          )
-        )
+          ),
+        ])
       ).to.be.revertedWith(
         'This ZK proof is not from the correct token contract'
       )
     })
     it('should not mint if nullifier has already been used', async function () {
-      await this.derivativeContract.mint(
+      await this.derivativeContract.mint([
         [1, 2],
         [
           [1, 2],
@@ -233,10 +233,10 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.goerli,
           123,
           1
-        )
-      )
+        ),
+      ])
       await expect(
-        this.derivativeContract.mint(
+        this.derivativeContract.mint([
           [1, 2],
           [
             [1, 2],
@@ -248,8 +248,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             Network.goerli,
             123,
             1
-          )
-        )
+          ),
+        ])
       ).to.be.revertedWith('This ZK proof has already been used')
     })
     it('should not mint if the zk proof is invalid', async function () {
@@ -259,7 +259,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         attestorPublicKey
       )
       await expect(
-        contract.mint(
+        contract.mint([
           [1, 2],
           [
             [1, 2],
@@ -271,8 +271,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             Network.goerli,
             123,
             1
-          )
-        )
+          ),
+        ])
       ).to.be.revertedWith('Invalid ZK proof')
     })
   })

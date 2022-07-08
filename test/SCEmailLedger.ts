@@ -84,53 +84,53 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
     })
 
     it('should mint from the ledger if all the correct info is there', async function () {
-      const tx = await this.contract.mint(
+      const tx = await this.contract.mint([
         [1, 2],
         [
           [1, 2],
           [3, 4],
         ],
         [1, 2],
-        getFakeEmailVerifierInput(123, domains[0])
-      )
+        getFakeEmailVerifierInput(123, domains[0]),
+      ])
       expect(await tx.wait())
     })
     it('should mint from the derivative if all the correct info is there', async function () {
-      const derivativeTx = await this.derivativeContract.mint(
+      const derivativeTx = await this.derivativeContract.mint([
         [1, 2],
         [
           [1, 2],
           [3, 4],
         ],
         [1, 2],
-        getFakeEmailVerifierInput(123, domains[0])
-      )
+        getFakeEmailVerifierInput(123, domains[0]),
+      ])
       expect(await derivativeTx.wait())
     })
     it('should save nullifier correctly when minting from derivative', async function () {
       const nullifier = 123
-      const derivativeTx = await this.derivativeContract.mint(
+      const derivativeTx = await this.derivativeContract.mint([
         [1, 2],
         [
           [1, 2],
           [3, 4],
         ],
         [1, 2],
-        getFakeEmailVerifierInput(nullifier, domains[0])
-      )
+        getFakeEmailVerifierInput(nullifier, domains[0]),
+      ])
       await derivativeTx.wait()
       expect(await this.derivativeContract.nullifiers(nullifier)).to.equal(true)
     })
     it('should not transfer if the from address is non-zero', async function () {
-      this.derivativeContract.mint(
+      this.derivativeContract.mint([
         [1, 2],
         [
           [1, 2],
           [3, 4],
         ],
         [1, 2],
-        getFakeEmailVerifierInput(123, domains[0])
-      )
+        getFakeEmailVerifierInput(123, domains[0]),
+      ])
       await expect(
         this.derivativeContract.transferFrom(
           this.derivativeContract.owner(),
@@ -142,52 +142,52 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
     it('should not mint if the attestor is incorrect', async function () {
       const input = getFakeEmailVerifierInput(123, domains[0])
       await expect(
-        this.contract.mint(
+        this.contract.mint([
           [1, 2],
           [
             [1, 2],
             [3, 4],
           ],
           [1, 2],
-          [...input.slice(0, -1), invalidAttestorPublicKey]
-        )
+          [...input.slice(0, -1), invalidAttestorPublicKey],
+        ])
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
     })
     it('should not mint if the email is incorrect', async function () {
       await expect(
-        this.derivativeContract.mint(
+        this.derivativeContract.mint([
           [1, 2],
           [
             [1, 2],
             [3, 4],
           ],
           [1, 2],
-          getFakeEmailVerifierInput(123, domains[1])
-        )
+          getFakeEmailVerifierInput(123, domains[1]),
+        ])
       ).to.be.revertedWith('This ZK proof is not from the correct email')
     })
     it('should not mint if nullifier has already been used', async function () {
       const nullifier = 123
 
-      await this.contract.mint(
+      await this.contract.mint([
         [1, 2],
         [
           [1, 2],
           [3, 4],
         ],
         [1, 2],
-        getFakeEmailVerifierInput(nullifier, domains[0])
-      )
+        getFakeEmailVerifierInput(nullifier, domains[0]),
+      ])
       await expect(
-        this.contract.mint(
+        this.contract.mint([
           [1, 2],
           [
             [1, 2],
             [3, 4],
           ],
           [1, 2],
-          getFakeEmailVerifierInput(nullifier, domains[0])
-        )
+          getFakeEmailVerifierInput(nullifier, domains[0]),
+        ])
       ).to.be.revertedWith('This ZK proof has already been used')
     })
     it('should not mint if the zk proof is invalid', async function () {
@@ -197,15 +197,15 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
         attestorPublicKey
       )
       await expect(
-        contract.mint(
+        contract.mint([
           [1, 2],
           [
             [1, 2],
             [3, 4],
           ],
           [1, 2],
-          getFakeEmailVerifierInput(123, domains[0])
-        )
+          getFakeEmailVerifierInput(123, domains[0]),
+        ])
       ).to.be.revertedWith('Invalid ZK proof')
     })
   })
