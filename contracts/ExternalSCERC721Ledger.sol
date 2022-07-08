@@ -62,6 +62,8 @@ pragma solidity ^0.8.14;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./SCERC721Ledger.sol";
 
+import "hardhat/console.sol";
+
 contract ExternalSCERC721Ledger is SCERC721Ledger {
   // State
   uint256 public immutable attestorEcdsaPublicKey;
@@ -130,40 +132,19 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       "Error while verifying the ECDSA signature"
     );
     // Extract metadata
-    // (
-    //   string memory recoveredContractString,
-    //   string memory name,
-    //   string memory symbol
-    // ) = _extractMetadata(data);
-    // // Confirm this is the correct contract
-    // require(
-    //   keccak256(bytes(recoveredContractString)) ==
-    //     keccak256(bytes(originalContractString)),
-    //   "Wrong token address"
-    // );
-    // // Create derivative
-    // SCERC721Derivative derivative = new SCERC721Derivative(
-    //   address(this),
-    //   originalContract,
-    //   verifierContract,
-    //   attestorPublicKey,
-    //   network,
-    //   name,
-    //   symbol
-    // );
-    // originalContractToDerivativeContract[originalContract] = address(
-    //   derivative
-    // );
-    // // Emit creation event
-    // emit CreateDerivativeContract(originalContract, address(derivative));
-    // // Proxy mint call
-    // SCERC721Derivative(address(derivative)).mintWithSender(
-    //   msg.sender,
-    //   a,
-    //   b,
-    //   c,
-    //   input
-    // );
+    (
+      string memory recoveredContractString,
+      string memory name,
+      string memory symbol
+    ) = _extractMetadata(data);
+    // Confirm this is the correct contract
+    require(
+      keccak256(bytes(recoveredContractString)) ==
+        keccak256(bytes(originalContractString)),
+      "Wrong token address"
+    );
+    // Create derivative
+    _mintSpawningNewDerivative(originalContract, a, b, c, input, name, symbol);
   }
 
   function _extractMetadata(bytes memory data)
