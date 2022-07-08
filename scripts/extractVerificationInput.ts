@@ -1,9 +1,10 @@
-import { readFileSync, writeFileSync, appendFileSync } from 'fs'
-import path from 'path'
-import FindFiles from 'file-regex'
-import prettier from 'prettier'
+import { appendFileSync, readFileSync, writeFileSync } from 'fs'
 import { cwd } from 'process'
-;(async () => {
+import FindFiles from 'file-regex'
+import path from 'path'
+import prettier from 'prettier'
+
+void (async () => {
   const fileName = await FindFiles(
     path.resolve(cwd(), 'artifacts/build-info'),
     /\/.*?\.json$/g,

@@ -1,6 +1,5 @@
 import { ethers, run } from 'hardhat'
-
-const prompt = require('prompt-sync')()
+import { prompt } from 'prompt-sync'
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -19,7 +18,7 @@ async function main() {
   } as { [chainId: number]: string }
   const chainName = chains[chainId]
 
-  const contracts = ['SealCredERC721Ledger', 'SealCredEmailLedger']
+  const contracts = ['SCERC721Ledger', 'SCEmailLedger']
   for (const contract of contracts) {
     console.log(`Deploying ${contract}...`)
     const SealCred = await ethers.getContractFactory(contract)

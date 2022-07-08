@@ -77,6 +77,7 @@ __metadata:
     eslint-plugin-node: ^11.1.0
     eslint-plugin-prettier: ^4.2.1
     eslint-plugin-promise: ^6.0.0
+    eslint-plugin-sort-imports-es6-autofix: ^0.6.0
     ethereum-waffle: ^3.4.4
     ethers: ^5.6.9
     file-regex: ^3.1.0
@@ -5707,6 +5708,15 @@ __metadata:
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0
   checksum: 7e761507c51267b77e4ad710e7c8938aa4f8f69b975886034e57497a1816e9527eda364e25aac03d1b4e0df2e738ba98e49ad075d028824fcfea533a1419751c
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-sort-imports-es6-autofix@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "eslint-plugin-sort-imports-es6-autofix@npm:0.6.0"
+  peerDependencies:
+    eslint: ">=7.7.0"
+  checksum: cea8ebb56f88f0834088962a833326702ffdd83c731d4fc2aba1fec7dc9ad445ad4faa69a95d8d16d332a7fe84ad7b7d7fdf846f2c276d88fad19a91a265da63
   languageName: node
   linkType: hard
 
