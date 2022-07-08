@@ -50,12 +50,13 @@ async function main() {
       attestorEcdsaAddress,
       network,
     } = await prompt.get(parameters)
+    const networkCode = network === 'g' ? 103 : 109
     const sealCred = isExternal
       ? await SealCred.deploy(
           verifierAddress,
           attestorPublicKey,
           attestorEcdsaAddress,
-          network
+          networkCode
         )
       : await SealCred.deploy(verifierAddress, attestorPublicKey)
 
@@ -74,7 +75,12 @@ async function main() {
       await run('verify:verify', {
         address,
         constructorArguments: isExternal
-          ? [verifierAddress, attestorPublicKey, attestorEcdsaAddress, network]
+          ? [
+              verifierAddress,
+              attestorPublicKey,
+              attestorEcdsaAddress,
+              networkCode,
+            ]
           : [verifierAddress, attestorPublicKey],
       })
     } catch (err) {
