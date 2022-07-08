@@ -19,26 +19,28 @@ async function main() {
   const chainName = chains[chainId]
 
   const contracts = [
+    'ExternalSCERC721Ledger',
     'SCERC721Ledger',
     'SCEmailLedger',
-    'ExternalSCERC721Ledger',
   ]
   for (const contract of contracts) {
     console.log(`Deploying ${contract}...`)
     const SealCred = await ethers.getContractFactory(contract)
+    const isExternal = contract === 'ExternalSCERC721Ledger'
     const parameters = {
       properties: {
         verifierAddress: { required: true },
         attestorPublicKey: { required: true },
         attestorEcdsaAddress: {
           required: true,
-          ask: () => contract === 'ExternalSCERC721Ledger',
+          ask: () => isExternal,
         },
         network: {
           required: true,
-          ask: () => contract === 'ExternalSCERC721Ledger',
+          ask: () => isExternal,
           enum: ['g', 'm'],
           default: 'g',
+          description: 'Network: (m)ain, (g)oerli',
         },
       },
     } as prompt.Schema
@@ -48,12 +50,14 @@ async function main() {
       attestorEcdsaAddress,
       network,
     } = await prompt.get(parameters)
-    const sealCred = await SealCred.deploy(
-      verifierAddress,
-      attestorPublicKey,
-      attestorEcdsaAddress,
-      network
-    )
+    const sealCred = isExternal
+      ? await SealCred.deploy(
+          verifierAddress,
+          attestorPublicKey,
+          attestorEcdsaAddress,
+          network
+        )
+      : await SealCred.deploy(verifierAddress, attestorPublicKey)
 
     console.log('Deploy tx gas price:', sealCred.deployTransaction.gasPrice)
     console.log('Deploy tx gas limit:', sealCred.deployTransaction.gasLimit)
@@ -69,7 +73,9 @@ async function main() {
     try {
       await run('verify:verify', {
         address,
-        constructorArguments: [verifierAddress, attestorPublicKey],
+        constructorArguments: isExternal
+          ? [verifierAddress, attestorPublicKey, attestorEcdsaAddress, network]
+          : [verifierAddress, attestorPublicKey],
       })
     } catch (err) {
       console.log(
