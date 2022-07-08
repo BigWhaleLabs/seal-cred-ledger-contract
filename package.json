@@ -32,8 +32,8 @@
     "prepublishOnly": "yarn build && yarn tsc"
   },
   "devDependencies": {
-    "@defi-wonderland/smock": "^2.1.0",
-    "@nomiclabs/hardhat-ethers": "^2.0.6",
+    "@defi-wonderland/smock": "^2.1.1",
+    "@nomiclabs/hardhat-ethers": "^2.1.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.7.0",
@@ -41,7 +41,7 @@
     "@typechain/hardhat": "^6.1.2",
     "@types/chai": "^4.3.1",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^18.0.1",
+    "@types/node": "^18.0.3",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
     "chai": "^4.3.6",
@@ -59,7 +59,7 @@
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.6.9",
     "file-regex": "^3.1.0",
-    "hardhat": "^2.9.9",
+    "hardhat": "^2.10.0",
     "hardhat-gas-reporter": "^1.0.8",
     "np": "^7.6.2",
     "prettier": "^2.7.1",
