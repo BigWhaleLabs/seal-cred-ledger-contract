@@ -17,7 +17,6 @@ const ecdsaWallet = new Wallet(
 const invalidSignature =
   '0xb2ee37569e6f8b3bf6dcc630ce6600bf55dafcebda15bbc934fa49bef580db01e0cb3996e1d47f2426c468b7d5fb615b125096f271b447f2edd192d359089f920e'
 export const ecdsaAddress = ecdsaWallet.address
-console.log('ECDSA address:', ecdsaAddress)
 
 export enum Network {
   goerli = 103,
