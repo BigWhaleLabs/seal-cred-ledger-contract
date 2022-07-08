@@ -138,7 +138,7 @@ export function getFakeERC721() {
   return smock.fake('ERC721')
 }
 
-export function getFakeBalanceVerifierInput(
+function getFakeBalanceVerifierInput(
   contract: string,
   network: Network,
   nullifier: number,
@@ -165,8 +165,7 @@ export async function getEcdsaArguments(
   network: Network,
   contract: string,
   name: string,
-  symbol: string,
-  valid = true as boolean
+  symbol: string
 ) {
   const data = [
     ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
@@ -176,7 +175,7 @@ export async function getEcdsaArguments(
     ...ethers.utils.toUtf8Bytes(symbol),
   ]
   const signature = await signEcdsa(data)
-  return [data, valid ? signature : invalidSignature]
+  return [data, signature]
 }
 
 function padZeroesOnRightUint8(array: Uint8Array, length: number) {
