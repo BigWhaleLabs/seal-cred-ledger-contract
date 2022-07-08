@@ -144,12 +144,12 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       "Wrong token address"
     );
     // Create derivative
-    _mintSpawningNewDerivative(originalContract, a, b, c, input, name, symbol);
+    // _mintSpawningNewDerivative(originalContract, a, b, c, input, name, symbol);
   }
 
   function _extractMetadata(bytes memory data)
     internal
-    view
+    pure
     returns (
       string memory recoveredContractString,
       uint256 network,
