@@ -67,7 +67,6 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
 
   // State
   uint256 public immutable attestorEcdsaPublicKey;
-  uint256 public immutable override network;
 
   constructor(
     address _verifierContract,
