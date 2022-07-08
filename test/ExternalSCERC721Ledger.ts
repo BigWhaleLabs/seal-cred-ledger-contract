@@ -1,16 +1,13 @@
-import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import {
-  zeroAddress,
+  Network,
   attestorPublicKey,
   ecdsaPublicKey,
-  Network,
-  // invalidAttestorPublicKey,
-  // nonZeroAddress,
-  // getFakeERC721,
-  // getFakeBalanceVerifier,
-  // getFakeBalanceVerifierInput,
+  getFakeBalanceVerifier,
+  getFakeERC721,
+  zeroAddress,
 } from './utils'
+import { ethers } from 'hardhat'
+import { expect } from 'chai'
 
 describe('ExternalSCERC721Ledger contract tests', () => {
   before(async function () {
@@ -21,7 +18,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
   })
 
   describe('Constructor', function () {
-    it('should deploy the contract with the correct fields', async function () {
+    it.only('should deploy the contract with the correct fields', async function () {
       const contract = await this.factory.deploy(
         zeroAddress,
         attestorPublicKey,
@@ -30,35 +27,39 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
+      expect(await contract.attestorEcdsaPublicKey()).to.equal(ecdsaPublicKey)
+      expect(await contract.network()).to.equal(Network.goerli)
     })
   })
 
   describe('Minting and derivatives', function () {
-    // beforeEach(async function () {
-    //   // Verifier
-    //   this.fakeVerifierContract = await getFakeBalanceVerifier(true)
-    //   // ERC721
-    //   this.fakeERC721 = await getFakeERC721()
-    //   // Ledger
-    //   this.contract = await this.factory.deploy(
-    //     this.fakeVerifierContract.address,
-    //     attestorPublicKey
-    //   )
-    //   await this.contract.deployed()
-    //   this.contract.connect(this.user)
-    //   // Derivative
-    //   this.derivativeContract = await this.derivativeFactory.deploy(
-    //     this.contract.address,
-    //     this.fakeERC721.address,
-    //     this.fakeVerifierContract.address,
-    //     attestorPublicKey,
-    //     103,
-    //     'FakeERC721 (derivative)',
-    //     'FAKE-d'
-    //   )
-    //   await this.derivativeContract.deployed()
-    //   this.derivativeContract.connect(this.user)
-    // })
+    beforeEach(async function () {
+      // Verifier
+      this.fakeVerifierContract = await getFakeBalanceVerifier(true)
+      // ERC721
+      this.fakeERC721 = await getFakeERC721()
+      // Ledger
+      this.contract = await this.factory.deploy(
+        this.fakeVerifierContract.address,
+        attestorPublicKey,
+        ecdsaPublicKey,
+        Network.mainnet
+      )
+      await this.contract.deployed()
+      this.contract.connect(this.user)
+      // Derivative
+      this.derivativeContract = await this.derivativeFactory.deploy(
+        this.contract.address,
+        this.fakeERC721.address,
+        this.fakeVerifierContract.address,
+        attestorPublicKey,
+        Network.goerli,
+        'FakeERC721 (derivative)',
+        'FAKE-d'
+      )
+      await this.derivativeContract.deployed()
+      this.derivativeContract.connect(this.user)
+    })
     // it('should mint with ledger if all the correct info is there', async function () {
     //   const tx = await this.contract.mint(
     //     [1, 2],

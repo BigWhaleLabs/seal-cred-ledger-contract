@@ -1,14 +1,15 @@
-import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import {
-  zeroAddress,
+  Network,
   attestorPublicKey,
-  invalidAttestorPublicKey,
-  nonZeroAddress,
-  getFakeERC721,
   getFakeBalanceVerifier,
   getFakeBalanceVerifierInput,
+  getFakeERC721,
+  invalidAttestorPublicKey,
+  nonZeroAddress,
+  zeroAddress,
 } from './utils'
+import { ethers } from 'hardhat'
+import { expect } from 'chai'
 
 describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
   before(async function () {
@@ -79,7 +80,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         this.fakeERC721.address,
         this.fakeVerifierContract.address,
         attestorPublicKey,
-        103,
+        Network.goerli,
         'FakeERC721 (derivative)',
         'FAKE-d'
       )
@@ -111,7 +112,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       expect(await derivativeTx.wait())
     })
     it('should fail if network is incorrect', async function () {
-      expect(
+      await expect(
         this.contract.mint(
           [1, 2],
           [

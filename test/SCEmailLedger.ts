@@ -1,14 +1,14 @@
-import { expect } from 'chai'
-import { ethers } from 'hardhat'
 import {
-  zeroAddress,
   attestorPublicKey,
-  nonZeroAddress,
+  domains,
   getFakeEmailVerifier,
   getFakeEmailVerifierInput,
   invalidAttestorPublicKey,
-  domains,
+  nonZeroAddress,
+  zeroAddress,
 } from './utils'
+import { ethers } from 'hardhat'
+import { expect } from 'chai'
 
 describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
   before(async function () {
