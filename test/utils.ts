@@ -14,8 +14,9 @@ export const invalidAttestorPublicKey = BigNumber.from(
 const ecdsaWallet = new Wallet(
   '0xc22d0fdda8dd97029978419bc67b2daf7a8827c507506d1a997ac52bd56e97b8'
 )
+const invalidSignature =
+  '0xb2ee37569e6f8b3bf6dcc630ce6600bf55dafcebda15bbc934fa49bef580db01e0cb3996e1d47f2426c468b7d5fb615b125096f271b447f2edd192d359089f920e'
 export const ecdsaAddress = ecdsaWallet.address
-console.log('ECDSA address:', ecdsaAddress)
 
 export enum Network {
   goerli = 103,
@@ -135,7 +136,8 @@ export async function getEcdsaArguments(
   network: Network,
   contract: string,
   name: string,
-  symbol: string
+  symbol: string,
+  valid = true as boolean
 ) {
   const data = [
     ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
@@ -145,7 +147,7 @@ export async function getEcdsaArguments(
     ...ethers.utils.toUtf8Bytes(symbol),
   ]
   const signature = await signEcdsa(data)
-  return [data, signature]
+  return [data, valid ? signature : invalidSignature]
 }
 
 function padZeroesOnRightUint8(array: Uint8Array, length: number) {
