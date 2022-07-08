@@ -116,11 +116,28 @@ export function getFakeEmailProof(nullifier: number, domain: string) {
   }
 }
 
+export function getFakeBalanceProof(
+  contract: string,
+  network: Network,
+  nullifier: number,
+  threshold: number
+) {
+  return {
+    a: [1, 2],
+    b: [
+      [1, 2],
+      [3, 4],
+    ],
+    c: [1, 2],
+    input: getFakeBalanceVerifierInput(contract, network, nullifier, threshold),
+  }
+}
+
 export function getFakeERC721() {
   return smock.fake('ERC721')
 }
 
-export function getFakeBalanceVerifierInput(
+function getFakeBalanceVerifierInput(
   contract: string,
   network: Network,
   nullifier: number,

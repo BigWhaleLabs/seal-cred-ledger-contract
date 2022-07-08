@@ -4,7 +4,6 @@ import {
   ecdsaAddress,
   getEcdsaArguments,
   getFakeBalanceVerifier,
-  getFakeBalanceVerifierInput,
   getFakeERC721,
   zeroAddress,
 } from './utils'
@@ -56,42 +55,42 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       await this.contract.deployed()
       this.contract.connect(this.user)
     })
-    it.skip('should mint with ledger if all the correct info is there', async function () {
-      const name = 'MyERC721'
-      const symbol = 'ME7'
-      // Check the mint transaction
-      const tx = await this.contract[mintFunctionSignature](
-        [1, 2],
-        [
-          [1, 2],
-          [3, 4],
-        ],
-        [1, 2],
-        getFakeBalanceVerifierInput(
-          this.fakeERC721.address,
-          Network.mainnet,
-          123,
-          1
-        ),
-        ...(await getEcdsaArguments(
-          Network.mainnet,
-          this.fakeERC721.address,
-          name,
-          symbol
-        ))
-      )
-      expect(await tx.wait())
-      // Get the derivative
-      const derivativeAddress =
-        await this.contract.originalContractToDerivativeContract(
-          this.fakeERC721.address
-        )
-      const derivativeContract = await this.derivativeFactory.attach(
-        derivativeAddress
-      )
-      // Check the derivative variables
-      expect(await derivativeContract.name()).to.equal(name)
-      expect(await derivativeContract.symbol()).to.equal(symbol)
-    })
+    // it.skip('should mint with ledger if all the correct info is there', async function () {
+    //   const name = 'MyERC721'
+    //   const symbol = 'ME7'
+    //   // Check the mint transaction
+    //   const tx = await this.contract[mintFunctionSignature](
+    //     [1, 2],
+    //     [
+    //       [1, 2],
+    //       [3, 4],
+    //     ],
+    //     [1, 2],
+    //     getFakeBalanceVerifierInput(
+    //       this.fakeERC721.address,
+    //       Network.mainnet,
+    //       123,
+    //       1
+    //     ),
+    //     ...(await getEcdsaArguments(
+    //       Network.mainnet,
+    //       this.fakeERC721.address,
+    //       name,
+    //       symbol
+    //     ))
+    //   )
+    //   expect(await tx.wait())
+    //   // Get the derivative
+    //   const derivativeAddress =
+    //     await this.contract.originalContractToDerivativeContract(
+    //       this.fakeERC721.address
+    //     )
+    //   const derivativeContract = await this.derivativeFactory.attach(
+    //     derivativeAddress
+    //   )
+    //   // Check the derivative variables
+    //   expect(await derivativeContract.name()).to.equal(name)
+    //   expect(await derivativeContract.symbol()).to.equal(symbol)
+    // })
   })
 })
