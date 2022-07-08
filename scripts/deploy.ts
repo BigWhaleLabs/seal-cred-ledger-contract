@@ -23,8 +23,8 @@ async function main() {
   const chainName = chains[chainId]
 
   const contracts = [
-    // 'ExternalSCERC721Ledger',
-    // 'SCERC721Ledger',
+    'ExternalSCERC721Ledger',
+    'SCERC721Ledger',
     'SCEmailLedger',
   ]
   for (const contract of contracts) {
