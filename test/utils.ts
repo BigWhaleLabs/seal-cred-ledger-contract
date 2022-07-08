@@ -142,7 +142,7 @@ export async function getEcdsaArguments(
     0,
     ...ethers.utils.toUtf8Bytes(symbol),
   ]
-  const signature = await signEcdsa(ethers.utils.hexlify(data))
+  const signature = await signEcdsa(data)
   return [data, signature]
 }
 
@@ -151,6 +151,6 @@ function padZeroesOnRightUint8(array: Uint8Array, length: number) {
   return ethers.utils.concat([array, padding])
 }
 
-function signEcdsa(message: string) {
-  return ecdsaWallet.signMessage(ethers.utils.toUtf8Bytes(message))
+function signEcdsa(message: number[]) {
+  return ecdsaWallet.signMessage(message)
 }

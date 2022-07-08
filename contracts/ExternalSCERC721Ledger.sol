@@ -117,11 +117,9 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       return;
     }
     // Confirm the metadata signature is valid
-    bytes32 dataHash = keccak256(data);
+    bytes32 dataHash = ECDSA.toEthSignedMessageHash(data);
     (address recoveredAttestorAddress, ECDSA.RecoverError ecdsaError) = ECDSA
       .tryRecover(dataHash, signature);
-    console.log("recoveredAttestorAddress", recoveredAttestorAddress);
-    console.log("attestorEcdsaAddress", attestorEcdsaAddress);
     require(
       ecdsaError == ECDSA.RecoverError.NoError,
       "Error while verifying the ECDSA signature"
