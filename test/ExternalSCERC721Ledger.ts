@@ -11,6 +11,9 @@ import {
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
+const mintFunctionSignature =
+  'mint(uint256[2],uint256[2][2],uint256[2],uint256[46],bytes32,bytes)'
+
 describe('ExternalSCERC721Ledger contract tests', () => {
   before(async function () {
     this.accounts = await ethers.getSigners()
@@ -53,11 +56,11 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       await this.contract.deployed()
       this.contract.connect(this.user)
     })
-    it('should mint with ledger if all the correct info is there', async function () {
+    it.only('should mint with ledger if all the correct info is there', async function () {
       const name = 'MyERC721'
       const symbol = 'ME7'
       // Check the mint transaction
-      const tx = await this.contract.mint(
+      const tx = await this.contract[mintFunctionSignature](
         [1, 2],
         [
           [1, 2],
@@ -69,8 +72,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1
-        )
-        // ...(await getEcdsaArguments(this.fakeERC721.address, name, symbol))
+        ),
+        ...(await getEcdsaArguments(this.fakeERC721.address, name, symbol))
       )
       expect(await tx.wait())
       // Get the derivative
