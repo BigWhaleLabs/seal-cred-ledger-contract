@@ -59,38 +59,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import "./SCERC721Derivative.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "./SCERC721Ledger.sol";
 
-/**
- * @title SealCred ERC721 Ledger
- * @dev Creates SCERC721Derivatives, remembers them and proxies mint calls to them
- */
-contract SCERC721Ledger is Ownable {
+contract ExternalSCERC721Ledger is SCERC721Ledger {
+  using ECDSA for bytes32;
+
   // State
-  mapping(address => address) public originalContractToDerivativeContract;
-  address public verifierContract;
-  uint256 public immutable attestorPublicKey;
-  uint256 public network = 103; // 103 — 'g', 109 — 'm'
+  uint256 public immutable attestorEcdsaPublicKey;
+  uint256 public immutable override network;
 
-  // Events
-  event CreateDerivativeContract(
-    address originalContract,
-    address derivativeContract
-  );
-  event DeleteOriginalContract(address originalContract);
-
-  constructor(address _verifierContract, uint256 _attestorPublicKey) {
-    verifierContract = _verifierContract;
-    attestorPublicKey = _attestorPublicKey;
-  }
-
-  /**
-   * @dev Returns verifier contract
-   */
-  function setVerifierContract(address _verifierContract) external onlyOwner {
-    verifierContract = _verifierContract;
+  constructor(
+    address _verifierContract,
+    uint256 _attestorEddsaPublicKey,
+    uint256 _attestorEcdsaPublicKey,
+    uint256 _network
+  ) SCERC721Ledger(_verifierContract, _attestorEddsaPublicKey) {
+    attestorEcdsaPublicKey = _attestorEcdsaPublicKey;
+    network = _network;
   }
 
   /**
@@ -100,9 +86,14 @@ contract SCERC721Ledger is Ownable {
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[46] memory input
+    uint256[46] memory input,
+    bytes32 data,
+    bytes memory signature
   ) external {
-    (, address originalContract) = _extractAddress(input, 0);
+    (
+      string memory originalContractString,
+      address originalContract
+    ) = _extractAddress(input, 0);
     // Check if derivative already exists
     if (originalContractToDerivativeContract[originalContract] != address(0)) {
       // Proxy mint call
@@ -110,16 +101,32 @@ contract SCERC721Ledger is Ownable {
         .mintWithSender(msg.sender, a, b, c, input);
       return;
     }
+    // Confirm the metadata signature is valid
+    require(
+      data.toEthSignedMessageHash().recover(signature) == originalContract,
+      "Wrong attestor public key"
+    );
+    // Extract metadata
+    (
+      string memory recoveredContractString,
+      string memory name,
+      string memory symbol
+    ) = _extractMetadata(data);
+    // Confirm this is the correct contract
+    require(
+      keccak256(bytes(recoveredContractString)) ==
+        keccak256(bytes(originalContractString)),
+      "Wrong token address"
+    );
     // Create derivative
-    IERC721Metadata metadata = IERC721Metadata(originalContract);
     SCERC721Derivative derivative = new SCERC721Derivative(
       address(this),
       originalContract,
       verifierContract,
       attestorPublicKey,
       network,
-      string(bytes.concat(bytes(metadata.name()), bytes(" (derivative)"))),
-      string(bytes.concat(bytes(metadata.symbol()), bytes("-d")))
+      name,
+      symbol
     );
     originalContractToDerivativeContract[originalContract] = address(
       derivative
@@ -136,68 +143,41 @@ contract SCERC721Ledger is Ownable {
     );
   }
 
-  /**
-   * @dev Returns derivative contract of given original contract
-   */
-  function getDerivativeContract(address originalContract)
-    external
-    view
-    returns (address)
-  {
-    return originalContractToDerivativeContract[originalContract];
-  }
-
-  /**
-   * @dev Deletes originalContract record from the ledger
-   */
-  function deleteOriginalContract(address originalContract) external onlyOwner {
-    delete originalContractToDerivativeContract[originalContract];
-    emit DeleteOriginalContract(originalContract);
-  }
-
-  /**
-   * @dev Returns address from input
-   */
-  function _extractAddress(uint256[46] memory input, uint256 startIndex)
+  function _extractMetadata(bytes32 data)
     internal
     pure
-    returns (string memory, address)
+    returns (
+      string memory,
+      string memory,
+      string memory
+    )
   {
-    uint256 length = 42;
-    bytes memory result = new bytes(length);
-    for (uint256 i = startIndex; i < startIndex + length; i++) {
-      result[i] = bytes1(uint8(input[i]));
+    // Get contract string — first 42 characters
+    uint256 contractLength = 42;
+    bytes memory contractBytes = new bytes(contractLength);
+    for (uint256 i = 0; i < contractLength; i++) {
+      contractBytes[i] = data[i];
     }
-    string memory addressString = string(result);
-    return (addressString, _parseAddress(addressString));
-  }
-
-  // Credit to: https://github.com/provable-things/ethereum-api
-  function _parseAddress(string memory _a) internal pure returns (address) {
-    bytes memory tmp = bytes(_a);
-    uint160 iaddr = 0;
-    uint160 b1;
-    uint160 b2;
-    for (uint256 i = 2; i < 2 + 2 * 20; i += 2) {
-      iaddr *= 256;
-      b1 = uint160(uint8(tmp[i]));
-      b2 = uint160(uint8(tmp[i + 1]));
-      if ((b1 >= 97) && (b1 <= 102)) {
-        b1 -= 87;
-      } else if ((b1 >= 65) && (b1 <= 70)) {
-        b1 -= 55;
-      } else if ((b1 >= 48) && (b1 <= 57)) {
-        b1 -= 48;
+    // Get the 0x0 index separating name from symbol
+    uint256 zeroIndex;
+    for (uint256 i = 42; i < data.length; i++) {
+      if (data[i] == 0) {
+        zeroIndex = i;
+        break;
       }
-      if ((b2 >= 97) && (b2 <= 102)) {
-        b2 -= 87;
-      } else if ((b2 >= 65) && (b2 <= 70)) {
-        b2 -= 55;
-      } else if ((b2 >= 48) && (b2 <= 57)) {
-        b2 -= 48;
-      }
-      iaddr += (b1 * 16 + b2);
     }
-    return address(iaddr);
+    // Get name string — between the end of contract at 42 and zero
+    uint256 nameLength = zeroIndex - contractLength;
+    bytes memory nameBytes = new bytes(nameLength);
+    for (uint256 i = contractLength; i < zeroIndex; i++) {
+      nameBytes[i] = data[i];
+    }
+    // Get symbol string — the rest of the data
+    uint256 symbolLength = data.length - contractLength - nameLength - 1;
+    bytes memory symbolBytes = new bytes(symbolLength);
+    for (uint256 i = zeroIndex + 1; i < data.length; i++) {
+      symbolBytes[i - zeroIndex - 1] = data[i];
+    }
+    return (string(contractBytes), string(nameBytes), string(symbolBytes));
   }
 }

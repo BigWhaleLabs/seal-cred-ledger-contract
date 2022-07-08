@@ -1,5 +1,5 @@
 import { smock } from '@defi-wonderland/smock'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber, ethers, Wallet } from 'ethers'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 export const emails = ['one@example.com', 'two@example2.com']
@@ -11,6 +11,10 @@ export const attestorPublicKey = BigNumber.from(
 export const invalidAttestorPublicKey = BigNumber.from(
   '35964726898530325568278821246826665888375911357846978084992870462356218868841'
 )
+const ecdsaWallet = new Wallet(
+  '0xc22d0fdda8dd97029978419bc67b2daf7a8827c507506d1a997ac52bd56e97b8'
+)
+export const ecdsaPublicKey = ecdsaWallet.address
 
 export async function getFakeBalanceVerifier(result: boolean) {
   const fake = await smock.fake([
@@ -124,4 +128,8 @@ export function getFakeEmailVerifierInput(nullifier: number, domain: string) {
 export function padZeroesOnRightUint8(array: Uint8Array, length: number) {
   const padding = new Uint8Array(length - array.length)
   return ethers.utils.concat([array, padding])
+}
+
+export function signEcdsa(message: string) {
+  return ecdsaWallet.signMessage(ethers.utils.toUtf8Bytes(message))
 }
