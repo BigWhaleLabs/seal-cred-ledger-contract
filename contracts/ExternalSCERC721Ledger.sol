@@ -63,8 +63,6 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./SCERC721Ledger.sol";
 
 contract ExternalSCERC721Ledger is SCERC721Ledger {
-  using ECDSA for bytes32;
-
   // State
   uint256 public immutable attestorEcdsaPublicKey;
 
@@ -83,7 +81,7 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     uint256[2][2] memory,
     uint256[2] memory,
     uint256[46] memory
-  ) external override {
+  ) external pure override {
     revert("Mint with ECDSA signature should be used");
   }
 
@@ -95,7 +93,7 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     uint256[2][2] memory b,
     uint256[2] memory c,
     uint256[46] memory input,
-    bytes32 data,
+    bytes memory data,
     bytes memory signature
   ) external {
     (
@@ -110,9 +108,19 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       return;
     }
     // Confirm the metadata signature is valid
+    bytes32 dataHash = keccak256(data);
+    (address attestorAddress, ECDSA.RecoverError ecdsaError) = ECDSA.tryRecover(
+      dataHash,
+      signature
+    );
     require(
-      data.toEthSignedMessageHash().recover(signature) == originalContract,
+      keccak256(abi.encodePacked(attestorAddress)) ==
+        keccak256(abi.encodePacked(attestorEcdsaPublicKey)),
       "Wrong attestor public key"
+    );
+    require(
+      ecdsaError == ECDSA.RecoverError.NoError,
+      "Error while verifying the ECDSA signature"
     );
     // Extract metadata
     (
@@ -151,7 +159,7 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     );
   }
 
-  function _extractMetadata(bytes32 data)
+  function _extractMetadata(bytes memory data)
     internal
     pure
     returns (
