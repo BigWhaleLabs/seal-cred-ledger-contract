@@ -1,5 +1,5 @@
 import { ethers, run } from 'hardhat'
-import { prompt } from 'prompt-sync'
+import prompt from 'prompt'
 
 async function main() {
   const [deployer] = await ethers.getSigners()
@@ -18,17 +18,42 @@ async function main() {
   } as { [chainId: number]: string }
   const chainName = chains[chainId]
 
-  const contracts = ['SCERC721Ledger', 'SCEmailLedger']
+  const contracts = [
+    'SCERC721Ledger',
+    'SCEmailLedger',
+    'ExternalSCERC721Ledger',
+  ]
   for (const contract of contracts) {
     console.log(`Deploying ${contract}...`)
     const SealCred = await ethers.getContractFactory(contract)
-    const verifierAddress = prompt('Enter Verifier contract address: ')
-    if (verifierAddress == null || verifierAddress === '')
-      throw Error('Verifier contract address invalid')
-    const attestorPublicKey = prompt('Enter Attestor public key: ')
-    if (attestorPublicKey == null || attestorPublicKey === '')
-      throw Error('Attestor public key invalid')
-    const sealCred = await SealCred.deploy(verifierAddress, attestorPublicKey)
+    const parameters = {
+      properties: {
+        verifierAddress: { required: true },
+        attestorPublicKey: { required: true },
+        attestorEcdsaAddress: {
+          required: true,
+          ask: () => contract === 'ExternalSCERC721Ledger',
+        },
+        network: {
+          required: true,
+          ask: () => contract === 'ExternalSCERC721Ledger',
+          enum: ['g', 'm'],
+          default: 'g',
+        },
+      },
+    } as prompt.Schema
+    const {
+      verifierAddress,
+      attestorPublicKey,
+      attestorEcdsaAddress,
+      network,
+    } = await prompt.get(parameters)
+    const sealCred = await SealCred.deploy(
+      verifierAddress,
+      attestorPublicKey,
+      attestorEcdsaAddress,
+      network
+    )
 
     console.log('Deploy tx gas price:', sealCred.deployTransaction.gasPrice)
     console.log('Deploy tx gas limit:', sealCred.deployTransaction.gasLimit)
