@@ -137,14 +137,6 @@ export async function getEcdsaArguments(
   name: string,
   symbol: string
 ) {
-  console.log(
-    'Contract length:',
-    ethers.utils.toUtf8Bytes(contract.toLowerCase()).length
-  )
-  console.log('Network length:', 1)
-  console.log('Name length:', ethers.utils.toUtf8Bytes(name).length)
-  console.log('Zero length:', 1)
-  console.log('Symbol length:', ethers.utils.toUtf8Bytes(symbol).length)
   const data = [
     ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
     network,

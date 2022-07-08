@@ -1,12 +1,12 @@
-import * as dotenv from 'dotenv'
-import { cleanEnv, str, testOnly } from 'envalid'
-import { HardhatUserConfig } from 'hardhat/config'
-import { ETH_RPC as FALLBACK_ETH_RPC } from '@big-whale-labs/constants'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
 import 'hardhat-gas-reporter'
 import 'solidity-coverage'
+import * as dotenv from 'dotenv'
+import { ETH_RPC as FALLBACK_ETH_RPC } from '@big-whale-labs/constants'
+import { HardhatUserConfig } from 'hardhat/config'
+import { cleanEnv, str, testOnly } from 'envalid'
 
 dotenv.config()
 

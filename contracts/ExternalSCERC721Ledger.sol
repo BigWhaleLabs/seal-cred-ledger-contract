@@ -62,8 +62,6 @@ pragma solidity ^0.8.14;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./SCERC721Ledger.sol";
 
-import "hardhat/console.sol";
-
 contract ExternalSCERC721Ledger is SCERC721Ledger {
   // State
   address public immutable attestorEcdsaAddress;
