@@ -101,7 +101,7 @@ async function main() {
     }
 
     // Print out the information
-    console.log('SealCred Ledger deployed and verified on Etherscan!')
+    console.log(`${contract} deployed and verified on Etherscan!`)
     console.log('Contract address:', address)
     console.log(
       'Etherscan URL:',
