@@ -153,8 +153,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
           Network.mainnet,
           this.fakeERC721.address,
           name,
-          symbol,
-          false
+          symbol
         ))
       )
       await expect(tx).to.be.revertedWith(
