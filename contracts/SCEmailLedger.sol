@@ -61,7 +61,6 @@ pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import "./helpers/Utils.sol";
 import "./SCEmailDerivative.sol";
 
 /**

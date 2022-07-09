@@ -62,7 +62,6 @@ pragma solidity ^0.8.14;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./helpers/Utils.sol";
 import "./interfaces/IBalanceCheckerVerifier.sol";
 import "./models/BalanceProof.sol";
 
