@@ -14,8 +14,6 @@ export const invalidAttestorPublicKey = BigNumber.from(
 const ecdsaWallet = new Wallet(
   '0xc22d0fdda8dd97029978419bc67b2daf7a8827c507506d1a997ac52bd56e97b8'
 )
-const invalidSignature =
-  '0xb2ee37569e6f8b3bf6dcc630ce6600bf55dafcebda15bbc934fa49bef580db01e0cb3996e1d47f2426c468b7d5fb615b125096f271b447f2edd192d359089f920e'
 export const ecdsaAddress = ecdsaWallet.address
 
 export enum Network {

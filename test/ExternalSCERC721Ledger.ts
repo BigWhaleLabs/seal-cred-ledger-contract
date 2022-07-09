@@ -149,12 +149,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
             1
           ),
         ],
-        ...(await getEcdsaArguments(
-          Network.mainnet,
-          this.fakeERC721.address,
-          name,
-          symbol
-        ))
+        ...(await getEcdsaArguments(Network.mainnet, '0x0', name, symbol))
       )
       await expect(tx).to.be.revertedWith(
         'Error while verifying the ECDSA signature'
@@ -179,13 +174,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
             1
           ),
         ],
-        ...(await getEcdsaArguments(
-          Network.mainnet,
-          this.fakeERC721.address,
-          name,
-          symbol,
-          false
-        ))
+        ...(await getEcdsaArguments(Network.mainnet, '0x0', name, symbol))
       )
       await expect(tx).to.be.revertedWith('Wrong attestor public key')
     })
