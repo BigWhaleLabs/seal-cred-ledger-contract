@@ -3,6 +3,7 @@ import {
   attestorPublicKey,
   ecdsaAddress,
   getEcdsaArguments,
+  getFakeBalanceProof,
   getFakeBalanceVerifier,
   getFakeBalanceVerifierInput,
   getFakeERC721,
@@ -61,20 +62,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       const symbol = 'ME7'
       // Check the mint transaction
       const tx = await this.contract[mintFunctionSignature](
-        [
-          [1, 2],
-          [
-            [1, 2],
-            [3, 4],
-          ],
-          [1, 2],
-          getFakeBalanceVerifierInput(
-            this.fakeERC721.address,
-            Network.mainnet,
-            123,
-            1
-          ),
-        ],
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -107,20 +95,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       )
       // Check the mint transaction
       const tx = contract[mintFunctionSignature](
-        [
-          [1, 2],
-          [
-            [1, 2],
-            [3, 4],
-          ],
-          [1, 2],
-          getFakeBalanceVerifierInput(
-            this.fakeERC721.address,
-            Network.mainnet,
-            123,
-            1
-          ),
-        ],
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -135,20 +110,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       const symbol = 'ME7'
       // Check the mint transaction
       const tx = this.contract[mintFunctionSignature](
-        [
-          [1, 2],
-          [
-            [1, 2],
-            [3, 4],
-          ],
-          [1, 2],
-          getFakeBalanceVerifierInput(
-            this.fakeERC721.address,
-            Network.mainnet,
-            1234,
-            1
-          ),
-        ],
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 1234, 1),
         ...(await getEcdsaArguments(Network.mainnet, '0x0', name, symbol))
       )
       await expect(tx).to.be.revertedWith(
@@ -160,20 +122,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       const symbol = 'ME7'
       // Check the mint transaction
       const tx = this.contract[mintFunctionSignature](
-        [
-          [1, 2],
-          [
-            [1, 2],
-            [3, 4],
-          ],
-          [1, 2],
-          getFakeBalanceVerifierInput(
-            this.fakeERC721.address,
-            Network.mainnet,
-            12345,
-            1
-          ),
-        ],
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 12345, 1),
         ...(await getEcdsaArguments(Network.mainnet, '0x0', name, symbol))
       )
       await expect(tx).to.be.revertedWith('Wrong attestor public key')
