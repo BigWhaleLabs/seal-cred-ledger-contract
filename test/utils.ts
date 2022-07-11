@@ -14,9 +14,6 @@ export const invalidAttestorPublicKey = BigNumber.from(
 const ecdsaWallet = new Wallet(
   '0xc22d0fdda8dd97029978419bc67b2daf7a8827c507506d1a997ac52bd56e97b8'
 )
-const invalidEcdsaWallet = new Wallet(
-  '0x3931dc49c2615b436ed233b5f1bcba76cdc352f0318f8886d23f3e524e96a1be'
-)
 export const ecdsaAddress = ecdsaWallet.address
 
 export enum Network {
@@ -179,23 +176,6 @@ export async function getEcdsaArguments(
   return [data, signature]
 }
 
-export async function getInvalidEcdsaArguments(
-  network: Network,
-  contract: string,
-  name: string,
-  symbol: string
-): Promise<[number[], string]> {
-  const data = [
-    ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
-    network,
-    ...ethers.utils.toUtf8Bytes(name),
-    0,
-    ...ethers.utils.toUtf8Bytes(symbol),
-  ]
-  const signature = await signInvalidEcdsa(data)
-  return [data, signature]
-}
-
 function padZeroesOnRightUint8(array: Uint8Array, length: number) {
   const padding = new Uint8Array(length - array.length)
   return ethers.utils.concat([array, padding])
@@ -203,8 +183,4 @@ function padZeroesOnRightUint8(array: Uint8Array, length: number) {
 
 function signEcdsa(message: number[]) {
   return ecdsaWallet.signMessage(message)
-}
-
-function signInvalidEcdsa(message: number[]) {
-  return invalidEcdsaWallet.signMessage(message)
 }

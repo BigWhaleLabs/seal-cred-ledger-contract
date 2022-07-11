@@ -6,7 +6,6 @@ import {
   getFakeBalanceProof,
   getFakeBalanceVerifier,
   getFakeERC721,
-  getInvalidEcdsaArguments,
   zeroAddress,
 } from './utils'
 import { ethers } from 'hardhat'
@@ -17,6 +16,9 @@ const mintFunctionSignature =
 const mintFunctionSignatureWithOnlyProof =
   'mint((uint256[2],uint256[2][2],uint256[2],uint256[46]))'
 
+const invalidEcdsaWallet = new ethers.Wallet(
+  '0x3931dc49c2615b436ed233b5f1bcba76cdc352f0318f8886d23f3e524e96a1be'
+)
 describe('ExternalSCERC721Ledger contract tests', () => {
   before(async function () {
     this.accounts = await ethers.getSigners()
@@ -175,20 +177,23 @@ describe('ExternalSCERC721Ledger contract tests', () => {
     })
     it('should not mint with ledger if the attestor public key is incorrect', async function () {
       // Check the mint transaction
+      const ecdsaInput = await getEcdsaArguments(
+        Network.mainnet,
+        this.fakeERC721.address,
+        this.name,
+        this.symbol
+      )
+      ecdsaInput[1] = await invalidEcdsaWallet.signMessage(ecdsaInput[0])
+
       const tx = this.contract[mintFunctionSignature](
         getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
-        ...(await getInvalidEcdsaArguments(
-          Network.mainnet,
-          this.fakeERC721.address,
-          this.name,
-          this.symbol
-        ))
+        ...ecdsaInput
       )
       await expect(tx).to.be.revertedWith('Wrong attestor public key')
     })
     it('should not mint with ledger if the signature key is incorrect', async function () {
       // Check the mint transaction
-      const ecdsaInput = await getInvalidEcdsaArguments(
+      const ecdsaInput = await getEcdsaArguments(
         Network.mainnet,
         this.fakeERC721.address,
         this.name,
