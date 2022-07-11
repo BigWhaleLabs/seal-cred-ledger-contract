@@ -167,12 +167,16 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     // Get name string — between the end of contract at 42 and zero
     uint256 nameLength = zeroIndex - (contractLength + networkLength);
     bytes memory nameBytes = new bytes(nameLength);
+    require(nameBytes.length > 0, "Zero name length");
+
     for (uint256 i = 0; i < nameLength; i++) {
       nameBytes[i] = data[contractLength + networkLength + i];
     }
     // Get symbol string — the rest of the data
     uint256 symbolLength = data.length - (zeroIndex + 1);
     bytes memory symbolBytes = new bytes(symbolLength);
+    require(symbolBytes.length > 0, "Zero symbol length");
+
     for (uint256 i = zeroIndex + zeroLength; i < data.length; i++) {
       symbolBytes[i - zeroIndex - zeroLength] = data[i];
     }

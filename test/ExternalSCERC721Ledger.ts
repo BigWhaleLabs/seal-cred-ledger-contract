@@ -6,6 +6,7 @@ import {
   getFakeBalanceProof,
   getFakeBalanceVerifier,
   getFakeERC721,
+  getInvalidEcdsaArguments,
   zeroAddress,
 } from './utils'
 import { ethers } from 'hardhat'
@@ -43,7 +44,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
   })
 
   describe('Minting and derivatives', function () {
-    before(async function () {
+    beforeEach(async function () {
       // Verifier
       this.fakeVerifierContract = await getFakeBalanceVerifier(true)
       // ERC721
@@ -82,8 +83,10 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         derivativeAddress
       )
       // Check the derivative variables
-      expect(await derivativeContract.name()).to.equal(this.name)
-      expect(await derivativeContract.symbol()).to.equal(this.symbol)
+      expect(await derivativeContract.name()).to.equal(
+        `${this.name} (derivative)`
+      )
+      expect(await derivativeContract.symbol()).to.equal(`${this.symbol}-d`)
     })
     it('should not mint without ecdsa signature', async function () {
       const fakeVerifierContract = await getFakeBalanceVerifier(false)
@@ -123,6 +126,16 @@ describe('ExternalSCERC721Ledger contract tests', () => {
     })
     it('should not mint with ledger if the nullifier is incorrect', async function () {
       // Check the mint transaction
+      await this.contract[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...(await getEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          this.name,
+          this.symbol
+        ))
+      )
+
       const tx = this.contract[mintFunctionSignature](
         getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
         ...(await getEcdsaArguments(
@@ -134,39 +147,68 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       )
       await expect(tx).to.be.revertedWith('This ZK proof has already been used')
     })
+    it('should not mint with ledger if the name is empty', async function () {
+      // Check the mint transaction
+      const tx = this.contract[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...(await getEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          '',
+          this.symbol
+        ))
+      )
+      await expect(tx).to.be.revertedWith('Zero name length')
+    })
+    it('should not mint with ledger if the symbol is empty', async function () {
+      // Check the mint transaction
+      const tx = this.contract[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...(await getEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          this.name,
+          ''
+        ))
+      )
+      await expect(tx).to.be.revertedWith('Zero symbol length')
+    })
     it('should not mint with ledger if the attestor public key is incorrect', async function () {
       // Check the mint transaction
-      const contract = await this.factory.deploy(
-        this.fakeVerifierContract.address,
-        attestorPublicKey,
-        ecdsaAddress,
-        Network.mainnet
+      const tx = this.contract[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...(await getInvalidEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          this.name,
+          this.symbol
+        ))
       )
-      const escdsArguments = await getEcdsaArguments(
+      await expect(tx).to.be.revertedWith('Wrong attestor public key')
+    })
+    it('should not mint with ledger if the signature key is incorrect', async function () {
+      // Check the mint transaction
+      const ecdsaInput = await getInvalidEcdsaArguments(
         Network.mainnet,
         this.fakeERC721.address,
         this.name,
         this.symbol
       )
-      escdsArguments[1] =
-        '0xa8c82c90702fa8da5c3c102fe55f79f25543d3c11f3fde4de0f06953d8efa8410a19d9f3408d8cb9a54c3471fbba51390391df0fb430e77afd4979fe5458b2781b'
-      // Check the mint transaction
-      const tx = contract[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 1234, 1),
-        ...escdsArguments
+      // Corrupt the signature
+      ecdsaInput[1] =
+        '0x' + ecdsaInput[1].split('').reverse().join('').slice(0, 2)
+      const tx = this.contract[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...ecdsaInput
       )
-      await expect(tx).to.be.revertedWith('Wrong attestor public key')
+      await expect(tx).to.be.revertedWith(
+        'Error while verifying the ECDSA signature'
+      )
     })
     it('should not mint with ledger if the network is incorrect', async function () {
       // Check the mint transaction
-      const contract = await this.factory.deploy(
-        this.fakeVerifierContract.address,
-        attestorPublicKey,
-        ecdsaAddress,
-        Network.mainnet
-      )
-      const tx = contract[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 12345, 1),
+      const tx = this.contract[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1),
         ...(await getEcdsaArguments(
           Network.goerli,
           this.fakeERC721.address,
@@ -178,19 +220,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
     })
     it('should not mint with ledger if the token address is incorrect', async function () {
       // Check the mint transaction
-      const contract = await this.factory.deploy(
-        this.fakeVerifierContract.address,
-        attestorPublicKey,
-        ecdsaAddress,
-        Network.mainnet
-      )
-      const tx = contract[mintFunctionSignature](
-        getFakeBalanceProof(
-          this.fakeERC721.address,
-          Network.mainnet,
-          123456,
-          1
-        ),
+      const tx = this.contract[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
         ...(await getEcdsaArguments(
           Network.mainnet,
           zeroAddress,
