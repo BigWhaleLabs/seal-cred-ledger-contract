@@ -15,7 +15,6 @@ const ecdsaWallet = new Wallet(
   '0xc22d0fdda8dd97029978419bc67b2daf7a8827c507506d1a997ac52bd56e97b8'
 )
 export const ecdsaAddress = ecdsaWallet.address
-console.log('ECDSA address:', ecdsaAddress)
 
 export enum Network {
   goerli = 103,
@@ -165,7 +164,7 @@ export async function getEcdsaArguments(
   contract: string,
   name: string,
   symbol: string
-) {
+): Promise<[number[], string]> {
   const data = [
     ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
     network,
