@@ -13,6 +13,8 @@ import { expect } from 'chai'
 
 const mintFunctionSignature =
   'mint((uint256[2],uint256[2][2],uint256[2],uint256[46]),bytes,bytes)'
+const mintFunctionSignatureWithOnlyProof =
+  'mint((uint256[2],uint256[2][2],uint256[2],uint256[46]))'
 
 describe('ExternalSCERC721Ledger contract tests', () => {
   before(async function () {
@@ -82,6 +84,22 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       // Check the derivative variables
       expect(await derivativeContract.name()).to.equal(this.name)
       expect(await derivativeContract.symbol()).to.equal(this.symbol)
+    })
+    it('should not mint without ecdsa signature', async function () {
+      const fakeVerifierContract = await getFakeBalanceVerifier(false)
+      const contract = await this.factory.deploy(
+        fakeVerifierContract.address,
+        attestorPublicKey,
+        ecdsaAddress,
+        Network.mainnet
+      )
+      // Check the mint transaction
+      const tx = contract[mintFunctionSignatureWithOnlyProof](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+      )
+      await expect(tx).to.be.revertedWith(
+        'Mint with ECDSA signature should be used'
+      )
     })
     it('should not mint with ledger if the proof is incorrect', async function () {
       const fakeVerifierContract = await getFakeBalanceVerifier(false)
