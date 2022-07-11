@@ -90,6 +90,32 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       )
       expect(await derivativeContract.symbol()).to.equal(`${this.symbol}-d`)
     })
+    it('should mint with ledger if the name and symbol is non-ASCII have characters', async function () {
+      const name = '‡♦‰ℑℜ¤'
+      const symbol = '‡♦‰ℑℜ¤'
+      // Check the mint transaction
+      const tx = await this.contract[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...(await getEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          name,
+          symbol
+        ))
+      )
+      expect(await tx.wait())
+      // Get the derivative
+      const derivativeAddress =
+        await this.contract.originalContractToDerivativeContract(
+          this.fakeERC721.address
+        )
+      const derivativeContract = await this.derivativeFactory.attach(
+        derivativeAddress
+      )
+      // Check the derivative variables
+      expect(await derivativeContract.name()).to.equal(`${name} (derivative)`)
+      expect(await derivativeContract.symbol()).to.equal(`${symbol}-d`)
+    })
     it('should not mint without ecdsa signature', async function () {
       const fakeVerifierContract = await getFakeBalanceVerifier(false)
       const contract = await this.factory.deploy(
