@@ -79,8 +79,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         derivativeAddress
       )
       // Check the derivative variables
-      expect(await derivativeContract.name()).to.equal(name)
-      expect(await derivativeContract.symbol()).to.equal(symbol)
+      expect(await derivativeContract.name()).to.equal(`${name} (derivative)`)
+      expect(await derivativeContract.symbol()).to.equal(`${symbol}-d`)
     })
   })
 })
