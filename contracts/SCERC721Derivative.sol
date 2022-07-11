@@ -115,11 +115,11 @@ contract SCERC721Derivative is ERC721, Ownable {
     );
     // Check if attestor is correct
     require(
-      proof.input[45] == attestorPublicKey,
+      proof.input[44] == attestorPublicKey,
       "This ZK proof is not from the correct attestor"
     );
     // Check if threshold is correct
-    require(proof.input[44] > 0, "The threshold should be greater than 0");
+    require(proof.input[45] > 0, "The threshold should be greater than 0");
     // Check if tokenAddress is correct
     bytes memory tokenBytes = bytes(
       Strings.toHexString(uint256(uint160(originalContract)), 20)
