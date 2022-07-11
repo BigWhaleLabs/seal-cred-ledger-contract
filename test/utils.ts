@@ -146,8 +146,8 @@ function getFakeBalanceVerifierInput(
     ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
     network,
     nullifier,
-    threshold,
     attestorPublicKey,
+    threshold,
   ]
 }
 
