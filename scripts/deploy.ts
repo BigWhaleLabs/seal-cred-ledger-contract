@@ -34,16 +34,21 @@ async function main() {
     const parameters = {
       properties: {
         verifierAddress: { required: true },
-        attestorPublicKey: { required: true },
+        attestorPublicKey: {
+          required: true,
+          default:
+            '3022588728262621016474471722865235652573366639695808085248430151628770415819',
+        },
         attestorEcdsaAddress: {
           required: true,
+          default: '0xb0d7480ac6af8ba423d49554c5b3473201b96fd4',
           ask: () => isExternal,
         },
         network: {
           required: true,
           ask: () => isExternal,
           enum: ['g', 'm'],
-          default: 'g',
+          default: isExternal ? 'm' : 'g',
           description: 'Network: (m)ain, (g)oerli',
         },
       },
