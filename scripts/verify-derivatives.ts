@@ -20,6 +20,7 @@ async function main() {
     if (!isEmail) {
       continue
     }
+    const email = 'bwl.gg'
     const {
       address,
       ledgerAddress,
@@ -50,7 +51,7 @@ async function main() {
           message: `${
             isEmail ? 'Domain' : 'Original contract'
           } for ${verifierContractName}`,
-          default: isEmail ? 'bwl.gg' : undefined,
+          default: isEmail ? email : undefined,
         },
         verifierAddress: {
           required: true,
@@ -76,12 +77,12 @@ async function main() {
         tokenName: {
           required: true,
           description: `Token name for ${verifierContractName}`,
-          default: isEmail ? '@bwl.gg email' : '',
+          default: isEmail ? `${email} email` : '',
         },
         tokenSymbol: {
           required: true,
           description: `Token symbol for ${verifierContractName}`,
-          default: isEmail ? 'bwl.gg-d' : '',
+          default: isEmail ? `${email}-d` : '',
         },
       },
     })

@@ -146,11 +146,15 @@ contract SCEmailLedger is Ownable {
     uint256 startIndex,
     uint256 length
   ) internal pure returns (string memory) {
-    bytes memory result = new bytes(length);
+    uint256 zeroIndex = 0;
     for (uint256 i = startIndex; i < startIndex + length; i++) {
       if (input[i] == 0) {
+        zeroIndex = i;
         break;
       }
+    }
+    bytes memory result = new bytes(zeroIndex);
+    for (uint256 i = startIndex; i < zeroIndex; i++) {
       result[i] = bytes1(uint8(input[i]));
     }
     return string(result);

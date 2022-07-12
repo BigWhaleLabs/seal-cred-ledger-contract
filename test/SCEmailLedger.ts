@@ -84,8 +84,24 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
     })
 
     it('should mint from the ledger if all the correct info is there', async function () {
-      const tx = await this.contract.mint(getFakeEmailProof(123, domains[0]))
+      const domain = domains[0]
+      const tx = await this.contract.mint(getFakeEmailProof(123, domain))
       expect(await tx.wait())
+      // Get the derivative
+      const derivativeAddress = await this.contract.emailToDerivativeContract(
+        domain
+      )
+      const derivativeContract = await this.derivativeFactory.attach(
+        derivativeAddress
+      )
+      // Check the derivative variables
+      const name: string = await derivativeContract.name()
+      const symbol = await derivativeContract.symbol()
+      expect(name).to.equal(`@${domain} email`)
+      expect(symbol).to.equal(`${domain}-d`)
+      // Should be no extra zero bytes
+      expect(/\0/g.test(name)).to.be.false
+      expect(/\0/g.test(symbol)).to.be.false
     })
     it('should mint from the derivative if all the correct info is there', async function () {
       const derivativeTx = await this.derivativeContract.mint(
