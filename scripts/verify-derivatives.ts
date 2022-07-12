@@ -40,6 +40,9 @@ async function main() {
           required: true,
           pattern: regexes.ethereumAddress,
           message: `Ledger address for ${verifierContractName}`,
+          default: isEmail
+            ? '0xAc32705DF9713bB4c7F2BEf65be10D4DB6c53D3B'
+            : undefined,
         },
         domainOrOriginalContract: {
           required: true,
@@ -47,15 +50,21 @@ async function main() {
           message: `${
             isEmail ? 'Domain' : 'Original contract'
           } for ${verifierContractName}`,
+          default: isEmail ? 'bwl.gg' : undefined,
         },
         verifierAddress: {
           required: true,
           pattern: regexes.ethereumAddress,
           message: `Verifier address for ${verifierContractName}`,
+          default: isEmail
+            ? '0xE8c7754340B9f0Efe49DFE0f9a47F8f137F70477'
+            : '0x842B06545f9dc6a3cCe1eFD8e4B44095643e3395',
         },
         attestorPublicKey: {
           required: true,
           message: `Attestor public key for ${verifierContractName}`,
+          default:
+            '3022588728262621016474471722865235652573366639695808085248430151628770415819',
         },
         originalNetwork: {
           required: true,
@@ -67,10 +76,12 @@ async function main() {
         tokenName: {
           required: true,
           description: `Token name for ${verifierContractName}`,
+          default: isEmail ? '@bwl.gg email' : '',
         },
         tokenSymbol: {
           required: true,
           description: `Token symbol for ${verifierContractName}`,
+          default: isEmail ? 'bwl.gg-d' : '',
         },
       },
     })
