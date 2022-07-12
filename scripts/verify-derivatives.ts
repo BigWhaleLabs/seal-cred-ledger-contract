@@ -42,7 +42,7 @@ async function main() {
           pattern: regexes.ethereumAddress,
           message: `Ledger address for ${verifierContractName}`,
           default: isEmail
-            ? '0xAc32705DF9713bB4c7F2BEf65be10D4DB6c53D3B'
+            ? '0xCd990C45d0B794Bbb47Ad31Ee3567a36c0c872e0'
             : undefined,
         },
         domainOrOriginalContract: {
@@ -77,7 +77,7 @@ async function main() {
         tokenName: {
           required: true,
           description: `Token name for ${verifierContractName}`,
-          default: isEmail ? `${email} email` : '',
+          default: isEmail ? `@${email} email` : '',
         },
         tokenSymbol: {
           required: true,
