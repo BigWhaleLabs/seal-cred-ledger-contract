@@ -23,6 +23,7 @@ Also check out the `.env.sample` file for more information.
 - `yarn build` — compiles the contract ts interface to the `typechain` directory
 - `yarn test` — runs the test suite
 - `yarn deploy` — deploys the contract to the network
+- `yarn verify-derivatives` — verifies the derivative contracts
 - `yarn eth-lint` — runs the linter for the solidity contract
 - `yarn lint` — runs all the linters
 - `yarn prettify` — prettifies the code in th project
