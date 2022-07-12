@@ -17,9 +17,6 @@ async function main() {
   for (const verifierContractName of contractNames) {
     console.log(`Verifying ${verifierContractName}...`)
     const isEmail = verifierContractName.includes('Email')
-    if (!isEmail) {
-      continue
-    }
     const email = 'bwl.gg'
     const {
       address,
@@ -43,7 +40,7 @@ async function main() {
           message: `Ledger address for ${verifierContractName}`,
           default: isEmail
             ? '0xCd990C45d0B794Bbb47Ad31Ee3567a36c0c872e0'
-            : undefined,
+            : '0xE8130c7004430E882D3A49dF497C2Acb08612EC0',
         },
         domainOrOriginalContract: {
           required: true,
@@ -51,7 +48,9 @@ async function main() {
           message: `${
             isEmail ? 'Domain' : 'Original contract'
           } for ${verifierContractName}`,
-          default: isEmail ? email : undefined,
+          default: isEmail
+            ? email
+            : '0x508C58996E46B10b093F9F4EaD6ab3416e73f3a1',
         },
         verifierAddress: {
           required: true,
@@ -77,12 +76,12 @@ async function main() {
         tokenName: {
           required: true,
           description: `Token name for ${verifierContractName}`,
-          default: isEmail ? `@${email} email` : '',
+          default: isEmail ? `@${email} email` : 'StrawberryFrens (derivative)',
         },
         tokenSymbol: {
           required: true,
           description: `Token symbol for ${verifierContractName}`,
-          default: isEmail ? `${email}-d` : '',
+          default: isEmail ? `${email}-d` : 'STRW-d',
         },
       },
     })
@@ -103,7 +102,7 @@ async function main() {
               domainOrOriginalContract,
               verifierAddress,
               attestorPublicKey,
-              originalNetwork,
+              originalNetwork === 'g' ? 103 : 109,
               tokenName,
               tokenSymbol,
             ],
