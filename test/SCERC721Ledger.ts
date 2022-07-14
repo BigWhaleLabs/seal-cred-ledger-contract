@@ -64,7 +64,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
   describe('Minting and derivatives', function () {
     beforeEach(async function () {
       // Verifier
-      this.fakeVerifierContract = await getFakeBalanceVerifier(true)
+      this.fakeVerifierContract = await getFakeBalanceVerifier(this.owner)
+      await this.fakeVerifierContract.mock.verifyProof.returns(true)
       // ERC721
       this.fakeERC721 = await getFakeERC721()
       // Ledger
@@ -174,13 +175,9 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       ).to.be.revertedWith('This ZK proof has already been used')
     })
     it('should not mint if the zk proof is invalid', async function () {
-      const fakeVerifierContract = await getFakeBalanceVerifier(false)
-      const contract = await this.factory.deploy(
-        fakeVerifierContract.address,
-        attestorPublicKey
-      )
+      await this.fakeVerifierContract.mock.verifyProof.returns(false)
       await expect(
-        contract.mint(
+        this.contract.mint(
           getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1)
         )
       ).to.be.revertedWith('Invalid ZK proof')

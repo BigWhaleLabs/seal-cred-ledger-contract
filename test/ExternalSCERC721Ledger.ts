@@ -48,7 +48,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
   describe('Minting and derivatives', function () {
     beforeEach(async function () {
       // Verifier
-      this.fakeVerifierContract = await getFakeBalanceVerifier(true)
+      this.fakeVerifierContract = await getFakeBalanceVerifier(this.owner)
+      await this.fakeVerifierContract.mock.verifyProof.returns(true)
       // ERC721
       this.fakeERC721 = await getFakeERC721()
       // Ledger
@@ -117,9 +118,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       expect(await derivativeContract.symbol()).to.equal(`${symbol}-d`)
     })
     it('should not mint without ecdsa signature', async function () {
-      const fakeVerifierContract = await getFakeBalanceVerifier(false)
       const contract = await this.factory.deploy(
-        fakeVerifierContract.address,
+        this.fakeVerifierContract.address,
         attestorPublicKey,
         ecdsaAddress,
         Network.mainnet
@@ -133,9 +133,9 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       )
     })
     it('should not mint with ledger if the proof is incorrect', async function () {
-      const fakeVerifierContract = await getFakeBalanceVerifier(false)
+      await this.fakeVerifierContract.mock.verifyProof.returns(false)
       const contract = await this.factory.deploy(
-        fakeVerifierContract.address,
+        this.fakeVerifierContract.address,
         attestorPublicKey,
         ecdsaAddress,
         Network.mainnet

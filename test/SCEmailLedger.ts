@@ -63,7 +63,8 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
 
   describe('Minting and derivatives', function () {
     beforeEach(async function () {
-      this.fakeEmailVerifierContract = await getFakeEmailVerifier(true)
+      this.fakeEmailVerifierContract = await getFakeEmailVerifier(this.owner)
+      await this.fakeEmailVerifierContract.mock.verifyProof.returns(true)
       this.contract = await this.factory.deploy(
         this.fakeEmailVerifierContract.address,
         attestorPublicKey
@@ -150,9 +151,9 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
       ).to.be.revertedWith('This ZK proof has already been used')
     })
     it('should not mint if the zk proof is invalid', async function () {
-      const fakeEmailVerifierContract = await getFakeEmailVerifier(false)
+      await this.fakeEmailVerifierContract.mock.verifyProof.returns(false)
       const contract = await this.factory.deploy(
-        fakeEmailVerifierContract.address,
+        this.fakeEmailVerifierContract.address,
         attestorPublicKey
       )
       await expect(

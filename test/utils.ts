@@ -1,5 +1,6 @@
 import { BigNumber, Wallet, ethers } from 'ethers'
 import { smock } from '@defi-wonderland/smock'
+import { waffle } from 'hardhat'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 const emails = ['one@example.com', 'two@example2.com']
@@ -21,8 +22,8 @@ export enum Network {
   mainnet = 109,
 }
 
-export async function getFakeBalanceVerifier(result: boolean) {
-  const fake = await smock.fake([
+export async function getFakeBalanceVerifier(signer: Wallet) {
+  return await waffle.deployMockContract(signer, [
     {
       inputs: [
         {
@@ -58,12 +59,10 @@ export async function getFakeBalanceVerifier(result: boolean) {
       type: 'function',
     },
   ])
-  fake.verifyProof.returns(result)
-  return fake
 }
 
-export async function getFakeEmailVerifier(result: boolean) {
-  const fake = await smock.fake([
+export async function getFakeEmailVerifier(signer: Wallet) {
+  const fake = await waffle.deployMockContract(signer, [
     {
       inputs: [
         {
@@ -99,7 +98,6 @@ export async function getFakeEmailVerifier(result: boolean) {
       type: 'function',
     },
   ])
-  fake.verifyProof.returns(result)
   return fake
 }
 
@@ -131,7 +129,6 @@ export function getFakeBalanceProof(
     input: getFakeBalanceVerifierInput(contract, network, nullifier, threshold),
   }
 }
-
 export function getFakeERC721() {
   return smock.fake('ERC721')
 }
