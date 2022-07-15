@@ -1,4 +1,7 @@
+import { BalanceProofStruct } from 'typechain/contracts/ExternalSCERC721Ledger'
 import { BigNumber, Wallet, ethers } from 'ethers'
+import { EmailProofStruct } from 'typechain/contracts/SCEmailLedger'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { smock } from '@defi-wonderland/smock'
 import { waffle } from 'hardhat'
 
@@ -22,7 +25,7 @@ export enum Network {
   mainnet = 109,
 }
 
-export async function getFakeBalanceVerifier(signer: Wallet) {
+export async function getFakeBalanceVerifier(signer: SignerWithAddress) {
   return await waffle.deployMockContract(signer, [
     {
       inputs: [
@@ -61,7 +64,7 @@ export async function getFakeBalanceVerifier(signer: Wallet) {
   ])
 }
 
-export async function getFakeEmailVerifier(signer: Wallet) {
+export async function getFakeEmailVerifier(signer: SignerWithAddress) {
   const fake = await waffle.deployMockContract(signer, [
     {
       inputs: [
@@ -101,7 +104,10 @@ export async function getFakeEmailVerifier(signer: Wallet) {
   return fake
 }
 
-export function getFakeEmailProof(nullifier: number, domain: string) {
+export function getFakeEmailProof(
+  nullifier: number,
+  domain: string
+): EmailProofStruct {
   return {
     a: [1, 2],
     b: [
@@ -118,7 +124,7 @@ export function getFakeBalanceProof(
   network: Network,
   nullifier: number,
   threshold: number
-) {
+): BalanceProofStruct {
   return {
     a: [1, 2],
     b: [
