@@ -51,7 +51,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       this.fakeVerifierContract = await getFakeBalanceVerifier(this.owner)
       await this.fakeVerifierContract.mock.verifyProof.returns(true)
       // ERC721
-      this.fakeERC721 = await getFakeERC721()
+      this.fakeERC721 = await getFakeERC721(this.owner)
       // Ledger
       this.contract = await this.factory.deploy(
         this.fakeVerifierContract.address,
