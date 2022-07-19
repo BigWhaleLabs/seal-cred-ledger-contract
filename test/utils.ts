@@ -2,7 +2,6 @@ import { BalanceProofStruct } from 'typechain/contracts/ExternalSCERC721Ledger'
 import { BigNumber, Wallet, ethers } from 'ethers'
 import { EmailProofStruct } from 'typechain/contracts/SCEmailLedger'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { smock } from '@defi-wonderland/smock'
 import { waffle } from 'hardhat'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -135,8 +134,35 @@ export function getFakeBalanceProof(
     input: getFakeBalanceVerifierInput(contract, network, nullifier, threshold),
   }
 }
-export function getFakeERC721() {
-  return smock.fake('ERC721')
+export async function getFakeERC721(signer: SignerWithAddress) {
+  return await waffle.deployMockContract(signer, [
+    {
+      inputs: [],
+      name: 'symbol',
+      outputs: [
+        {
+          internalType: 'string',
+          name: '',
+          type: 'string',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+    {
+      inputs: [],
+      name: 'name',
+      outputs: [
+        {
+          internalType: 'string',
+          name: '',
+          type: 'string',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+  ])
 }
 
 function getFakeBalanceVerifierInput(
