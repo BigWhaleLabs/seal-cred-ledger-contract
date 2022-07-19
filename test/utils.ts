@@ -1,5 +1,9 @@
+import { BalanceProofStruct } from 'typechain/contracts/ExternalSCERC721Ledger'
 import { BigNumber, Wallet, ethers } from 'ethers'
+import { EmailProofStruct } from 'typechain/contracts/SCEmailLedger'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { smock } from '@defi-wonderland/smock'
+import { waffle } from 'hardhat'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 const emails = ['one@example.com', 'two@example2.com']
@@ -21,8 +25,8 @@ export enum Network {
   mainnet = 109,
 }
 
-export async function getFakeBalanceVerifier(result: boolean) {
-  const fake = await smock.fake([
+export async function getFakeBalanceVerifier(signer: SignerWithAddress) {
+  return await waffle.deployMockContract(signer, [
     {
       inputs: [
         {
@@ -58,12 +62,10 @@ export async function getFakeBalanceVerifier(result: boolean) {
       type: 'function',
     },
   ])
-  fake.verifyProof.returns(result)
-  return fake
 }
 
-export async function getFakeEmailVerifier(result: boolean) {
-  const fake = await smock.fake([
+export async function getFakeEmailVerifier(signer: SignerWithAddress) {
+  const fake = await waffle.deployMockContract(signer, [
     {
       inputs: [
         {
@@ -99,11 +101,13 @@ export async function getFakeEmailVerifier(result: boolean) {
       type: 'function',
     },
   ])
-  fake.verifyProof.returns(result)
   return fake
 }
 
-export function getFakeEmailProof(nullifier: number, domain: string) {
+export function getFakeEmailProof(
+  nullifier: number,
+  domain: string
+): EmailProofStruct {
   return {
     a: [1, 2],
     b: [
@@ -120,7 +124,7 @@ export function getFakeBalanceProof(
   network: Network,
   nullifier: number,
   threshold: number
-) {
+): BalanceProofStruct {
   return {
     a: [1, 2],
     b: [
@@ -131,7 +135,6 @@ export function getFakeBalanceProof(
     input: getFakeBalanceVerifierInput(contract, network, nullifier, threshold),
   }
 }
-
 export function getFakeERC721() {
   return smock.fake('ERC721')
 }
