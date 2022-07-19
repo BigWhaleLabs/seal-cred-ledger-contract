@@ -16,15 +16,20 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     this.accounts = await ethers.getSigners()
     this.owner = this.accounts[0]
     this.user = this.accounts[1]
-    this.factory = await ethers.getContractFactory('SCERC721Ledger')
-    this.derivativeFactory = await ethers.getContractFactory(
+    this.scERC721LedgerFactory = await ethers.getContractFactory(
+      'SCERC721Ledger'
+    )
+    this.scERC721DerivativeFactory = await ethers.getContractFactory(
       'SCERC721Derivative'
     )
   })
 
   describe('Constructor', function () {
     it('should deploy the contract with the correct fields', async function () {
-      const contract = await this.factory.deploy(zeroAddress, attestorPublicKey)
+      const contract = await this.scERC721LedgerFactory.deploy(
+        zeroAddress,
+        attestorPublicKey
+      )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
     })
@@ -32,12 +37,15 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
 
   describe('Owner-only calls from non-owner', function () {
     before(async function () {
-      this.contract = await this.factory.deploy(zeroAddress, attestorPublicKey)
-      await this.contract.deployed()
-      this.contractWithIncorrectOwner = this.contract.connect(this.user)
+      this.scERC721Ledger = await this.scERC721LedgerFactory.deploy(
+        zeroAddress,
+        attestorPublicKey
+      )
+      await this.scERC721Ledger.deployed()
+      this.contractWithIncorrectOwner = this.scERC721Ledger.connect(this.user)
     })
     it('should have the correct owner', async function () {
-      expect(await this.contract.owner()).to.equal(this.owner.address)
+      expect(await this.scERC721Ledger.owner()).to.equal(this.owner.address)
     })
     it('should not be able to call setVerifierContract', async function () {
       await expect(
@@ -53,7 +61,10 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
   })
 
   it('should set verifier contract', async function () {
-    const contract = await this.factory.deploy(zeroAddress, attestorPublicKey)
+    const contract = await this.scERC721LedgerFactory.deploy(
+      zeroAddress,
+      attestorPublicKey
+    )
     await contract.deployed()
     expect(await contract.verifierContract()).to.equal(zeroAddress)
     const newVerifierAddress = this.accounts[1].address
@@ -71,15 +82,15 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       await this.fakeERC721.mock.name.returns('Fake ERC721')
       await this.fakeERC721.mock.symbol.returns('FAKE')
       // Ledger
-      this.contract = await this.factory.deploy(
+      this.scERC721Ledger = await this.scERC721LedgerFactory.deploy(
         this.fakeVerifierContract.address,
         attestorPublicKey
       )
-      await this.contract.deployed()
-      this.contract.connect(this.user)
+      await this.scERC721Ledger.deployed()
+      this.scERC721Ledger.connect(this.user)
       // Derivative
-      this.derivativeContract = await this.derivativeFactory.deploy(
-        this.contract.address,
+      this.scERC721Derivative = await this.scERC721DerivativeFactory.deploy(
+        this.scERC721Ledger.address,
         this.fakeERC721.address,
         this.fakeVerifierContract.address,
         attestorPublicKey,
@@ -87,31 +98,31 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         'FakeERC721 (derivative)',
         'FAKE-d'
       )
-      await this.derivativeContract.deployed()
-      this.derivativeContract.connect(this.user)
+      await this.scERC721Derivative.deployed()
+      this.scERC721Derivative.connect(this.user)
     })
     it('should mint with ledger if all the correct info is there', async function () {
-      const tx = await this.contract.mint(
+      const tx = await this.scERC721Ledger.mint(
         getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1)
       )
       expect(await tx.wait())
     })
     it('should mint from the derivative if all the correct info is there', async function () {
-      const derivativeTx = await this.derivativeContract.mint(
+      const derivativeTx = await this.scERC721Derivative.mint(
         getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1)
       )
       expect(await derivativeTx.wait())
     })
     it('should fail if network is incorrect', async function () {
       await expect(
-        this.contract.mint(
+        this.scERC721Ledger.mint(
           getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
         )
       ).to.be.revertedWith('Unexpected network')
     })
     it('should save nullifier correctly', async function () {
       const nullifier = 123
-      const derivativeTx = await this.derivativeContract.mint(
+      const derivativeTx = await this.scERC721Derivative.mint(
         getFakeBalanceProof(
           this.fakeERC721.address,
           Network.goerli,
@@ -120,15 +131,15 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         )
       )
       expect(await derivativeTx.wait())
-      expect(await this.derivativeContract.nullifiers(nullifier)).to.equal(true)
+      expect(await this.scERC721Derivative.nullifiers(nullifier)).to.equal(true)
     })
     it('should not transfer if the from address is non-zero', async function () {
-      this.derivativeContract.mint(
+      await this.scERC721Derivative.mint(
         getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1)
       )
       await expect(
-        this.derivativeContract.transferFrom(
-          this.derivativeContract.owner(),
+        this.scERC721Derivative.transferFrom(
+          this.scERC721Derivative.owner(),
           nonZeroAddress,
           0
         )
@@ -142,7 +153,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         1
       )
       await expect(
-        this.contract.mint({
+        this.scERC721Ledger.mint({
           ...balanceInput,
           input: [
             ...balanceInput.input.slice(0, -2),
@@ -154,7 +165,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     })
     it('should not mint if the token contract is incorrect', async function () {
       await expect(
-        this.derivativeContract.mint(
+        this.scERC721Derivative.mint(
           getFakeBalanceProof(
             '0x399f4a0a9d6E8f6f4BD019340e4d1bE0C9a742F0',
             Network.goerli,
@@ -167,11 +178,11 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       )
     })
     it('should not mint if nullifier has already been used', async function () {
-      await this.derivativeContract.mint(
+      await this.scERC721Derivative.mint(
         getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1)
       )
       await expect(
-        this.derivativeContract.mint(
+        this.scERC721Derivative.mint(
           getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1)
         )
       ).to.be.revertedWith('This ZK proof has already been used')
@@ -179,7 +190,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     it('should not mint if the zk proof is invalid', async function () {
       await this.fakeVerifierContract.mock.verifyProof.returns(false)
       await expect(
-        this.contract.mint(
+        this.scERC721Ledger.mint(
           getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1)
         )
       ).to.be.revertedWith('Invalid ZK proof')
