@@ -1,4 +1,3 @@
-import type { FakeContract } from '@defi-wonderland/smock'
 import type { MockContract } from 'ethereum-waffle'
 import type { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 
@@ -32,7 +31,7 @@ declare module 'mocha' {
     // Mock contracts
     fakeVerifierContract: MockContract
     fakeEmailVerifierContract: MockContract
-    fakeERC721: FakeContract
+    fakeERC721: MockContract
     // Signers
     accounts: SignerWithAddress[]
     owner: SignerWithAddress
