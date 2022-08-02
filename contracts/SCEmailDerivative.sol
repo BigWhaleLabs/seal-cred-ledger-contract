@@ -59,35 +59,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./Derivative.sol";
 import "./interfaces/IEmailOwnershipCheckerVerifier.sol";
 import "./models/EmailProof.sol";
 
-contract SCEmailDerivative is ERC721, Ownable {
-  using Counters for Counters.Counter;
-
+contract SCEmailDerivative is Derivative {
   // State
-  address public immutable sealCredEmailContract;
   string public email;
-  uint256 public immutable attestorPublicKey;
-  address public verifierContract;
-  mapping(uint256 => bool) public nullifiers;
-  Counters.Counter public currentTokenId;
 
   constructor(
-    address _sealCredEmailContract,
+    address _ledgerContract,
     string memory _email,
     address _verifierContract,
     uint256 _attestorPublicKey,
     string memory tokenName,
     string memory tokenSymbol
-  ) ERC721(tokenName, tokenSymbol) {
-    sealCredEmailContract = _sealCredEmailContract;
+  )
+    Derivative(
+      _ledgerContract,
+      _verifierContract,
+      _attestorPublicKey,
+      tokenName,
+      tokenSymbol
+    )
+  {
     email = _email;
-    verifierContract = _verifierContract;
-    attestorPublicKey = _attestorPublicKey;
   }
 
   function mint(EmailProof memory proof) external {
@@ -102,18 +98,13 @@ contract SCEmailDerivative is ERC721, Ownable {
   }
 
   function _mint(address sender, EmailProof memory proof) internal {
-    // Check if zkp is fresh
-    uint256 nullifier = proof.input[90];
-    require(
-      nullifiers[nullifier] != true,
-      "This ZK proof has already been used"
-    );
-    // Check if attestor is correct
-    require(
-      proof.input[91] == attestorPublicKey,
-      "This ZK proof is not from the correct attestor"
-    );
-    // Check if email is correct
+    _checkAttestor(proof.input[91]);
+    _checkEmail(proof);
+    _checkProof(proof);
+    _mintWithNullifier(sender, proof.input[90]);
+  }
+
+  function _checkEmail(EmailProof memory proof) internal view {
     bytes memory emailBytes = bytes(email);
     for (uint8 i = 0; i < bytes(email).length; i++) {
       require(
@@ -121,7 +112,9 @@ contract SCEmailDerivative is ERC721, Ownable {
         "This ZK proof is not from the correct email"
       );
     }
-    // Check if zkp is valid
+  }
+
+  function _checkProof(EmailProof memory proof) internal view {
     require(
       IEmailOwnershipCheckerVerifier(verifierContract).verifyProof(
         proof.a,
@@ -131,32 +124,5 @@ contract SCEmailDerivative is ERC721, Ownable {
       ),
       "Invalid ZK proof"
     );
-    // Mint
-    _safeMint(sender, currentTokenId.current());
-    currentTokenId.increment();
-    // Save nullifier
-    nullifiers[nullifier] = true;
-  }
-
-  function _beforeTokenTransfer(
-    address _from,
-    address _to,
-    uint256 _tokenId
-  ) internal override(ERC721) {
-    require(_from == address(0), "This token is soulbound");
-    super._beforeTokenTransfer(_from, _to, _tokenId);
-  }
-
-  function supportsInterface(bytes4 _interfaceId)
-    public
-    view
-    override(ERC721)
-    returns (bool)
-  {
-    return super.supportsInterface(_interfaceId);
-  }
-
-  function setVerifierContract(address _verifierContract) external onlyOwner {
-    verifierContract = _verifierContract;
   }
 }
