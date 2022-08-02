@@ -59,7 +59,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "./Derivative.sol";
+import "./base/Derivative.sol";
 import "./interfaces/IEmailOwnershipCheckerVerifier.sol";
 import "./models/EmailProof.sol";
 

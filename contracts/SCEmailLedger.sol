@@ -60,7 +60,7 @@
 pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
-import "./Ledger.sol";
+import "./base/Ledger.sol";
 import "./SCEmailDerivative.sol";
 
 /**
