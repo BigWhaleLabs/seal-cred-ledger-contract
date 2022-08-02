@@ -57,7 +57,7 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.14;
+pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./SCERC721Ledger.sol";
@@ -74,8 +74,11 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     address _verifierContract,
     uint256 _attestorPublicKey,
     uint256 _network,
-    address _attestorEcdsaAddress
-  ) SCERC721Ledger(_verifierContract, _attestorPublicKey, _network) {
+    address _attestorEcdsaAddress,
+    address _forwarder
+  )
+    SCERC721Ledger(_verifierContract, _attestorPublicKey, _network, _forwarder)
+  {
     attestorEcdsaAddress = _attestorEcdsaAddress;
   }
 
@@ -107,7 +110,7 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     }
     // Proxy mint call
     SCERC721Derivative(originalToDerivative[originalString]).mintWithSender(
-      msg.sender,
+      _msgSender(),
       proof
     );
   }

@@ -57,7 +57,7 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.14;
+pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "./base/Ledger.sol";
@@ -68,9 +68,11 @@ import "./SCEmailDerivative.sol";
  * @dev Creates SCEmailDerivatives, remembers them and proxies mint calls to them
  */
 contract SCEmailLedger is Ledger {
-  constructor(address _verifierContract, uint256 _attestorPublicKey)
-    Ledger(_verifierContract, _attestorPublicKey)
-  {}
+  constructor(
+    address _verifierContract,
+    uint256 _attestorPublicKey,
+    address _forwarder
+  ) Ledger(_verifierContract, _attestorPublicKey, _forwarder) {}
 
   /**
    * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
@@ -83,7 +85,7 @@ contract SCEmailLedger is Ledger {
     }
     // Proxy mint call
     SCEmailDerivative(originalToDerivative[domain]).mintWithSender(
-      msg.sender,
+      _msgSender(),
       proof
     );
   }

@@ -57,7 +57,7 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.14;
+pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "./base/Ledger.sol";
@@ -79,8 +79,9 @@ contract SCERC721Ledger is Ledger {
   constructor(
     address _verifierContract,
     uint256 _attestorPublicKey,
-    uint256 _network
-  ) Ledger(_verifierContract, _attestorPublicKey) {
+    uint256 _network,
+    address _forwarder
+  ) Ledger(_verifierContract, _attestorPublicKey, _forwarder) {
     network = _network;
   }
 
@@ -104,7 +105,7 @@ contract SCERC721Ledger is Ledger {
     }
     // Proxy mint call
     SCERC721Derivative(originalToDerivative[originalString]).mintWithSender(
-      msg.sender,
+      _msgSender(),
       proof
     );
   }

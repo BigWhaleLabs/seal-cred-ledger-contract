@@ -57,15 +57,16 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.14;
+pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import "@opengsn/contracts/src/ERC2771Recipient.sol";
 
 /**
  * @title SealCred Ledger base contract
  */
-contract Ledger is Ownable {
+contract Ledger is Ownable, ERC2771Recipient {
   // State
   address public verifierContract;
   uint256 public immutable attestorPublicKey;
@@ -75,9 +76,14 @@ contract Ledger is Ownable {
   event CreateDerivative(string original, address derivative);
   event DeleteOriginal(string original);
 
-  constructor(address _verifierContract, uint256 _attestorPublicKey) {
+  constructor(
+    address _verifierContract,
+    uint256 _attestorPublicKey,
+    address _forwarder
+  ) {
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
+    _setTrustedForwarder(_forwarder);
   }
 
   function setVerifierContract(address _verifierContract) external onlyOwner {
@@ -110,5 +116,23 @@ contract Ledger is Ownable {
   {
     originalToDerivative[original] = derivative;
     emit CreateDerivative(original, derivative);
+  }
+
+  function _msgSender()
+    internal
+    view
+    override(Context, ERC2771Recipient)
+    returns (address sender)
+  {
+    sender = ERC2771Recipient._msgSender();
+  }
+
+  function _msgData()
+    internal
+    view
+    override(Context, ERC2771Recipient)
+    returns (bytes calldata ret)
+  {
+    return ERC2771Recipient._msgData();
   }
 }

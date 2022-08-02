@@ -56,6 +56,7 @@ __metadata:
     "@nomiclabs/hardhat-ethers": ^2.1.0
     "@nomiclabs/hardhat-etherscan": ^3.1.0
     "@nomiclabs/hardhat-waffle": ^2.0.3
+    "@opengsn/contracts": ^3.0.0-beta.1
     "@openzeppelin/contracts": ^4.7.0
     "@typechain/ethers-v5": ^10.1.0
     "@typechain/hardhat": ^6.1.2
@@ -1293,6 +1294,22 @@ __metadata:
     mkdirp: ^1.0.4
     rimraf: ^3.0.2
   checksum: 1388777b507b0c592d53f41b9d182e1a8de7763bc625fc07999b8edbc22325f074e5b3ec90af79c89d6987fdb2325bc66d59f483258543c14a43661621f841b0
+  languageName: node
+  linkType: hard
+
+"@opengsn/contracts@npm:^3.0.0-beta.1":
+  version: 3.0.0-beta.1
+  resolution: "@opengsn/contracts@npm:3.0.0-beta.1"
+  dependencies:
+    "@openzeppelin/contracts": ^4.2.0
+  checksum: 2d7f897c00adfec0d9279a5fce8c07a13e81c35e2c1c205832eeed980e17221b6deef5e3f09ebadac7f5df0058b9232e7af29baf554490e9e86ed6e0074ff000
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/contracts@npm:^4.2.0":
+  version: 4.7.2
+  resolution: "@openzeppelin/contracts@npm:4.7.2"
+  checksum: f02f2b44cdec46bafe1b608b495b6e2dc161ae4a3f308ba9921787cb77b8b877232839047b12f03b4d0fee9ca9208887fd5b9e7bdbf9a8c4f01021b1f1181233
   languageName: node
   linkType: hard
 
