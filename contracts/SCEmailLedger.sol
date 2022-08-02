@@ -59,83 +59,49 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import "./Ledger.sol";
 import "./SCEmailDerivative.sol";
 
 /**
  * @title SealCred Email Ledger
  * @dev Creates SCEmailDerivatives, remembers them and proxies mint calls to them
  */
-contract SCEmailLedger is Ownable {
-  // State
-  mapping(string => address) public emailToDerivativeContract;
-  address public verifierContract;
-  uint256 public immutable attestorPublicKey;
-
-  // Events
-  event CreateDerivativeContract(string domain, address derivativeContract);
-  event DeleteEmail(string domain);
-
-  constructor(address _verifierContract, uint256 _attestorPublicKey) {
-    verifierContract = _verifierContract;
-    attestorPublicKey = _attestorPublicKey;
-  }
-
-  /**
-   * @dev Returns verifier contract
-   */
-  function setVerifierContract(address _verifierContract) external onlyOwner {
-    verifierContract = _verifierContract;
-  }
+contract SCEmailLedger is Ledger {
+  constructor(address _verifierContract, uint256 _attestorPublicKey)
+    Ledger(_verifierContract, _attestorPublicKey)
+  {}
 
   /**
    * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
    */
   function mint(EmailProof memory proof) external {
     string memory domain = _extractDomain(proof.input, 0, 90);
-    // Check if derivative already exists
-    if (emailToDerivativeContract[domain] != address(0)) {
-      // Proxy mint call
-      SCEmailDerivative(emailToDerivativeContract[domain]).mintWithSender(
-        msg.sender,
-        proof
-      );
-      return;
+    // Spawn the derivative if doesn't exist
+    if (!_checkDerivativeExistence(domain)) {
+      _spawnDerivative(domain);
     }
-    // Create derivative
+    // Proxy mint call
+    SCEmailDerivative(originalToDerivative[domain]).mintWithSender(
+      msg.sender,
+      proof
+    );
+  }
+
+  /**
+   * @dev Create a new derivative
+   */
+  function _spawnDerivative(string memory original) internal {
+    bytes memory originalBytes = bytes(original);
     SCEmailDerivative derivative = new SCEmailDerivative(
       address(this),
-      domain,
+      original,
       verifierContract,
       attestorPublicKey,
-      string(bytes.concat(bytes("@"), bytes(domain), bytes(" email"))),
-      string(bytes.concat(bytes(domain), bytes("-d")))
+      string(bytes.concat(bytes("@"), originalBytes, bytes(" email"))),
+      string(bytes.concat(originalBytes, bytes("-d")))
     );
-    emailToDerivativeContract[domain] = address(derivative);
-    // Emit creation event
-    emit CreateDerivativeContract(domain, address(derivative));
-    // Proxy mint call
-    SCEmailDerivative(address(derivative)).mintWithSender(msg.sender, proof);
-  }
-
-  /**
-   * @dev Returns derivative contract of given domain
-   */
-  function getDerivativeContract(string memory domain)
-    external
-    view
-    returns (address)
-  {
-    return emailToDerivativeContract[domain];
-  }
-
-  /**
-   * @dev Deletes domain record from the ledger
-   */
-  function deleteEmail(string memory domain) external onlyOwner {
-    delete emailToDerivativeContract[domain];
-    emit DeleteEmail(domain);
+    _registerDerivative(original, address(derivative));
   }
 
   /**

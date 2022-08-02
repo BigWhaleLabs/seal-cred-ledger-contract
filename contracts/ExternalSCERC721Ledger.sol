@@ -62,18 +62,21 @@ pragma solidity ^0.8.14;
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./SCERC721Ledger.sol";
 
+uint256 constant contractLength = 42;
+uint256 constant networkLength = 1;
+uint256 constant zeroLength = 1;
+
 contract ExternalSCERC721Ledger is SCERC721Ledger {
   // State
   address public immutable attestorEcdsaAddress;
 
   constructor(
     address _verifierContract,
-    uint256 _attestorEddsaPublicKey,
-    address _attestorEcdsaAddress,
-    uint256 _network
-  ) SCERC721Ledger(_verifierContract, _attestorEddsaPublicKey) {
+    uint256 _attestorPublicKey,
+    uint256 _network,
+    address _attestorEcdsaAddress
+  ) SCERC721Ledger(_verifierContract, _attestorPublicKey, _network) {
     attestorEcdsaAddress = _attestorEcdsaAddress;
-    network = _network;
   }
 
   function mint(BalanceProof memory) external pure override {
@@ -88,25 +91,37 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     bytes memory data,
     bytes memory signature
   ) external {
-    (
-      string memory originalContractString,
-      address originalContract
-    ) = _extractAddress(proof.input, 0);
+    (string memory originalString, address original) = _extractAddress(
+      proof.input,
+      0
+    );
     // Check if derivative already exists
-    if (_checkIfDerivativeExists(originalContract)) {
-      // Proxy mint call
-      _mint(
-        SCERC721Derivative(
-          originalContractToDerivativeContract[originalContract]
-        ),
-        proof
+    if (!_checkDerivativeExistence(originalString)) {
+      // Extract metadata
+      (string memory name, string memory symbol) = _extractMetadata(
+        data,
+        signature,
+        originalString
       );
-      return;
+      _spawnDerivative(original, originalString, name, symbol);
     }
+    // Proxy mint call
+    SCERC721Derivative(originalToDerivative[originalString]).mintWithSender(
+      msg.sender,
+      proof
+    );
+  }
+
+  function _extractMetadata(
+    bytes memory data,
+    bytes memory signature,
+    string memory originalString
+  ) internal view returns (string memory name, string memory symbol) {
+    // Check the network
+    require(uint256(uint8(data[contractLength])) == network, "Wrong network");
     // Confirm the metadata signature is valid
-    bytes32 dataHash = ECDSA.toEthSignedMessageHash(data);
     (address recoveredAttestorAddress, ECDSA.RecoverError ecdsaError) = ECDSA
-      .tryRecover(dataHash, signature);
+      .tryRecover(ECDSA.toEthSignedMessageHash(data), signature);
     require(
       ecdsaError == ECDSA.RecoverError.NoError,
       "Error while verifying the ECDSA signature"
@@ -115,50 +130,19 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       recoveredAttestorAddress == attestorEcdsaAddress,
       "Wrong attestor public key"
     );
-    // Extract metadata
-    (
-      string memory recoveredContractString,
-      uint256 recoveredNetwork,
-      string memory name,
-      string memory symbol
-    ) = _extractMetadata(data);
-    // Check the network
-    require(recoveredNetwork == network, "Wrong network");
-    // Confirm this is the correct contract
-    require(
-      keccak256(bytes(recoveredContractString)) ==
-        keccak256(bytes(originalContractString)),
-      "Wrong token address"
-    );
-    // Create derivative
-    string memory fullName = string(
-      bytes.concat(bytes(name), bytes(" (derivative)"))
-    );
-    string memory fullSymbol = string(bytes.concat(bytes(symbol), bytes("-d")));
-    _mintSpawningNewDerivative(originalContract, proof, fullName, fullSymbol);
-  }
-
-  function _extractMetadata(bytes memory data)
-    internal
-    pure
-    returns (
-      string memory recoveredContractString,
-      uint256 network,
-      string memory name,
-      string memory symbol
-    )
-  {
     // Get contract string — first 42 characters
-    uint256 contractLength = 42;
-    uint256 networkLength = 1;
-    uint256 zeroLength = 1;
     bytes memory contractBytes = new bytes(contractLength);
     for (uint256 i = 0; i < contractLength; i++) {
       contractBytes[i] = data[i];
     }
+    // Confirm this is the correct contract
+    require(
+      keccak256(contractBytes) == keccak256(bytes(originalString)),
+      "Wrong token address"
+    );
     // Get the 0x0 index separating name from symbol
     uint256 zeroIndex;
-    for (uint256 i = 42; i < data.length; i++) {
+    for (uint256 i = contractLength; i < data.length; i++) {
       if (data[i] == 0) {
         zeroIndex = i;
         break;
@@ -168,7 +152,6 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     uint256 nameLength = zeroIndex - (contractLength + networkLength);
     bytes memory nameBytes = new bytes(nameLength);
     require(nameBytes.length > 0, "Zero name length");
-
     for (uint256 i = 0; i < nameLength; i++) {
       nameBytes[i] = data[contractLength + networkLength + i];
     }
@@ -176,15 +159,10 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     uint256 symbolLength = data.length - (zeroIndex + 1);
     bytes memory symbolBytes = new bytes(symbolLength);
     require(symbolBytes.length > 0, "Zero symbol length");
-
     for (uint256 i = zeroIndex + zeroLength; i < data.length; i++) {
       symbolBytes[i - zeroIndex - zeroLength] = data[i];
     }
-    return (
-      string(contractBytes),
-      uint256(uint8(data[contractLength])),
-      string(nameBytes),
-      string(symbolBytes)
-    );
+    // Return name and symbol
+    return (string(nameBytes), string(symbolBytes));
   }
 }
