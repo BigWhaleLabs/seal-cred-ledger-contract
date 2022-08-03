@@ -23,9 +23,9 @@ async function main() {
   } as { [chainId: number]: string }
   const chainName = chains[chainId]
   const contracts = [
-    'ExternalSCERC721Ledger',
-    'SCERC721Ledger',
     'SCEmailLedger',
+    'SCERC721Ledger',
+    'ExternalSCERC721Ledger',
   ]
   for (const contractName of contracts) {
     console.log(`Deploying ${contractName}...`)
