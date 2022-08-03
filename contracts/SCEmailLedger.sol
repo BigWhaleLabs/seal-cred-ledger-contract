@@ -59,7 +59,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "./base/Ledger.sol";
 import "./SCEmailDerivative.sol";
 
