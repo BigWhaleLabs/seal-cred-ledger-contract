@@ -122,7 +122,7 @@ async function main() {
     }
 
     // Print out the information
-    console.log(`${contract} deployed and verified on Etherscan!`)
+    console.log(`${contract.address} deployed and verified on Etherscan!`)
     console.log('Contract address:', address)
     console.log(
       'Etherscan URL:',
