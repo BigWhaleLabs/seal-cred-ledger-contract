@@ -73,11 +73,11 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
   constructor(
     address _verifierContract,
     uint256 _attestorPublicKey,
+    address _forwarder,
     uint256 _network,
-    address _attestorEcdsaAddress,
-    address _forwarder
+    address _attestorEcdsaAddress
   )
-    SCERC721Ledger(_verifierContract, _attestorPublicKey, _network, _forwarder)
+    SCERC721Ledger(_verifierContract, _attestorPublicKey, _forwarder, _network)
   {
     attestorEcdsaAddress = _attestorEcdsaAddress;
   }

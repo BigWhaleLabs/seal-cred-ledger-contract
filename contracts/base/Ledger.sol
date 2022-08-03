@@ -60,7 +60,6 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "@opengsn/contracts/src/ERC2771Recipient.sol";
 
 /**
