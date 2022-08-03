@@ -76,8 +76,8 @@ contract SCERC721Ledger is Ledger {
   constructor(
     address _verifierContract,
     uint256 _attestorPublicKey,
-    uint256 _network,
-    address _forwarder
+    address _forwarder,
+    uint256 _network
   ) Ledger(_verifierContract, _attestorPublicKey, _forwarder) {
     network = _network;
   }
