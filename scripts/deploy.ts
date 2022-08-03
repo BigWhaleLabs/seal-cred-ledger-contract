@@ -27,13 +27,21 @@ async function main() {
     'SCERC721Ledger',
     'SCEmailLedger',
   ]
+  const Lib = await ethers.getContractFactory('ParseAddress')
+  const lib = await Lib.deploy()
+  await lib.deployed()
   for (const contract of contracts) {
     console.log(`Deploying ${contract}...`)
-    const SealCred = await ethers.getContractFactory(contract)
+    const factory = await ethers.getContractFactory(contract, {
+      libraries: {
+        ParseAddress: lib.address,
+      },
+    })
     const isExternal = contract === 'ExternalSCERC721Ledger'
     const parameters = {
       properties: {
         verifierAddress: { required: true },
+        forwarder: { required: true },
         attestorPublicKey: {
           required: true,
           default:
@@ -42,43 +50,62 @@ async function main() {
         attestorEcdsaAddress: {
           required: true,
           default: '0xb0d7480ac6af8ba423d49554c5b3473201b96fd4',
-          ask: () => isExternal,
         },
         network: {
           required: true,
-          ask: () => isExternal,
           enum: ['g', 'm'],
-          default: isExternal ? 'm' : 'g',
           description: 'Network: (m)ain, (g)oerli',
         },
       },
     } as prompt.Schema
     const {
       verifierAddress,
+      forwarder,
       attestorPublicKey,
       attestorEcdsaAddress,
       network,
     } = await prompt.get(parameters)
     const networkCode = network === 'g' ? 103 : 109
-    const sealCred = isExternal
-      ? await SealCred.deploy(
+    let currentContract
+    let constructorArguments
+    switch (contract) {
+      case 'ExternalSCERC721Ledger':
+        constructorArguments = [
           verifierAddress,
           attestorPublicKey,
+          networkCode,
           attestorEcdsaAddress,
-          networkCode
-        )
-      : await SealCred.deploy(verifierAddress, attestorPublicKey)
+          forwarder,
+        ]
+        currentContract = await factory.deploy(...constructorArguments)
+        break
+      case 'SCERC721Ledger':
+        constructorArguments = [
+          verifierAddress,
+          attestorPublicKey,
+          network,
+          forwarder,
+        ]
+        currentContract = await factory.deploy(...constructorArguments)
+        break
+      case 'SCEmailLedger':
+        constructorArguments = [verifierAddress, attestorPublicKey, forwarder]
+        currentContract = await factory.deploy(...constructorArguments)
+        break
+      default:
+        break
+    }
 
     console.log(
       'Deploy tx gas price:',
-      utils.formatEther(sealCred.deployTransaction.gasPrice || 0)
+      utils.formatEther(currentContract.deployTransaction.gasPrice || 0)
     )
     console.log(
       'Deploy tx gas limit:',
-      utils.formatEther(sealCred.deployTransaction.gasLimit)
+      utils.formatEther(currentContract.deployTransaction.gasLimit)
     )
-    await sealCred.deployed()
-    const address = sealCred.address
+    await currentContract.deployed()
+    const address = currentContract.address
 
     console.log('Contract deployed to:', address)
     console.log('Wait for 1 minute to make sure blockchain is updated')
@@ -86,17 +113,11 @@ async function main() {
 
     // Try to verify the contract on Etherscan
     console.log('Verifying contract on Etherscan')
+
     try {
       await run('verify:verify', {
         address,
-        constructorArguments: isExternal
-          ? [
-              verifierAddress,
-              attestorPublicKey,
-              attestorEcdsaAddress,
-              networkCode,
-            ]
-          : [verifierAddress, attestorPublicKey],
+        constructorArguments,
       })
     } catch (err) {
       console.log(
