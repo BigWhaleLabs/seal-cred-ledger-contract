@@ -1,3 +1,10 @@
+import {
+  ATTESTOR_ECDSA_ADDRESS,
+  ATTESTOR_PUBLIC_KEY,
+  BALANCE_VERIFIER_CONTRACT_ADDRESS,
+  EMAIL_VERIFIER_CONTRACT_ADDRESS,
+  GSN_FORWARDER_CONTRACT_ADDRESS,
+} from '@big-whale-labs/constants'
 import { ethers, run } from 'hardhat'
 import { utils } from 'ethers'
 import prompt from 'prompt'
@@ -44,13 +51,12 @@ async function main() {
           required: true,
           pattern: regexes.ethereumAddress,
           default: isEmail
-            ? '0xe8c7754340b9f0efe49dfe0f9a47f8f137f70477'
-            : '0x842b06545f9dc6a3cce1efd8e4b44095643e3395',
+            ? EMAIL_VERIFIER_CONTRACT_ADDRESS
+            : BALANCE_VERIFIER_CONTRACT_ADDRESS,
         },
         attestorPublicKey: {
           required: true,
-          default:
-            '3022588728262621016474471722865235652573366639695808085248430151628770415819',
+          default: ATTESTOR_PUBLIC_KEY,
         },
         network: {
           ask: () => !isEmail,
@@ -63,12 +69,12 @@ async function main() {
           ask: () => isExternal,
           required: true,
           pattern: regexes.ethereumAddress,
-          default: '0xb0d7480ac6af8ba423d49554c5b3473201b96fd4',
+          default: ATTESTOR_ECDSA_ADDRESS,
         },
         forwarder: {
           required: true,
           pattern: regexes.ethereumAddress,
-          default: '0x7A95fA73250dc53556d264522150A940d4C50238',
+          default: GSN_FORWARDER_CONTRACT_ADDRESS,
         },
       },
     })
