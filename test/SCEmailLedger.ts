@@ -25,10 +25,11 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
       const contract = await this.scEmailLedgerFactory.deploy(
         zeroAddress,
         attestorPublicKey,
-        nonZeroAddress
+        zeroAddress
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
+      expect(await contract.getTrustedForwarder()).to.equal(zeroAddress)
     })
   })
   describe('Owner-only calls from non-owner', function () {

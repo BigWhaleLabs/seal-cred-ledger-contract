@@ -28,11 +28,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       const contract = await this.scERC721LedgerFactory.deploy(
         zeroAddress,
         attestorPublicKey,
-        nonZeroAddress,
+        zeroAddress,
         Network.mainnet
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
+      expect(await contract.getTrustedForwarder()).to.equal(zeroAddress)
     })
   })
   describe('Owner-only calls from non-owner', function () {
