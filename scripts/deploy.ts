@@ -83,6 +83,7 @@ async function main() {
       verifierAddress,
       attestorPublicKey,
       forwarder,
+      version,
     ] as (string | number | prompt.RevalidatorSchema)[]
     if (!isEmail) {
       const networkCode = network === 'g' ? 103 : 109
