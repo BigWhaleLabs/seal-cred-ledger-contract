@@ -91,7 +91,7 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
    */
   function mint(
     BalanceProof memory proof,
-    bytes memory data,
+    bytes calldata data,
     bytes memory signature
   ) external {
     (string memory originalString, address original) = _extractAddress(
@@ -116,7 +116,7 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
   }
 
   function _extractMetadata(
-    bytes memory data,
+    bytes calldata data,
     bytes memory signature,
     string memory originalString
   ) internal view returns (string memory name, string memory symbol) {
@@ -133,14 +133,9 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       recoveredAttestorAddress == attestorEcdsaAddress,
       "Wrong attestor public key"
     );
-    // Get contract string — first 42 characters
-    bytes memory contractBytes = new bytes(contractLength);
-    for (uint256 i = 0; i < contractLength; i++) {
-      contractBytes[i] = data[i];
-    }
     // Confirm this is the correct contract
     require(
-      keccak256(contractBytes) == keccak256(bytes(originalString)),
+      keccak256(data[:42]) == keccak256(bytes(originalString)),
       "Wrong token address"
     );
     // Get the 0x0 index separating name from symbol
@@ -153,18 +148,11 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     }
     // Get name string — between the end of contract at 42 and zero
     uint256 nameLength = zeroIndex - (contractLength + networkLength);
-    bytes memory nameBytes = new bytes(nameLength);
-    require(nameBytes.length > 0, "Zero name length");
-    for (uint256 i = 0; i < nameLength; i++) {
-      nameBytes[i] = data[contractLength + networkLength + i];
-    }
+    require(nameLength > 0, "Zero name length");
+    bytes memory nameBytes = data[contractLength + networkLength:contractLength + networkLength + nameLength];
     // Get symbol string — the rest of the data
-    uint256 symbolLength = data.length - (zeroIndex + 1);
-    bytes memory symbolBytes = new bytes(symbolLength);
-    require(symbolBytes.length > 0, "Zero symbol length");
-    for (uint256 i = zeroIndex + zeroLength; i < data.length; i++) {
-      symbolBytes[i - zeroIndex - zeroLength] = data[i];
-    }
+    require(data.length > zeroIndex + zeroLength, "Zero symbol length");
+    bytes memory symbolBytes = data[zeroIndex + zeroLength:];
     // Return name and symbol
     return (string(nameBytes), string(symbolBytes));
   }
