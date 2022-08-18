@@ -70,6 +70,7 @@ contract Ledger is Ownable, ERC2771Recipient {
   address public verifierContract;
   uint256 public immutable attestorPublicKey;
   mapping(string => address) public originalToDerivative;
+  string public version;
 
   // Events
   event CreateDerivative(string original, address derivative);
@@ -78,10 +79,12 @@ contract Ledger is Ownable, ERC2771Recipient {
   constructor(
     address _verifierContract,
     uint256 _attestorPublicKey,
-    address _forwarder
+    address _forwarder,
+    string memory _version
   ) {
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
+    version = _version;
     _setTrustedForwarder(_forwarder);
   }
 

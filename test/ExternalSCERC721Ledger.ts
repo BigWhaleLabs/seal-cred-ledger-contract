@@ -30,6 +30,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
     this.scERC721DerivativeFactory = await ethers.getContractFactory(
       'SCERC721Derivative'
     )
+    this.version = '0.0.1'
   })
   describe('Constructor', function () {
     it('should deploy the contract with the correct fields', async function () {
@@ -38,7 +39,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         attestorPublicKey,
         zeroAddress,
         Network.mainnet,
-        ecdsaAddress
+        ecdsaAddress,
+        this.version
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
@@ -61,7 +63,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
           attestorPublicKey,
           zeroAddress,
           Network.mainnet,
-          ecdsaAddress
+          ecdsaAddress,
+          this.version
         )
       this.name = 'MyERC721'
       this.symbol = 'ME7'
@@ -125,7 +128,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         attestorPublicKey,
         zeroAddress,
         Network.mainnet,
-        ecdsaAddress
+        ecdsaAddress,
+        this.version
       )
       // Check the mint transaction
       const tx = contract[mintFunctionSignatureWithOnlyProof](
@@ -142,7 +146,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         attestorPublicKey,
         zeroAddress,
         Network.mainnet,
-        ecdsaAddress
+        ecdsaAddress,
+        this.version
       )
       // Check the mint transaction
       const tx = contract[mintFunctionSignature](

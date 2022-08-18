@@ -19,13 +19,15 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
     this.scEmailDerivativeFactory = await ethers.getContractFactory(
       'SCEmailDerivative'
     )
+    this.version = '0.0.1'
   })
   describe('Constructor', function () {
     it('should deploy the contract with the correct fields', async function () {
       const contract = await this.scEmailLedgerFactory.deploy(
         zeroAddress,
         attestorPublicKey,
-        zeroAddress
+        zeroAddress,
+        this.version
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
@@ -37,7 +39,8 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
       this.scEmailLedger = await this.scEmailLedgerFactory.deploy(
         zeroAddress,
         attestorPublicKey,
-        nonZeroAddress
+        nonZeroAddress,
+        this.version
       )
       await this.scEmailLedger.deployed()
       this.contractWithIncorrectOwner = this.scEmailLedger.connect(this.user)
@@ -60,7 +63,8 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
     const contract = await this.scEmailLedgerFactory.deploy(
       zeroAddress,
       attestorPublicKey,
-      nonZeroAddress
+      nonZeroAddress,
+      this.version
     )
     await contract.deployed()
     expect(await contract.verifierContract()).to.equal(zeroAddress)
@@ -75,7 +79,8 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
       this.scEmailLedger = await this.scEmailLedgerFactory.deploy(
         this.fakeEmailVerifierContract.address,
         attestorPublicKey,
-        nonZeroAddress
+        nonZeroAddress,
+        this.version
       )
       await this.scEmailLedger.deployed()
       this.scEmailLedger.connect(this.user)
@@ -86,7 +91,8 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
         this.fakeEmailVerifierContract.address,
         attestorPublicKey,
         `@${domain} email`,
-        `${domain}-d`
+        `${domain}-d`,
+        this.version
       )
       await this.scEmailDerivative.deployed()
       this.scEmailDerivative.connect(this.user)
@@ -159,7 +165,8 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
       const contract = await this.scEmailLedgerFactory.deploy(
         this.fakeEmailVerifierContract.address,
         attestorPublicKey,
-        nonZeroAddress
+        nonZeroAddress,
+        this.version
       )
       await expect(
         contract.mint(getFakeEmailProof(123, domains[0]))

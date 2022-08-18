@@ -7,6 +7,7 @@ import {
 } from '@big-whale-labs/constants'
 import { ethers, run } from 'hardhat'
 import { utils } from 'ethers'
+import { version } from '../package.json'
 import prompt from 'prompt'
 
 const regexes = {

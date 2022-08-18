@@ -75,9 +75,16 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     uint256 _attestorPublicKey,
     address _forwarder,
     uint256 _network,
-    address _attestorEcdsaAddress
+    address _attestorEcdsaAddress,
+    string memory _version
   )
-    SCERC721Ledger(_verifierContract, _attestorPublicKey, _forwarder, _network)
+    SCERC721Ledger(
+      _verifierContract,
+      _attestorPublicKey,
+      _forwarder,
+      _network,
+      _version
+    )
   {
     attestorEcdsaAddress = _attestorEcdsaAddress;
   }
@@ -149,7 +156,8 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     // Get name string — between the end of contract at 42 and zero
     uint256 nameLength = zeroIndex - (contractLength + networkLength);
     require(nameLength > 0, "Zero name length");
-    bytes memory nameBytes = data[contractLength + networkLength:contractLength + networkLength + nameLength];
+    bytes memory nameBytes = data[contractLength +
+      networkLength:contractLength + networkLength + nameLength];
     // Get symbol string — the rest of the data
     require(data.length > zeroIndex + zeroLength, "Zero symbol length");
     bytes memory symbolBytes = data[zeroIndex + zeroLength:];
