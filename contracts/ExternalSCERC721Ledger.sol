@@ -92,7 +92,8 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
   function mint(
     BalanceProof memory proof,
     bytes calldata data,
-    bytes memory signature
+    bytes32 r,
+    bytes32 vs
   ) external {
     (string memory originalString, address original) = _extractAddress(
       proof.input,
@@ -103,7 +104,8 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       // Extract metadata
       (string memory name, string memory symbol) = _extractMetadata(
         data,
-        signature,
+        r,
+        vs,
         originalString
       );
       _spawnDerivative(original, originalString, name, symbol);
@@ -117,14 +119,15 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
 
   function _extractMetadata(
     bytes calldata data,
-    bytes memory signature,
+    bytes32 r,
+    bytes32 vs,
     string memory originalString
   ) internal view returns (string memory name, string memory symbol) {
     // Check the network
     require(uint256(uint8(data[contractLength])) == network, "Wrong network");
     // Confirm the metadata signature is valid
     (address recoveredAttestorAddress, ECDSA.RecoverError ecdsaError) = ECDSA
-      .tryRecover(ECDSA.toEthSignedMessageHash(data), signature);
+      .tryRecover(ECDSA.toEthSignedMessageHash(data), r, vs);
     require(
       ecdsaError == ECDSA.RecoverError.NoError,
       "Error while verifying the ECDSA signature"
@@ -149,7 +152,8 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     // Get name string — between the end of contract at 42 and zero
     uint256 nameLength = zeroIndex - (contractLength + networkLength);
     require(nameLength > 0, "Zero name length");
-    bytes memory nameBytes = data[contractLength + networkLength:contractLength + networkLength + nameLength];
+    bytes memory nameBytes = data[contractLength +
+      networkLength:contractLength + networkLength + nameLength];
     // Get symbol string — the rest of the data
     require(data.length > zeroIndex + zeroLength, "Zero symbol length");
     bytes memory symbolBytes = data[zeroIndex + zeroLength:];

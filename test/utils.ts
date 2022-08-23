@@ -2,6 +2,7 @@ import { BalanceProofStruct } from 'typechain/contracts/ExternalSCERC721Ledger'
 import { BigNumber, Wallet, ethers } from 'ethers'
 import { EmailProofStruct } from 'typechain/contracts/SCEmailLedger'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { splitSignature } from 'ethers/lib/utils'
 import { waffle } from 'hardhat'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
@@ -17,6 +18,7 @@ export const invalidAttestorPublicKey = BigNumber.from(
 const ecdsaWallet = new Wallet(
   '0xc22d0fdda8dd97029978419bc67b2daf7a8827c507506d1a997ac52bd56e97b8'
 )
+
 export const ecdsaAddress = ecdsaWallet.address
 
 export enum Network {
@@ -193,7 +195,7 @@ export async function getEcdsaArguments(
   contract: string,
   name: string,
   symbol: string
-): Promise<[number[], string]> {
+): Promise<[number[], string, string]> {
   const data = [
     ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
     network,
@@ -202,7 +204,8 @@ export async function getEcdsaArguments(
     ...ethers.utils.toUtf8Bytes(symbol),
   ]
   const signature = await signEcdsa(data)
-  return [data, signature]
+  const { r, yParityAndS } = splitSignature(signature)
+  return [data, r, yParityAndS]
 }
 
 function padZeroesOnRightUint8(array: Uint8Array, length: number) {
