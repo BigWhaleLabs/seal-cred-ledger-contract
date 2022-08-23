@@ -99,7 +99,8 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
   function mint(
     BalanceProof memory proof,
     bytes calldata data,
-    bytes memory signature
+    bytes32 r,
+    bytes32 vs
   ) external {
     (string memory originalString, address original) = _extractAddress(
       proof.input,
@@ -110,7 +111,8 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
       // Extract metadata
       (string memory name, string memory symbol) = _extractMetadata(
         data,
-        signature,
+        r,
+        vs,
         originalString
       );
       _spawnDerivative(original, originalString, name, symbol);
@@ -124,14 +126,15 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
 
   function _extractMetadata(
     bytes calldata data,
-    bytes memory signature,
+    bytes32 r,
+    bytes32 vs,
     string memory originalString
   ) internal view returns (string memory name, string memory symbol) {
     // Check the network
     require(uint256(uint8(data[contractLength])) == network, "Wrong network");
     // Confirm the metadata signature is valid
     (address recoveredAttestorAddress, ECDSA.RecoverError ecdsaError) = ECDSA
-      .tryRecover(ECDSA.toEthSignedMessageHash(data), signature);
+      .tryRecover(ECDSA.toEthSignedMessageHash(data), r, vs);
     require(
       ecdsaError == ECDSA.RecoverError.NoError,
       "Error while verifying the ECDSA signature"

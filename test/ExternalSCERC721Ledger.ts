@@ -10,9 +10,10 @@ import {
 } from './utils'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
+import { splitSignature } from 'ethers/lib/utils'
 
 const mintFunctionSignature =
-  'mint((uint256[2],uint256[2][2],uint256[2],uint256[46]),bytes,bytes)'
+  'mint((uint256[2],uint256[2][2],uint256[2],uint256[46]),bytes,bytes32,bytes32)'
 const mintFunctionSignatureWithOnlyProof =
   'mint((uint256[2],uint256[2][2],uint256[2],uint256[46]))'
 
@@ -217,7 +218,11 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         this.name,
         this.symbol
       )
-      ecdsaInput[1] = await invalidEcdsaWallet.signMessage(ecdsaInput[0])
+      const sig = splitSignature(
+        await invalidEcdsaWallet.signMessage(ecdsaInput[0])
+      )
+      ecdsaInput[1] = sig.r
+      ecdsaInput[2] = sig.yParityAndS
       const tx = this.externalSCERC721Ledger[mintFunctionSignature](
         getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
         ...ecdsaInput
@@ -234,7 +239,12 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       )
       // Corrupt the signature
       ecdsaInput[1] =
-        '0x' + ecdsaInput[1].split('').reverse().join('').slice(0, 2)
+        '0x' +
+        ecdsaInput[1]
+          .split('')
+          .reverse()
+          .join('')
+          .substring(0, ecdsaInput[1].length - 2)
       const tx = this.externalSCERC721Ledger[mintFunctionSignature](
         getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
         ...ecdsaInput
