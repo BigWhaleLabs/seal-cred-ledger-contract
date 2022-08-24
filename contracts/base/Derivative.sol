@@ -72,17 +72,20 @@ contract Derivative is ERC721, Ownable {
   Counters.Counter public currentTokenId;
   address public verifierContract;
   uint256 public immutable attestorPublicKey;
+  string public version;
 
   constructor(
     address _ledgerContract,
     address _verifierContract,
     uint256 _attestorPublicKey,
     string memory tokenName,
-    string memory tokenSymbol
+    string memory tokenSymbol,
+    string memory _version
   ) ERC721(tokenName, tokenSymbol) {
     ledgerContract = _ledgerContract;
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
+    version = _version;
   }
 
   function _checkAttestor(uint256 _attestorPublicKey) internal view {

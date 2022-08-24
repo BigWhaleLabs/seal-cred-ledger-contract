@@ -75,14 +75,16 @@ contract SCERC721Derivative is Derivative {
     uint256 _attestorPublicKey,
     uint256 _originalNetwork,
     string memory tokenName,
-    string memory tokenSymbol
+    string memory tokenSymbol,
+    string memory _version
   )
     Derivative(
       _ledgerContract,
       _verifierContract,
       _attestorPublicKey,
       tokenName,
-      tokenSymbol
+      tokenSymbol,
+      _version
     )
   {
     originalContract = _originalContract;

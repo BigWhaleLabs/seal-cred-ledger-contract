@@ -22,6 +22,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     this.scERC721DerivativeFactory = await ethers.getContractFactory(
       'SCERC721Derivative'
     )
+    this.version = '0.0.1'
   })
   describe('Constructor', function () {
     it('should deploy the contract with the correct fields', async function () {
@@ -29,7 +30,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         zeroAddress,
         attestorPublicKey,
         zeroAddress,
-        Network.mainnet
+        Network.mainnet,
+        this.version
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
@@ -42,7 +44,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         zeroAddress,
         attestorPublicKey,
         nonZeroAddress,
-        Network.mainnet
+        Network.mainnet,
+        this.version
       )
       await this.scERC721Ledger.deployed()
       this.contractWithIncorrectOwner = this.scERC721Ledger.connect(this.user)
@@ -66,7 +69,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       zeroAddress,
       attestorPublicKey,
       nonZeroAddress,
-      Network.mainnet
+      Network.mainnet,
+      this.version
     )
     await contract.deployed()
     expect(await contract.verifierContract()).to.equal(zeroAddress)
@@ -88,7 +92,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         this.fakeVerifierContract.address,
         attestorPublicKey,
         nonZeroAddress,
-        Network.mainnet
+        Network.mainnet,
+        this.version
       )
       await this.scERC721Ledger.deployed()
       this.scERC721Ledger.connect(this.user)
@@ -100,7 +105,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         attestorPublicKey,
         Network.mainnet,
         'FakeERC721 (derivative)',
-        'FAKE-d'
+        'FAKE-d',
+        this.version
       )
       await this.scERC721Derivative.deployed()
       this.scERC721Derivative.connect(this.user)

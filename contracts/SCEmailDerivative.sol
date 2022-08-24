@@ -73,14 +73,16 @@ contract SCEmailDerivative is Derivative {
     address _verifierContract,
     uint256 _attestorPublicKey,
     string memory tokenName,
-    string memory tokenSymbol
+    string memory tokenSymbol,
+    string memory _version
   )
     Derivative(
       _ledgerContract,
       _verifierContract,
       _attestorPublicKey,
       tokenName,
-      tokenSymbol
+      tokenSymbol,
+      _version
     )
   {
     email = _email;

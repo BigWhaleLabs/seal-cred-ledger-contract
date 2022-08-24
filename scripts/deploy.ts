@@ -7,6 +7,7 @@ import {
 } from '@big-whale-labs/constants'
 import { ethers, run } from 'hardhat'
 import { utils } from 'ethers'
+import { version } from '../package.json'
 import prompt from 'prompt'
 
 const regexes = {
@@ -82,6 +83,7 @@ async function main() {
       verifierAddress,
       attestorPublicKey,
       forwarder,
+      version,
     ] as (string | number | prompt.RevalidatorSchema)[]
     if (!isEmail) {
       const networkCode = network === 'g' ? 103 : 109

@@ -77,8 +77,9 @@ contract SCERC721Ledger is Ledger {
     address _verifierContract,
     uint256 _attestorPublicKey,
     address _forwarder,
-    uint256 _network
-  ) Ledger(_verifierContract, _attestorPublicKey, _forwarder) {
+    uint256 _network,
+    string memory _version
+  ) Ledger(_verifierContract, _attestorPublicKey, _forwarder, _version) {
     network = _network;
   }
 
@@ -123,7 +124,8 @@ contract SCERC721Ledger is Ledger {
       attestorPublicKey,
       network,
       string(bytes.concat(bytes(name), bytes(" (derivative)"))),
-      string(bytes.concat(bytes(symbol), bytes("-d")))
+      string(bytes.concat(bytes(symbol), bytes("-d"))),
+      version
     );
     _registerDerivative(originalString, address(derivative));
   }
