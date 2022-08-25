@@ -62,8 +62,9 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@big-whale-labs/versioned-contract/contracts/Versioned.sol";
 
-contract Derivative is ERC721, Ownable {
+contract Derivative is ERC721, Ownable, Versioned {
   using Counters for Counters.Counter;
 
   // State
@@ -72,7 +73,6 @@ contract Derivative is ERC721, Ownable {
   Counters.Counter public currentTokenId;
   address public verifierContract;
   uint256 public immutable attestorPublicKey;
-  string public version;
 
   constructor(
     address _ledgerContract,
@@ -81,11 +81,10 @@ contract Derivative is ERC721, Ownable {
     string memory tokenName,
     string memory tokenSymbol,
     string memory _version
-  ) ERC721(tokenName, tokenSymbol) {
+  ) ERC721(tokenName, tokenSymbol) Versioned(_version) {
     ledgerContract = _ledgerContract;
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
-    version = _version;
   }
 
   function _checkAttestor(uint256 _attestorPublicKey) internal view {
