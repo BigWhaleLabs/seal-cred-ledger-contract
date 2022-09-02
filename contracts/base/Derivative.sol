@@ -131,6 +131,10 @@ contract Derivative is ERC721, Ownable, Versioned {
         : "";
   }
 
+  function _baseURI() internal view virtual override returns (string memory) {
+    return BASE_URI;
+  }
+
   function _beforeTokenTransfer(
     address _from,
     address _to,
