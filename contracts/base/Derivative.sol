@@ -62,17 +62,19 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@big-whale-labs/versioned-contract/contracts/Versioned.sol";
 
 contract Derivative is ERC721, Ownable, Versioned {
   using Counters for Counters.Counter;
-
+  using Strings for uint256;
   // State
   address public immutable ledgerContract;
   mapping(uint256 => bool) public nullifiers;
   Counters.Counter public currentTokenId;
   address public verifierContract;
   uint256 public immutable attestorPublicKey;
+  string public constant BASE_URI = "https://metadata.sealcred.xyz/metadata/";
 
   constructor(
     address _ledgerContract,
@@ -105,6 +107,28 @@ contract Derivative is ERC721, Ownable, Versioned {
     currentTokenId.increment();
     // Save nullifier
     nullifiers[nullifier] = true;
+  }
+
+  function tokenURI(uint256 tokenId)
+    public
+    view
+    virtual
+    override
+    returns (string memory)
+  {
+    _requireMinted(tokenId);
+
+    string memory baseURI = _baseURI();
+    string memory contractAddress = Strings.toHexString(
+      uint160(address(this)),
+      20
+    );
+    return
+      bytes(baseURI).length > 0
+        ? string(
+          abi.encodePacked(baseURI, contractAddress, "/", tokenId.toString())
+        )
+        : "";
   }
 
   function _beforeTokenTransfer(
