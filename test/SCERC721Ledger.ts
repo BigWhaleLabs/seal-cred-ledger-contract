@@ -1,6 +1,7 @@
 import {
   Network,
   attestorPublicKey,
+  constructTokenURI,
   getFakeBalanceProof,
   getFakeBalanceVerifier,
   getFakeERC721,
@@ -116,6 +117,21 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
       )
       expect(await tx.wait())
+    })
+    it('should return correct metadata', async function () {
+      // Token mint
+      const tx = await this.scERC721Derivative.mint(
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+      )
+      await tx.wait()
+      // Get the derivative
+      const derivativeAddress = this.scERC721Derivative.address
+      const tokenURIfromContract = (
+        await this.scERC721Derivative.tokenURI(0)
+      ).toLowerCase()
+      const expectedTokenURI = constructTokenURI(derivativeAddress, 0)
+      // Check the tokenURI
+      expect(tokenURIfromContract).to.equal(expectedTokenURI)
     })
     it('should mint from the derivative if all the correct info is there', async function () {
       const derivativeTx = await this.scERC721Derivative.mint(
