@@ -9,7 +9,8 @@ export const zeroAddress = '0x0000000000000000000000000000000000000000'
 const emails = ['one@example.com', 'two@example2.com']
 export const domains = emails.map((e) => e.split('@')[1])
 export const nonZeroAddress = '0x0000000000000000000000000000000000000001'
-const metadataURL = 'https://metadata.sealcred.xyz/metadata/'
+export const metadataURL = 'https://metadata.sealcred.xyz/metadata'
+export const newMetadataURL = 'https://metadata-v2.sealcred.xyz/metadata'
 export const attestorPublicKey = BigNumber.from(
   '13578469780849928704623562188688413596472689853032556827882124682666588837591'
 )
@@ -219,8 +220,9 @@ function signEcdsa(message: number[]) {
 }
 
 export function constructTokenURI(
+  baseURI: string,
   contractAddress: string,
   tokenId: string | number
 ) {
-  return `${metadataURL}${contractAddress}/${tokenId}`.toLowerCase()
+  return `${baseURI}/${contractAddress}/${tokenId}`.toLowerCase()
 }

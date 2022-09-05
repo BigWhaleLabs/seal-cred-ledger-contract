@@ -28,6 +28,10 @@ declare module 'mocha' {
     scERC721Ledger: SCERC721Ledger
     scERC721Derivative: SCERC721Derivative
     scEmailDerivative: SCEmailDerivative
+    contractWithIncorrectOwner:
+      | SCERC721Ledger
+      | ExternalSCERC721Ledger
+      | SCEmailLedger
     // Mock contracts
     fakeVerifierContract: MockContract
     fakeEmailVerifierContract: MockContract

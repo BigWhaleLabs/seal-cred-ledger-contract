@@ -7,6 +7,7 @@ import {
   getFakeBalanceProof,
   getFakeBalanceVerifier,
   getFakeERC721,
+  metadataURL,
   zeroAddress,
 } from './utils'
 import { ethers } from 'hardhat'
@@ -42,12 +43,15 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         zeroAddress,
         Network.mainnet,
         ecdsaAddress,
+        metadataURL,
         this.version
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
       expect(await contract.getTrustedForwarder()).to.equal(zeroAddress)
       expect(await contract.attestorEcdsaAddress()).to.equal(ecdsaAddress)
+      expect(await contract.baseURI()).to.equal(metadataURL)
+      expect(await contract.version()).to.equal(this.version)
       expect(await contract.network()).to.equal(Network.mainnet)
     })
   })
@@ -66,6 +70,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
           zeroAddress,
           Network.mainnet,
           ecdsaAddress,
+          metadataURL,
           this.version
         )
       this.name = 'MyERC721'
@@ -89,9 +94,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       const derivativeAddress = await this.externalSCERC721Ledger.getDerivative(
         this.fakeERC721.address.toLowerCase()
       )
-      const derivativeContract = await this.scERC721DerivativeFactory.attach(
-        derivativeAddress
-      )
+      const derivativeContract =
+        this.scERC721DerivativeFactory.attach(derivativeAddress)
       // Check the derivative variables
       expect(await derivativeContract.name()).to.equal(
         `${this.name} (derivative)`
@@ -114,13 +118,16 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       const derivativeAddress = await this.externalSCERC721Ledger.getDerivative(
         this.fakeERC721.address.toLowerCase()
       )
-      const derivativeContract = await this.scERC721DerivativeFactory.attach(
-        derivativeAddress
-      )
+      const derivativeContract =
+        this.scERC721DerivativeFactory.attach(derivativeAddress)
       const tokenURIfromContract = (
         await derivativeContract.tokenURI(0)
       ).toLowerCase()
-      const expectedTokenURI = constructTokenURI(derivativeAddress, 0)
+      const expectedTokenURI = constructTokenURI(
+        metadataURL,
+        derivativeAddress,
+        0
+      )
       // Check the tokenURI
       expect(tokenURIfromContract).to.equal(expectedTokenURI)
     })
@@ -143,9 +150,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         await this.externalSCERC721Ledger.originalToDerivative(
           this.fakeERC721.address.toLowerCase()
         )
-      const derivativeContract = await this.scERC721DerivativeFactory.attach(
-        derivativeAddress
-      )
+      const derivativeContract =
+        this.scERC721DerivativeFactory.attach(derivativeAddress)
       // Check the derivative variables
       expect(await derivativeContract.name()).to.equal(`${name} (derivative)`)
       expect(await derivativeContract.symbol()).to.equal(`${symbol}-d`)
@@ -157,6 +163,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         zeroAddress,
         Network.mainnet,
         ecdsaAddress,
+        metadataURL,
         this.version
       )
       // Check the mint transaction
@@ -175,6 +182,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         zeroAddress,
         Network.mainnet,
         ecdsaAddress,
+        metadataURL,
         this.version
       )
       // Check the mint transaction
