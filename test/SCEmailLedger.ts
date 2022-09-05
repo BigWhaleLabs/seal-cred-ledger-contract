@@ -1,9 +1,11 @@
 import {
   attestorPublicKey,
+  constructTokenURI,
   domains,
   getFakeEmailProof,
   getFakeEmailVerifier,
   invalidAttestorPublicKey,
+  metadataURL,
   nonZeroAddress,
   zeroAddress,
 } from './utils'
@@ -27,10 +29,13 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
         zeroAddress,
         attestorPublicKey,
         zeroAddress,
+        metadataURL,
         this.version
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
+      expect(await contract.baseURI()).to.equal(metadataURL)
+      expect(await contract.version()).to.equal(this.version)
       expect(await contract.getTrustedForwarder()).to.equal(zeroAddress)
     })
   })
@@ -40,6 +45,7 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
         zeroAddress,
         attestorPublicKey,
         nonZeroAddress,
+        metadataURL,
         this.version
       )
       await this.scEmailLedger.deployed()
@@ -58,12 +64,18 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
         this.contractWithIncorrectOwner.deleteOriginal(domains[0])
       ).to.be.revertedWith('Ownable: caller is not the owner')
     })
+    it('should not be able to call setBaseURI', async function () {
+      await expect(
+        this.contractWithIncorrectOwner.setBaseURI(zeroAddress)
+      ).to.be.revertedWith('Ownable: caller is not the owner')
+    })
   })
   it('should set verifier contract', async function () {
     const contract = await this.scEmailLedgerFactory.deploy(
       zeroAddress,
       attestorPublicKey,
       nonZeroAddress,
+      metadataURL,
       this.version
     )
     await contract.deployed()
@@ -80,6 +92,7 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
         this.fakeEmailVerifierContract.address,
         attestorPublicKey,
         nonZeroAddress,
+        metadataURL,
         this.version
       )
       await this.scEmailLedger.deployed()
@@ -92,6 +105,7 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
         attestorPublicKey,
         `@${domain} email`,
         `${domain}-d`,
+        metadataURL,
         this.version
       )
       await this.scEmailDerivative.deployed()
@@ -114,6 +128,26 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
       // Should be no extra zero bytes
       expect(/\0/g.test(name)).to.be.false
       expect(/\0/g.test(symbol)).to.be.false
+    })
+    it('should return correct metadata', async function () {
+      // Check the mint transaction
+      const domain = domains[0]
+      const tx = await this.scEmailLedger.mint(getFakeEmailProof(123, domain))
+      await tx.wait()
+      // Get the derivative
+      const derivativeAddress = await this.scEmailLedger.getDerivative(domain)
+      const scEmailDerivative =
+        this.scEmailDerivativeFactory.attach(derivativeAddress)
+      const tokenURIfromContract = (
+        await scEmailDerivative.tokenURI(0)
+      ).toLowerCase()
+      const expectedTokenURI = constructTokenURI(
+        metadataURL,
+        derivativeAddress,
+        0
+      )
+      // Check the tokenURI
+      expect(tokenURIfromContract).to.equal(expectedTokenURI)
     })
     it('should mint from the derivative if all the correct info is there', async function () {
       const derivativeTx = await this.scEmailDerivative.mint(
@@ -166,6 +200,7 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
         this.fakeEmailVerifierContract.address,
         attestorPublicKey,
         nonZeroAddress,
+        metadataURL,
         this.version
       )
       await expect(

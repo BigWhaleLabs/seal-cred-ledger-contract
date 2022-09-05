@@ -76,6 +76,7 @@ contract SCERC721Derivative is Derivative {
     uint256 _originalNetwork,
     string memory tokenName,
     string memory tokenSymbol,
+    string memory _baseURI,
     string memory _version
   )
     Derivative(
@@ -84,6 +85,7 @@ contract SCERC721Derivative is Derivative {
       _attestorPublicKey,
       tokenName,
       tokenSymbol,
+      _baseURI,
       _version
     )
   {

@@ -1,10 +1,13 @@
 import {
   Network,
   attestorPublicKey,
+  constructTokenURI,
   getFakeBalanceProof,
   getFakeBalanceVerifier,
   getFakeERC721,
   invalidAttestorPublicKey,
+  metadataURL,
+  newMetadataURL,
   nonZeroAddress,
   zeroAddress,
 } from './utils'
@@ -31,10 +34,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         attestorPublicKey,
         zeroAddress,
         Network.mainnet,
+        metadataURL,
         this.version
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
+      expect(await contract.baseURI()).to.equal(metadataURL)
+      expect(await contract.version()).to.equal(this.version)
       expect(await contract.getTrustedForwarder()).to.equal(zeroAddress)
     })
   })
@@ -45,6 +51,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         attestorPublicKey,
         nonZeroAddress,
         Network.mainnet,
+        metadataURL,
         this.version
       )
       await this.scERC721Ledger.deployed()
@@ -63,6 +70,11 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         this.contractWithIncorrectOwner.deleteOriginal(zeroAddress)
       ).to.be.revertedWith('Ownable: caller is not the owner')
     })
+    it('should not be able to call setBaseURI', async function () {
+      await expect(
+        this.contractWithIncorrectOwner.setBaseURI(zeroAddress)
+      ).to.be.revertedWith('Ownable: caller is not the owner')
+    })
   })
   it('should set verifier contract', async function () {
     const contract = await this.scERC721LedgerFactory.deploy(
@@ -70,6 +82,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       attestorPublicKey,
       nonZeroAddress,
       Network.mainnet,
+      metadataURL,
       this.version
     )
     await contract.deployed()
@@ -93,6 +106,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         attestorPublicKey,
         nonZeroAddress,
         Network.mainnet,
+        metadataURL,
         this.version
       )
       await this.scERC721Ledger.deployed()
@@ -106,6 +120,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         Network.mainnet,
         'FakeERC721 (derivative)',
         'FAKE-d',
+        metadataURL,
         this.version
       )
       await this.scERC721Derivative.deployed()
@@ -116,6 +131,47 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
       )
       expect(await tx.wait())
+    })
+    it('should return correct metadata', async function () {
+      // Token mint
+      const tx = await this.scERC721Derivative.mint(
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+      )
+      await tx.wait()
+      // Get the derivative
+      const derivativeAddress = this.scERC721Derivative.address
+      const tokenURIfromContract = (
+        await this.scERC721Derivative.tokenURI(0)
+      ).toLowerCase()
+      const expectedTokenURI = constructTokenURI(
+        metadataURL,
+        derivativeAddress,
+        0
+      )
+      // Check the tokenURI
+      expect(tokenURIfromContract).to.equal(expectedTokenURI)
+    })
+    it('should use baseURI configured for derivative', async function () {
+      // Token mint
+      const tx = await this.scERC721Derivative.mint(
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+      )
+      await tx.wait()
+      // Get the derivative
+      const derivativeAddress = this.scERC721Derivative.address
+      // Set specific baseURI for derivaitve
+      await this.scERC721Derivative.setBaseURI(newMetadataURL)
+
+      const tokenURIfromContract = (
+        await this.scERC721Derivative.tokenURI(0)
+      ).toLowerCase()
+      const expectedTokenURI = constructTokenURI(
+        newMetadataURL,
+        derivativeAddress,
+        0
+      )
+      // Check the tokenURI
+      expect(tokenURIfromContract).to.equal(expectedTokenURI)
     })
     it('should mint from the derivative if all the correct info is there', async function () {
       const derivativeTx = await this.scERC721Derivative.mint(

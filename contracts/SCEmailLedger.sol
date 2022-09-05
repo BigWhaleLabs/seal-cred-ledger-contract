@@ -71,8 +71,17 @@ contract SCEmailLedger is Ledger {
     address _verifierContract,
     uint256 _attestorPublicKey,
     address _forwarder,
+    string memory _baseURI,
     string memory _version
-  ) Ledger(_verifierContract, _attestorPublicKey, _forwarder, _version) {}
+  )
+    Ledger(
+      _verifierContract,
+      _attestorPublicKey,
+      _forwarder,
+      _baseURI,
+      _version
+    )
+  {}
 
   /**
    * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
@@ -102,6 +111,7 @@ contract SCEmailLedger is Ledger {
       attestorPublicKey,
       string(bytes.concat(bytes("@"), originalBytes, bytes(" email"))),
       string(bytes.concat(originalBytes, bytes("-d"))),
+      baseURI,
       version
     );
     _registerDerivative(original, address(derivative));

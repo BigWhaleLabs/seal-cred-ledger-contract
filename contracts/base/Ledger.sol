@@ -71,6 +71,7 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
   address public verifierContract;
   uint256 public immutable attestorPublicKey;
   mapping(string => address) public originalToDerivative;
+  string public baseURI;
 
   // Events
   event CreateDerivative(string original, address derivative);
@@ -80,11 +81,13 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
     address _verifierContract,
     uint256 _attestorPublicKey,
     address _forwarder,
+    string memory _baseURI,
     string memory _version
   ) Versioned(_version) {
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
     version = _version;
+    baseURI = _baseURI;
     _setTrustedForwarder(_forwarder);
   }
 
@@ -103,6 +106,10 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
   function deleteOriginal(string memory original) external onlyOwner {
     delete originalToDerivative[original];
     emit DeleteOriginal(original);
+  }
+
+  function setBaseURI(string memory _baseURI) external onlyOwner {
+    baseURI = _baseURI;
   }
 
   function _checkDerivativeExistence(string memory original)
