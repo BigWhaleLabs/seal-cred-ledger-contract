@@ -120,7 +120,7 @@ contract Derivative is ERC721, Ownable, Versioned {
     returns (string memory)
   {
     _requireMinted(tokenId);
-    require(bytes(baseURI).length > 0, "baseURI does not set");
+    require(bytes(baseURI).length > 0, "baseURI isn't set");
 
     string memory contractAddress = Strings.toHexString(
       uint160(address(this)),
