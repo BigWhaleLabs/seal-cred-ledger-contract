@@ -64,7 +64,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@big-whale-labs/versioned-contract/contracts/Versioned.sol";
-import "../interfaces/ILedger.sol";
+import "./Ledger.sol";
 
 contract Derivative is ERC721, Ownable, Versioned {
   using Counters for Counters.Counter;
@@ -75,7 +75,7 @@ contract Derivative is ERC721, Ownable, Versioned {
   Counters.Counter public currentTokenId;
   address public verifierContract;
   uint256 public immutable attestorPublicKey;
-  string public derivativeBaseURI;
+  string public baseURI;
 
   constructor(
     address _ledgerContract,
@@ -83,11 +83,13 @@ contract Derivative is ERC721, Ownable, Versioned {
     uint256 _attestorPublicKey,
     string memory tokenName,
     string memory tokenSymbol,
+    string memory _baseURI,
     string memory _version
   ) ERC721(tokenName, tokenSymbol) Versioned(_version) {
     ledgerContract = _ledgerContract;
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
+    baseURI = _baseURI;
   }
 
   function _checkAttestor(uint256 _attestorPublicKey) internal view {
@@ -118,29 +120,21 @@ contract Derivative is ERC721, Ownable, Versioned {
     returns (string memory)
   {
     _requireMinted(tokenId);
+    require(bytes(baseURI).length > 0, "baseURI does not set");
 
-    string memory baseURI = _baseURI();
     string memory contractAddress = Strings.toHexString(
       uint160(address(this)),
       20
     );
+
     return
-      bytes(baseURI).length > 0
-        ? string(
-          abi.encodePacked(baseURI, contractAddress, "/", tokenId.toString())
-        )
-        : "";
+      string(
+        abi.encodePacked(baseURI, "/", contractAddress, "/", tokenId.toString())
+      );
   }
 
-  function _baseURI() internal view virtual override returns (string memory) {
-    return
-      bytes(derivativeBaseURI).length > 0
-        ? derivativeBaseURI
-        : ILedger(ledgerContract).getBaseURI();
-  }
-
-  function setBaseURI(string memory _newBaseURI) external onlyOwner {
-    derivativeBaseURI = _newBaseURI;
+  function setBaseURI(string memory _baseURI) external onlyOwner {
+    baseURI = _baseURI;
   }
 
   function _beforeTokenTransfer(

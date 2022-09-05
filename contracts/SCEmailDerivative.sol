@@ -74,6 +74,7 @@ contract SCEmailDerivative is Derivative {
     uint256 _attestorPublicKey,
     string memory tokenName,
     string memory tokenSymbol,
+    string memory _baseURI,
     string memory _version
   )
     Derivative(
@@ -82,6 +83,7 @@ contract SCEmailDerivative is Derivative {
       _attestorPublicKey,
       tokenName,
       tokenSymbol,
+      _baseURI,
       _version
     )
   {
