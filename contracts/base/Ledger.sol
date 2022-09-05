@@ -71,6 +71,7 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
   address public verifierContract;
   uint256 public immutable attestorPublicKey;
   mapping(string => address) public originalToDerivative;
+  string public baseURI = "https://metadata.sealcred.xyz/metadata/";
 
   // Events
   event CreateDerivative(string original, address derivative);
@@ -103,6 +104,14 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
   function deleteOriginal(string memory original) external onlyOwner {
     delete originalToDerivative[original];
     emit DeleteOriginal(original);
+  }
+
+  function getBaseURI() external view returns (string memory) {
+    return baseURI;
+  }
+
+  function setBaseURI(string memory _baseURI) external onlyOwner {
+    baseURI = _baseURI;
   }
 
   function _checkDerivativeExistence(string memory original)
