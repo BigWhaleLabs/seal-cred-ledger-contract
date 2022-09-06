@@ -15,6 +15,8 @@ const regexes = {
   ethereumAddress: /^0x[a-fA-F0-9]{40}$/,
 }
 
+const baseURI = 'https://metadata.sealcred.xyz/'
+
 async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('Deploying contracts with the account:', deployer.address)
@@ -90,19 +92,24 @@ async function main() {
           pattern: regexes.ethereumAddress,
           default: GSN_FORWARDER_CONTRACT_ADDRESS,
         },
+        baseURI: {
+          required: true,
+          default: baseURI,
+        },
       },
     })
     const constructorArguments = [
       verifierAddress,
       attestorPublicKey,
       forwarder,
+      baseURI,
       version,
     ] as (string | number | prompt.RevalidatorSchema)[]
     if (!isEmail && !isFarcaster) {
       const networkCode = network === 'g' ? 103 : 109
-      constructorArguments.push(networkCode)
+      constructorArguments.splice(3, 0, networkCode)
       if (isExternal) {
-        constructorArguments.push(attestorEcdsaAddress)
+        constructorArguments.splice(4, 0, attestorEcdsaAddress)
       }
     }
     const contract = await factory.deploy(...constructorArguments)
