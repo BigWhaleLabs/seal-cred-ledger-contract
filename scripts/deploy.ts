@@ -3,6 +3,7 @@ import {
   ATTESTOR_PUBLIC_KEY,
   BALANCE_VERIFIER_CONTRACT_ADDRESS,
   EMAIL_VERIFIER_CONTRACT_ADDRESS,
+  FARCASTER_VERIFIER_CONTRACT_ADDRESS,
   GSN_FORWARDER_CONTRACT_ADDRESS,
 } from '@big-whale-labs/constants'
 import { ethers, run } from 'hardhat'
@@ -33,7 +34,7 @@ async function main() {
   const contracts = [
     {
       contractName: 'SCFarcasterLedger',
-      defaultVerifierAddress: EMAIL_VERIFIER_CONTRACT_ADDRESS,
+      defaultVerifierAddress: FARCASTER_VERIFIER_CONTRACT_ADDRESS,
     },
     {
       contractName: 'SCEmailLedger',
