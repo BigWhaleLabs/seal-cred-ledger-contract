@@ -62,27 +62,34 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@big-whale-labs/versioned-contract/contracts/Versioned.sol";
+import "./Ledger.sol";
 
-contract Derivative is ERC721, Ownable {
+contract Derivative is ERC721, Ownable, Versioned {
   using Counters for Counters.Counter;
-
+  using Strings for uint256;
   // State
   address public immutable ledgerContract;
   mapping(uint256 => bool) public nullifiers;
   Counters.Counter public currentTokenId;
   address public verifierContract;
   uint256 public immutable attestorPublicKey;
+  string public baseURI;
 
   constructor(
     address _ledgerContract,
     address _verifierContract,
     uint256 _attestorPublicKey,
     string memory tokenName,
-    string memory tokenSymbol
-  ) ERC721(tokenName, tokenSymbol) {
+    string memory tokenSymbol,
+    string memory _baseURI,
+    string memory _version
+  ) ERC721(tokenName, tokenSymbol) Versioned(_version) {
     ledgerContract = _ledgerContract;
     verifierContract = _verifierContract;
     attestorPublicKey = _attestorPublicKey;
+    baseURI = _baseURI;
   }
 
   function _checkAttestor(uint256 _attestorPublicKey) internal view {
@@ -103,6 +110,31 @@ contract Derivative is ERC721, Ownable {
     currentTokenId.increment();
     // Save nullifier
     nullifiers[nullifier] = true;
+  }
+
+  function tokenURI(uint256 tokenId)
+    public
+    view
+    virtual
+    override
+    returns (string memory)
+  {
+    _requireMinted(tokenId);
+    require(bytes(baseURI).length > 0, "baseURI isn't set");
+
+    string memory contractAddress = Strings.toHexString(
+      uint160(address(this)),
+      20
+    );
+
+    return
+      string(
+        abi.encodePacked(baseURI, "/", contractAddress, "/", tokenId.toString())
+      );
+  }
+
+  function setBaseURI(string memory _baseURI) external onlyOwner {
+    baseURI = _baseURI;
   }
 
   function _beforeTokenTransfer(

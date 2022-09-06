@@ -75,9 +75,18 @@ contract ExternalSCERC721Ledger is SCERC721Ledger {
     uint256 _attestorPublicKey,
     address _forwarder,
     uint256 _network,
-    address _attestorEcdsaAddress
+    address _attestorEcdsaAddress,
+    string memory _baseURI,
+    string memory _version
   )
-    SCERC721Ledger(_verifierContract, _attestorPublicKey, _forwarder, _network)
+    SCERC721Ledger(
+      _verifierContract,
+      _attestorPublicKey,
+      _forwarder,
+      _network,
+      _baseURI,
+      _version
+    )
   {
     attestorEcdsaAddress = _attestorEcdsaAddress;
   }

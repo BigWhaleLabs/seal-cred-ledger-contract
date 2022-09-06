@@ -1,11 +1,13 @@
 import {
   Network,
   attestorPublicKey,
+  constructTokenURI,
   ecdsaAddress,
   getEcdsaArguments,
   getFakeBalanceProof,
   getFakeBalanceVerifier,
   getFakeERC721,
+  metadataURL,
   zeroAddress,
 } from './utils'
 import { ethers } from 'hardhat'
@@ -31,6 +33,7 @@ describe('ExternalSCERC721Ledger contract tests', () => {
     this.scERC721DerivativeFactory = await ethers.getContractFactory(
       'SCERC721Derivative'
     )
+    this.version = '0.0.1'
   })
   describe('Constructor', function () {
     it('should deploy the contract with the correct fields', async function () {
@@ -39,12 +42,16 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         attestorPublicKey,
         zeroAddress,
         Network.mainnet,
-        ecdsaAddress
+        ecdsaAddress,
+        metadataURL,
+        this.version
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
       expect(await contract.getTrustedForwarder()).to.equal(zeroAddress)
       expect(await contract.attestorEcdsaAddress()).to.equal(ecdsaAddress)
+      expect(await contract.baseURI()).to.equal(metadataURL)
+      expect(await contract.version()).to.equal(this.version)
       expect(await contract.network()).to.equal(Network.mainnet)
     })
   })
@@ -62,7 +69,9 @@ describe('ExternalSCERC721Ledger contract tests', () => {
           attestorPublicKey,
           zeroAddress,
           Network.mainnet,
-          ecdsaAddress
+          ecdsaAddress,
+          metadataURL,
+          this.version
         )
       this.name = 'MyERC721'
       this.symbol = 'ME7'
@@ -85,14 +94,42 @@ describe('ExternalSCERC721Ledger contract tests', () => {
       const derivativeAddress = await this.externalSCERC721Ledger.getDerivative(
         this.fakeERC721.address.toLowerCase()
       )
-      const derivativeContract = await this.scERC721DerivativeFactory.attach(
-        derivativeAddress
-      )
+      const derivativeContract =
+        this.scERC721DerivativeFactory.attach(derivativeAddress)
       // Check the derivative variables
       expect(await derivativeContract.name()).to.equal(
         `${this.name} (derivative)`
       )
       expect(await derivativeContract.symbol()).to.equal(`${this.symbol}-d`)
+    })
+    it('should return correct metadata', async function () {
+      // Token mint
+      const tx = await this.externalSCERC721Ledger[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...(await getEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          this.name,
+          this.symbol
+        ))
+      )
+      await tx.wait()
+      // Get the derivative
+      const derivativeAddress = await this.externalSCERC721Ledger.getDerivative(
+        this.fakeERC721.address.toLowerCase()
+      )
+      const derivativeContract =
+        this.scERC721DerivativeFactory.attach(derivativeAddress)
+      const tokenURIfromContract = (
+        await derivativeContract.tokenURI(0)
+      ).toLowerCase()
+      const expectedTokenURI = constructTokenURI(
+        metadataURL,
+        derivativeAddress,
+        0
+      )
+      // Check the tokenURI
+      expect(tokenURIfromContract).to.equal(expectedTokenURI)
     })
     it('should mint with ledger if the name and symbol is non-ASCII have characters', async function () {
       const name = '‡♦‰ℑℜ¤'
@@ -113,9 +150,8 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         await this.externalSCERC721Ledger.originalToDerivative(
           this.fakeERC721.address.toLowerCase()
         )
-      const derivativeContract = await this.scERC721DerivativeFactory.attach(
-        derivativeAddress
-      )
+      const derivativeContract =
+        this.scERC721DerivativeFactory.attach(derivativeAddress)
       // Check the derivative variables
       expect(await derivativeContract.name()).to.equal(`${name} (derivative)`)
       expect(await derivativeContract.symbol()).to.equal(`${symbol}-d`)
@@ -126,7 +162,9 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         attestorPublicKey,
         zeroAddress,
         Network.mainnet,
-        ecdsaAddress
+        ecdsaAddress,
+        metadataURL,
+        this.version
       )
       // Check the mint transaction
       const tx = contract[mintFunctionSignatureWithOnlyProof](
@@ -143,7 +181,9 @@ describe('ExternalSCERC721Ledger contract tests', () => {
         attestorPublicKey,
         zeroAddress,
         Network.mainnet,
-        ecdsaAddress
+        ecdsaAddress,
+        metadataURL,
+        this.version
       )
       // Check the mint transaction
       const tx = contract[mintFunctionSignature](

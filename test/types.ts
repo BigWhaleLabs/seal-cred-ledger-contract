@@ -4,6 +4,7 @@ import type { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signe
 import type {
   ExternalSCERC721Ledger,
   ExternalSCERC721Ledger__factory,
+  Ledger,
   SCERC721Derivative,
   SCERC721Derivative__factory,
   SCERC721Ledger,
@@ -28,6 +29,7 @@ declare module 'mocha' {
     scERC721Ledger: SCERC721Ledger
     scERC721Derivative: SCERC721Derivative
     scEmailDerivative: SCEmailDerivative
+    contractWithIncorrectOwner: Ledger
     // Mock contracts
     fakeVerifierContract: MockContract
     fakeEmailVerifierContract: MockContract
