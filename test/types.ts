@@ -2,8 +2,8 @@ import type { MockContract } from 'ethereum-waffle'
 import type { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
 
 import type {
-  ExternalSCERC721Ledger,
-  ExternalSCERC721Ledger__factory,
+  SCExternalERC721Ledger,
+  SCExternalERC721Ledger__factory,
   Ledger,
   SCERC721Derivative,
   SCERC721Derivative__factory,
@@ -18,13 +18,13 @@ import type {
 declare module 'mocha' {
   export interface Context {
     // Facoriries for contracts
-    externalSCERC721LedgerFactory: ExternalSCERC721Ledger__factory
+    SCExternalERC721LedgerFactory: SCExternalERC721Ledger__factory
     scEmailLedgerFactory: SCEmailLedger__factory
     scERC721LedgerFactory: SCERC721Ledger__factory
     scERC721DerivativeFactory: SCERC721Derivative__factory
     scEmailDerivativeFactory: SCEmailDerivative__factory
     // Contract instances
-    externalSCERC721Ledger: ExternalSCERC721Ledger
+    SCExternalERC721Ledger: SCExternalERC721Ledger
     scEmailLedger: SCEmailLedger
     scERC721Ledger: SCERC721Ledger
     scERC721Derivative: SCERC721Derivative

@@ -66,7 +66,7 @@ uint256 constant contractLength = 42;
 uint256 constant networkLength = 1;
 uint256 constant zeroLength = 1;
 
-contract ExternalSCERC721Ledger is SCERC721Ledger {
+contract SCExternalERC721Ledger is SCERC721Ledger {
   // State
   address public immutable attestorEcdsaAddress;
 

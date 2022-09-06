@@ -1,4 +1,4 @@
-import { BalanceProofStruct } from 'typechain/contracts/ExternalSCERC721Ledger'
+import { BalanceProofStruct } from 'typechain/contracts/SCExternalERC721Ledger'
 import { BigNumber, Wallet, ethers } from 'ethers'
 import { EmailProofStruct } from 'typechain/contracts/SCEmailLedger'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'

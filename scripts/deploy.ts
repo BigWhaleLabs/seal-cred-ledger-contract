@@ -47,14 +47,14 @@ async function main() {
       defaultVerifierAddress: BALANCE_VERIFIER_CONTRACT_ADDRESS,
     },
     {
-      contractName: 'ExternalSCERC721Ledger',
+      contractName: 'SCExternalERC721Ledger',
       defaultVerifierAddress: BALANCE_VERIFIER_CONTRACT_ADDRESS,
     },
   ]
   for (const { contractName, defaultVerifierAddress } of contracts) {
     console.log(`Deploying ${contractName}...`)
     const factory = await ethers.getContractFactory(contractName)
-    const isExternal = contractName === 'ExternalSCERC721Ledger'
+    const isExternal = contractName === 'SCExternalERC721Ledger'
     const isEmail = contractName === 'SCEmailLedger'
     const isFarcaster = contractName === 'SCFarcasterLedger'
     const {
