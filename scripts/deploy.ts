@@ -31,15 +31,29 @@ async function main() {
   } as { [chainId: number]: string }
   const chainName = chains[chainId]
   const contracts = [
-    'SCEmailLedger',
-    'SCERC721Ledger',
-    'ExternalSCERC721Ledger',
+    {
+      contractName: 'SCFarcasterLedger',
+      defaultVerifierAddress: EMAIL_VERIFIER_CONTRACT_ADDRESS,
+    },
+    {
+      contractName: 'SCEmailLedger',
+      defaultVerifierAddress: EMAIL_VERIFIER_CONTRACT_ADDRESS,
+    },
+    {
+      contractName: 'SCERC721Ledger',
+      defaultVerifierAddress: BALANCE_VERIFIER_CONTRACT_ADDRESS,
+    },
+    {
+      contractName: 'ExternalSCERC721Ledger',
+      defaultVerifierAddress: BALANCE_VERIFIER_CONTRACT_ADDRESS,
+    },
   ]
-  for (const contractName of contracts) {
+  for (const { contractName, defaultVerifierAddress } of contracts) {
     console.log(`Deploying ${contractName}...`)
     const factory = await ethers.getContractFactory(contractName)
     const isExternal = contractName === 'ExternalSCERC721Ledger'
     const isEmail = contractName === 'SCEmailLedger'
+    const isFarcaster = contractName === 'SCFarcasterLedger'
     const {
       verifierAddress,
       attestorPublicKey,
@@ -51,16 +65,14 @@ async function main() {
         verifierAddress: {
           required: true,
           pattern: regexes.ethereumAddress,
-          default: isEmail
-            ? EMAIL_VERIFIER_CONTRACT_ADDRESS
-            : BALANCE_VERIFIER_CONTRACT_ADDRESS,
+          default: defaultVerifierAddress,
         },
         attestorPublicKey: {
           required: true,
           default: ATTESTOR_PUBLIC_KEY,
         },
         network: {
-          ask: () => !isEmail,
+          ask: () => !isEmail && !isFarcaster,
           required: true,
           enum: ['g', 'm'],
           default: isExternal ? 'm' : 'g',
@@ -85,7 +97,7 @@ async function main() {
       forwarder,
       version,
     ] as (string | number | prompt.RevalidatorSchema)[]
-    if (!isEmail) {
+    if (!isEmail && !isFarcaster) {
       const networkCode = network === 'g' ? 103 : 109
       constructorArguments.push(networkCode)
       if (isExternal) {

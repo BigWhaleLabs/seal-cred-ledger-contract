@@ -67,14 +67,18 @@ contract SCFarcasterDerivative is Derivative {
   constructor(
     address _ledgerContract,
     address _verifierContract,
-    uint256 _attestorPublicKey
+    uint256 _attestorPublicKey,
+    string memory _baseURI,
+    string memory _version
   )
     Derivative(
       _ledgerContract,
       _verifierContract,
       _attestorPublicKey,
       "Farcaster (derivative)",
-      "FARCASTER-d"
+      "FARCASTER-d",
+      _baseURI,
+      _version
     )
   {}
 
