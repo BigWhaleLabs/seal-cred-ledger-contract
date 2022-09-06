@@ -41,10 +41,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@big-whale-labs/constants@npm:^0.1.24":
-  version: 0.1.24
-  resolution: "@big-whale-labs/constants@npm:0.1.24"
-  checksum: 6c78e406641ba331dda7fc11afe7f9091af577baa880f1d54ab717dd04426ebc4758dce7a6c47d8b10a8755aa5770119904d621d455e9d3ccd8984d3fe1b86ba
+"@big-whale-labs/constants@npm:^0.1.25":
+  version: 0.1.25
+  resolution: "@big-whale-labs/constants@npm:0.1.25"
+  checksum: 19dd12ba85a5d9425c173354f9071414600430e87b7571c96d4e7bb03b057cd56dcb8c89eaf32d1be2af772870570cfdc9e54f1113e7118ff033958a386c1b70
   languageName: node
   linkType: hard
 
@@ -52,8 +52,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@big-whale-labs/seal-cred-ledger-contract@workspace:."
   dependencies:
-    "@big-whale-labs/constants": ^0.1.24
-    "@big-whale-labs/versioned-contract": ^1.0.1
+    "@big-whale-labs/constants": ^0.1.25
+    "@big-whale-labs/versioned-contract": ^1.0.2
+    "@ethersproject/providers": ^5.7.0
     "@nomiclabs/hardhat-ethers": ^2.1.1
     "@nomiclabs/hardhat-etherscan": ^3.1.0
     "@nomiclabs/hardhat-waffle": ^2.0.3
@@ -83,7 +84,7 @@ __metadata:
     ethereum-waffle: ^3.4.4
     ethers: ^5.7.0
     file-regex: ^3.1.0
-    hardhat: ^2.11.0
+    hardhat: ^2.11.1
     hardhat-gas-reporter: ^1.0.9
     np: ^7.6.2
     prettier: ^2.7.1
@@ -97,10 +98,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@big-whale-labs/versioned-contract@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@big-whale-labs/versioned-contract@npm:1.0.1"
-  checksum: 11199e56033d110ac165ffca5652f6c3efebe8b50c84218d823204bcde2a633593d6dc0e85ed04e0f22af15888b58fc1a31c39f643999b6e65b18ffa7cc80a08
+"@big-whale-labs/versioned-contract@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@big-whale-labs/versioned-contract@npm:1.0.2"
+  checksum: c6d6db47827a668fdec65068d76ca242ec5d3462c929519bfb7d611b10ad6d2c2f9d45dda868aa5542b98ec71287d7e7bd2cf34cca9ae18aa4ecae6a966420cd
   languageName: node
   linkType: hard
 
@@ -717,7 +718,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/providers@npm:5.7.0":
+"@ethersproject/providers@npm:5.7.0, @ethersproject/providers@npm:^5.7.0":
   version: 5.7.0
   resolution: "@ethersproject/providers@npm:5.7.0"
   dependencies:
@@ -8059,9 +8060,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat@npm:^2.11.0":
-  version: 2.11.0
-  resolution: "hardhat@npm:2.11.0"
+"hardhat@npm:^2.11.1":
+  version: 2.11.1
+  resolution: "hardhat@npm:2.11.1"
   dependencies:
     "@ethersproject/abi": ^5.1.2
     "@metamask/eth-sig-util": ^4.0.0
@@ -8123,7 +8124,7 @@ __metadata:
       optional: true
   bin:
     hardhat: internal/cli/cli.js
-  checksum: a23cc09bb1cc696266f51cbbfdde7a06a57db6b0b613aa0bd295fc901dd77e115d8733fdbb1389cc82189c70b45f1f30518269d6ee2404986e30ed9783abbc8c
+  checksum: fc35526bcc2fd44fba38bfe7dd7049e9771f860f6d804c2505188c610f9562f674601260f704254de757442cbcf3e0225be45020a4b8c46c6cbe68fd6da0976b
   languageName: node
   linkType: hard
 
