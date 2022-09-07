@@ -1,6 +1,7 @@
 import { BalanceProofStruct } from 'typechain/contracts/SCExternalERC721Ledger'
 import { BigNumber, Wallet, ethers } from 'ethers'
 import { EmailProofStruct } from 'typechain/contracts/SCEmailLedger'
+import { FarcasterProofStruct } from 'typechain/contracts/SCFarcasterDerivative'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { splitSignature } from 'ethers/lib/utils'
 import { waffle } from 'hardhat'
@@ -107,6 +108,46 @@ export async function getFakeEmailVerifier(signer: SignerWithAddress) {
   return fake
 }
 
+export async function getFakeFarcasterVerifier(signer: SignerWithAddress) {
+  const fake = await waffle.deployMockContract(signer, [
+    {
+      inputs: [
+        {
+          internalType: 'uint256[2]',
+          name: 'a',
+          type: 'uint256[2]',
+        },
+        {
+          internalType: 'uint256[2][2]',
+          name: 'b',
+          type: 'uint256[2][2]',
+        },
+        {
+          internalType: 'uint256[2]',
+          name: 'c',
+          type: 'uint256[2]',
+        },
+        {
+          internalType: 'uint256[11]',
+          name: 'input',
+          type: 'uint256[11]',
+        },
+      ],
+      name: 'verifyProof',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: 'r',
+          type: 'bool',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+  ])
+  return fake
+}
+
 export function getFakeEmailProof(
   nullifier: number,
   domain: string
@@ -138,6 +179,22 @@ export function getFakeBalanceProof(
     input: getFakeBalanceVerifierInput(contract, network, nullifier, threshold),
   }
 }
+
+export function getFakeFarcasterProof(
+  ownerAddress: string,
+  nullifier: number
+): FarcasterProofStruct {
+  return {
+    a: [1, 2],
+    b: [
+      [1, 2],
+      [3, 4],
+    ],
+    c: [1, 2],
+    input: getFakeFarcasterVerifierInput(ownerAddress, nullifier),
+  }
+}
+
 export async function getFakeERC721(signer: SignerWithAddress) {
   return await waffle.deployMockContract(signer, [
     {
@@ -181,6 +238,18 @@ function getFakeBalanceVerifierInput(
     nullifier,
     attestorPublicKey,
     threshold,
+  ]
+}
+
+function getFakeFarcasterVerifierInput(
+  ownerAddress: string,
+  nullifier: number
+) {
+  return [
+    ...ethers.utils.toUtf8Bytes('farcaster'),
+    ownerAddress,
+    nullifier,
+    attestorPublicKey,
   ]
 }
 
