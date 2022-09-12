@@ -110,6 +110,6 @@ contract SCFarcasterLedger is Ledger {
       baseURI,
       version
     );
-    _registerDerivative("Farcaster", address(derivative));
+    _registerDerivative("farcaster", address(derivative));
   }
 }
