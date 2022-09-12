@@ -15,7 +15,7 @@ const regexes = {
   ethereumAddress: /^0x[a-fA-F0-9]{40}$/,
 }
 
-const baseURI = 'https://metadata.sealcred.xyz/'
+const baseURI = 'https://metadata.sealcred.xyz'
 
 async function main() {
   const [deployer] = await ethers.getSigners()
