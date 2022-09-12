@@ -12,7 +12,7 @@ import {
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
-describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
+describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
   before(async function () {
     this.accounts = await ethers.getSigners()
     this.owner = this.accounts[0]
