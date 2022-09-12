@@ -180,10 +180,7 @@ export function getFakeBalanceProof(
   }
 }
 
-export function getFakeFarcasterProof(
-  ownerAddress: string,
-  nullifier: number
-): FarcasterProofStruct {
+export function getFakeFarcasterProof(nullifier: number): FarcasterProofStruct {
   return {
     a: [1, 2],
     b: [
@@ -191,7 +188,7 @@ export function getFakeFarcasterProof(
       [3, 4],
     ],
     c: [1, 2],
-    input: getFakeFarcasterVerifierInput(ownerAddress, nullifier),
+    input: getFakeFarcasterVerifierInput(nullifier),
   }
 }
 
@@ -241,13 +238,9 @@ function getFakeBalanceVerifierInput(
   ]
 }
 
-function getFakeFarcasterVerifierInput(
-  ownerAddress: string,
-  nullifier: number
-) {
+function getFakeFarcasterVerifierInput(nullifier: number) {
   return [
     ...ethers.utils.toUtf8Bytes('farcaster'),
-    ownerAddress,
     nullifier,
     attestorPublicKey,
   ]

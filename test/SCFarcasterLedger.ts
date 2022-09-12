@@ -1,11 +1,8 @@
 import {
-  Network,
   attestorPublicKey,
   constructTokenURI,
-  getFakeBalanceProof,
-  getFakeBalanceVerifier,
-  getFakeERC721,
   getFakeFarcasterProof,
+  getFakeFarcasterVerifier,
   invalidAttestorPublicKey,
   metadataURL,
   newMetadataURL,
@@ -15,7 +12,7 @@ import {
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
-describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
+describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
   before(async function () {
     this.accounts = await ethers.getSigners()
     this.owner = this.accounts[0]
@@ -94,12 +91,8 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
   describe('Minting and derivatives', function () {
     beforeEach(async function () {
       // Verifier
-      this.fakeVerifierContract = await getFakeBalanceVerifier(this.owner)
+      this.fakeVerifierContract = await getFakeFarcasterVerifier(this.owner)
       await this.fakeVerifierContract.mock.verifyProof.returns(true)
-      // ERC721
-      this.fakeERC721 = await getFakeERC721(this.owner)
-      await this.fakeERC721.mock.name.returns('Fake ERC721')
-      await this.fakeERC721.mock.symbol.returns('FAKE')
       // Ledger
       this.scFarcasterLedger = await this.scFarcasterLedgerFactory.deploy(
         this.fakeVerifierContract.address,
@@ -122,17 +115,14 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
       await this.scFarcasterDerivative.deployed()
       this.scFarcasterDerivative.connect(this.user)
     })
-    it.only('should mint with ledger if all the correct info is there', async function () {
-      console.log(getFakeFarcasterProof(this.user.address, 123))
-      const tx = await this.scFarcasterLedger.mint(
-        getFakeFarcasterProof(this.user.address, 123)
-      )
+    it('should mint with ledger if all the correct info is there', async function () {
+      const tx = await this.scFarcasterLedger.mint(getFakeFarcasterProof(123))
       expect(await tx.wait())
     })
     it('should return correct metadata', async function () {
       // Token mint
       const tx = await this.scFarcasterDerivative.mint(
-        getFakeFarcasterProof(this.user.address, 123)
+        getFakeFarcasterProof(123)
       )
       await tx.wait()
       // Get the derivative
@@ -151,7 +141,7 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
     it('should use baseURI configured for derivative', async function () {
       // Token mint
       const tx = await this.scFarcasterDerivative.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeFarcasterProof(123)
       )
       await tx.wait()
       // Get the derivative
@@ -172,26 +162,14 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
     })
     it('should mint from the derivative if all the correct info is there', async function () {
       const derivativeTx = await this.scFarcasterDerivative.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeFarcasterProof(123)
       )
       expect(await derivativeTx.wait())
-    })
-    it('should fail if network is incorrect', async function () {
-      await expect(
-        this.scFarcasterLedger.mint(
-          getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1)
-        )
-      ).to.be.revertedWith('Unexpected network')
     })
     it('should save nullifier correctly', async function () {
       const nullifier = 123
       const derivativeTx = await this.scFarcasterDerivative.mint(
-        getFakeBalanceProof(
-          this.fakeERC721.address,
-          Network.mainnet,
-          nullifier,
-          1
-        )
+        getFakeFarcasterProof(123)
       )
       expect(await derivativeTx.wait())
       expect(await this.scFarcasterDerivative.nullifiers(nullifier)).to.equal(
@@ -199,9 +177,7 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
       )
     })
     it('should not transfer if the from address is non-zero', async function () {
-      await this.scFarcasterDerivative.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
-      )
+      await this.scFarcasterDerivative.mint(getFakeFarcasterProof(123))
       await expect(
         this.scFarcasterDerivative.transferFrom(
           this.scFarcasterDerivative.owner(),
@@ -211,48 +187,30 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
       ).to.be.revertedWith('This token is soulbound')
     })
     it('should not mint if the attestor is incorrect', async function () {
-      const balanceInput = getFakeFarcasterProof(this.user.address, 123)
+      const farcasterInput = getFakeFarcasterProof(123)
+      farcasterInput.input[10] = invalidAttestorPublicKey
       await expect(
-        this.scFarcasterLedger.mint({
-          ...balanceInput,
-          input: [
-            ...balanceInput.input.slice(0, -2),
-            invalidAttestorPublicKey,
-            balanceInput.input[balanceInput.input.length - 1],
-          ],
-        })
+        this.scFarcasterLedger.mint(farcasterInput)
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
     })
-    it('should not mint if the token contract is incorrect', async function () {
+    it('should not mint if the "farcaster" word is incorrect', async function () {
+      const farcasterInput = getFakeFarcasterProof(123)
+      // Corrupt the message
+      farcasterInput.input[0] = 0
       await expect(
-        this.scFarcasterDerivative.mint(
-          getFakeBalanceProof(
-            '0x399f4a0a9d6E8f6f4BD019340e4d1bE0C9a742F0',
-            Network.mainnet,
-            123,
-            1
-          )
-        )
-      ).to.be.revertedWith(
-        'This ZK proof is not from the correct token contract'
-      )
+        this.scFarcasterDerivative.mint(farcasterInput)
+      ).to.be.revertedWith('This ZK proof is not from the farcaster')
     })
     it('should not mint if nullifier has already been used', async function () {
-      await this.scFarcasterDerivative.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
-      )
+      await this.scFarcasterDerivative.mint(getFakeFarcasterProof(123))
       await expect(
-        this.scFarcasterDerivative.mint(
-          getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
-        )
+        this.scFarcasterDerivative.mint(getFakeFarcasterProof(123))
       ).to.be.revertedWith('This ZK proof has already been used')
     })
     it('should not mint if the zk proof is invalid', async function () {
       await this.fakeVerifierContract.mock.verifyProof.returns(false)
       await expect(
-        this.scFarcasterLedger.mint(
-          getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
-        )
+        this.scFarcasterLedger.mint(getFakeFarcasterProof(123))
       ).to.be.revertedWith('Invalid ZK proof')
     })
   })
