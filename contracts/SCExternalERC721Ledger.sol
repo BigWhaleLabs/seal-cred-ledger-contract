@@ -152,10 +152,15 @@ contract SCExternalERC721Ledger is SCERC721Ledger {
     );
     // Get the 0x0 index separating name from symbol
     uint256 zeroIndex;
-    for (uint256 i = contractLength; i < data.length; i++) {
+    uint256 length = data.length;
+    for (uint256 i = contractLength; i < length; ) {
       if (data[i] == 0) {
         zeroIndex = i;
         break;
+      }
+
+      unchecked {
+        ++i;
       }
     }
     // Get name string — between the end of contract at 42 and zero

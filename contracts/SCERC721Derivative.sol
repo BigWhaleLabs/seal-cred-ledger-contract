@@ -125,11 +125,15 @@ contract SCERC721Derivative is Derivative {
     bytes memory tokenBytes = bytes(
       Strings.toHexString(uint256(uint160(originalContract)), 20)
     );
-    for (uint8 i = 0; i < 42; i++) {
+    for (uint8 i = 0; i < 42; ) {
       require(
         uint8(proof.input[i]) == uint8(tokenBytes[i]),
         "This ZK proof is not from the correct token contract"
       );
+
+      unchecked {
+        ++i;
+      }
     }
   }
 

@@ -110,11 +110,17 @@ contract SCEmailDerivative is Derivative {
 
   function _checkEmail(EmailProof memory proof) internal view {
     bytes memory emailBytes = bytes(email);
-    for (uint8 i = 0; i < bytes(email).length; i++) {
+    uint256 length = bytes(email).length;
+
+    for (uint8 i = 0; i < length; ) {
       require(
         uint8(proof.input[i]) == uint8(emailBytes[i]),
         "This ZK proof is not from the correct email"
       );
+
+      unchecked {
+        ++i;
+      }
     }
   }
 

@@ -102,11 +102,15 @@ contract SCFarcasterDerivative is Derivative {
 
   function _checkFarcasterWord(FarcasterProof memory proof) internal pure {
     bytes memory farcasterBytes = bytes("farcaster");
-    for (uint8 i = 0; i < 9; i++) {
+    for (uint8 i = 0; i < 9; ) {
       require(
         uint8(proof.input[i]) == uint8(farcasterBytes[i]),
         "This ZK proof is not from the farcaster"
       );
+
+      unchecked {
+        ++i;
+      }
     }
   }
 

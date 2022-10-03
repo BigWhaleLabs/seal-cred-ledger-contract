@@ -149,8 +149,13 @@ contract SCERC721Ledger is Ledger {
     returns (string memory, address)
   {
     bytes memory result = new bytes(addressLength);
-    for (uint256 i = startIndex; i < startIndex + addressLength; i++) {
+    uint256 length = startIndex + addressLength;
+    for (uint256 i = startIndex; i < length; ) {
       result[i] = bytes1(uint8(input[i]));
+
+      unchecked {
+        ++i;
+      }
     }
     string memory addressString = string(result);
     return (addressString, _toAddress(addressString));
