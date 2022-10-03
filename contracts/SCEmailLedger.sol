@@ -126,15 +126,24 @@ contract SCEmailLedger is Ledger {
     uint256 length
   ) internal pure returns (string memory) {
     uint256 zeroIndex = 0;
-    for (uint256 i = startIndex; i < startIndex + length; i++) {
+    uint256 domainLength = startIndex + length;
+    for (uint256 i = startIndex; i < domainLength; ) {
       if (input[i] == 0) {
         zeroIndex = i;
         break;
       }
+
+      unchecked {
+        ++i;
+      }
     }
     bytes memory result = new bytes(zeroIndex);
-    for (uint256 i = startIndex; i < zeroIndex; i++) {
+    for (uint256 i = startIndex; i < zeroIndex; ) {
       result[i] = bytes1(uint8(input[i]));
+
+      unchecked {
+        ++i;
+      }
     }
     return string(result);
   }
