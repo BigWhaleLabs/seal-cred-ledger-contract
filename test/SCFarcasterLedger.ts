@@ -88,7 +88,7 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
     await contract.setVerifierContract(newVerifierAddress)
     expect(await contract.verifierContract()).to.equal(newVerifierAddress)
   })
-  describe('Minting and derivatives', function () {
+  describe.only('Minting and derivatives', function () {
     beforeEach(async function () {
       // Verifier
       this.fakeVerifierContract = await getFakeFarcasterVerifier(this.owner)
@@ -188,7 +188,7 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
     })
     it('should not mint if the attestor is incorrect', async function () {
       const farcasterInput = getFakeFarcasterProof(123)
-      farcasterInput.input[10] = invalidAttestorPublicKey
+      farcasterInput.input[11] = invalidAttestorPublicKey
       await expect(
         this.scFarcasterLedger.mint(farcasterInput)
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
@@ -196,10 +196,18 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
     it('should not mint if the "farcaster" word is incorrect', async function () {
       const farcasterInput = getFakeFarcasterProof(123)
       // Corrupt the message
-      farcasterInput.input[0] = 0
+      farcasterInput.input[1] = 0
       await expect(
         this.scFarcasterDerivative.mint(farcasterInput)
       ).to.be.revertedWith('This ZK proof is not from the farcaster')
+    })
+    it('should not mint if attestation type is invalid', async function () {
+      const farcasterInput = getFakeFarcasterProof(123)
+      // Corrupt the message
+      farcasterInput.input[0] = 1
+      await expect(
+        this.scFarcasterDerivative.mint(farcasterInput)
+      ).to.be.revertedWith('Invalid attestation type')
     })
     it('should not mint if nullifier has already been used', async function () {
       await this.scFarcasterDerivative.mint(getFakeFarcasterProof(123))

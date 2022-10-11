@@ -130,7 +130,7 @@ export async function getFakeFarcasterVerifier(signer: SignerWithAddress) {
         {
           internalType: 'uint256[11]',
           name: 'input',
-          type: 'uint256[11]',
+          type: 'uint256[12]',
         },
       ],
       name: 'verifyProof',
@@ -238,8 +238,9 @@ function getFakeBalanceVerifierInput(
   ]
 }
 
-function getFakeFarcasterVerifierInput(nullifier: number) {
+function getFakeFarcasterVerifierInput(nullifier: number, type = 0) {
   return [
+    type,
     ...ethers.utils.toUtf8Bytes('farcaster'),
     nullifier,
     attestorPublicKey,
