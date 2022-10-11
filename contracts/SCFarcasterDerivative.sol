@@ -94,15 +94,20 @@ contract SCFarcasterDerivative is Derivative {
   }
 
   function _mint(address sender, FarcasterProof memory proof) internal {
-    _checkAttestor(proof.input[10]);
+    _checkAttestationType(proof.input[0]);
+    _checkAttestor(proof.input[11]);
     _checkFarcasterWord(proof);
     _checkProof(proof);
-    _mintWithNullifier(sender, proof.input[9]);
+    _mintWithNullifier(sender, proof.input[10]);
+  }
+
+  function _checkAttestationType(uint256 attestationType) internal pure {
+    require(attestationType == 0, "Invalid attestation type");
   }
 
   function _checkFarcasterWord(FarcasterProof memory proof) internal pure {
     bytes memory farcasterBytes = bytes("farcaster");
-    for (uint8 i = 0; i < 9; ) {
+    for (uint8 i = 1; i < 10; ) {
       require(
         uint8(proof.input[i]) == uint8(farcasterBytes[i]),
         "This ZK proof is not from the farcaster"
