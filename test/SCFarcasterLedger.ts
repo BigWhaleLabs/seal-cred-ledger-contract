@@ -88,7 +88,7 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
     await contract.setVerifierContract(newVerifierAddress)
     expect(await contract.verifierContract()).to.equal(newVerifierAddress)
   })
-  describe.only('Minting and derivatives', function () {
+  describe('Minting and derivatives', function () {
     beforeEach(async function () {
       // Verifier
       this.fakeVerifierContract = await getFakeFarcasterVerifier(this.owner)
