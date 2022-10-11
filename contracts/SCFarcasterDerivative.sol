@@ -109,7 +109,7 @@ contract SCFarcasterDerivative is Derivative {
     bytes memory farcasterBytes = bytes("farcaster");
     for (uint8 i = 1; i < 10; ) {
       require(
-        uint8(proof.input[i]) == uint8(farcasterBytes[i]),
+        uint8(proof.input[i]) == uint8(farcasterBytes[i - 1]),
         "This ZK proof is not from the farcaster"
       );
 
