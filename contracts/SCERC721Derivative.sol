@@ -105,12 +105,12 @@ contract SCERC721Derivative is Derivative {
   }
 
   function _mint(address sender, BalanceProof memory proof) internal {
-    _checkNetwork(proof.input[42]);
-    _checkAttestor(proof.input[44]);
-    _checkThreshold(proof.input[45]);
+    _checkNetwork(proof.input[2]);
+    _checkAttestor(proof.input[5]);
+    _checkThreshold(proof.input[3]);
     _checkTokenAddress(proof);
     _checkProof(proof);
-    _mintWithNullifier(sender, proof.input[43]);
+    _mintWithNullifier(sender, proof.input[4]);
   }
 
   function _checkNetwork(uint256 _network) internal view {
@@ -125,16 +125,13 @@ contract SCERC721Derivative is Derivative {
     bytes memory tokenBytes = bytes(
       Strings.toHexString(uint256(uint160(originalContract)), 20)
     );
-    for (uint8 i = 0; i < 42; ) {
-      require(
-        uint8(proof.input[i]) == uint8(tokenBytes[i]),
-        "This ZK proof is not from the correct token contract"
-      );
-
-      unchecked {
-        ++i;
-      }
-    }
+    bytes memory contractBytes = bytes(
+      Strings.toHexString(uint256(uint160(proof.input[1])), 20)
+    );
+    require(
+      keccak256(tokenBytes) == keccak256(contractBytes),
+      "This ZK proof is not from the correct token contract"
+    );
   }
 
   function _checkProof(BalanceProof memory proof) internal view {

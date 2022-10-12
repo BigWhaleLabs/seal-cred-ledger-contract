@@ -60,6 +60,7 @@
 pragma solidity ^0.8.16;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./base/Ledger.sol";
 import "./SCERC721Derivative.sol";
 
@@ -97,8 +98,7 @@ contract SCERC721Ledger is Ledger {
    */
   function mint(BalanceProof memory proof) external virtual {
     (string memory originalString, address original) = _extractAddress(
-      proof.input,
-      0
+      proof.input[1]
     );
     // Check if derivative already exists
     if (!_checkDerivativeExistence(originalString)) {
@@ -143,22 +143,13 @@ contract SCERC721Ledger is Ledger {
   /**
    * @dev Returns address from input
    */
-  function _extractAddress(uint256[46] memory input, uint256 startIndex)
+  function _extractAddress(uint256 numAddress)
     internal
     pure
     returns (string memory, address)
   {
-    bytes memory result = new bytes(addressLength);
-    uint256 length = startIndex + addressLength;
-    for (uint256 i = startIndex; i < length; ) {
-      result[i] = bytes1(uint8(input[i]));
-
-      unchecked {
-        ++i;
-      }
-    }
-    string memory addressString = string(result);
-    return (addressString, _toAddress(addressString));
+    string memory addr = Strings.toHexString(uint256(uint160(numAddress)), 20);
+    return (addr, _toAddress(addr));
   }
 
   // Credit to: https://github.com/provable-things/ethereum-api

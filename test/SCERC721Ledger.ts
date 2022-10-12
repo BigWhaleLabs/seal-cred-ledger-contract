@@ -221,11 +221,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       await expect(
         this.scERC721Ledger.mint({
           ...balanceInput,
-          input: [
-            ...balanceInput.input.slice(0, -2),
-            invalidAttestorPublicKey,
-            balanceInput.input[balanceInput.input.length - 1],
-          ],
+          input: [...balanceInput.input.slice(0, 5), invalidAttestorPublicKey],
         })
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
     })
