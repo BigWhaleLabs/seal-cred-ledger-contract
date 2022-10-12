@@ -105,8 +105,7 @@ contract SCExternalERC721Ledger is SCERC721Ledger {
     bytes32 vs
   ) external {
     (string memory originalString, address original) = _extractAddress(
-      proof.input,
-      0
+      proof.input[1]
     );
     // Check if derivative already exists
     if (!_checkDerivativeExistence(originalString)) {

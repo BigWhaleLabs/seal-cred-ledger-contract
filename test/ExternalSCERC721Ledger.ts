@@ -15,9 +15,9 @@ import { expect } from 'chai'
 import { splitSignature } from 'ethers/lib/utils'
 
 const mintFunctionSignature =
-  'mint((uint256[2],uint256[2][2],uint256[2],uint256[46]),bytes,bytes32,bytes32)'
+  'mint((uint256[2],uint256[2][2],uint256[2],uint256[6]),bytes,bytes32,bytes32)'
 const mintFunctionSignatureWithOnlyProof =
-  'mint((uint256[2],uint256[2][2],uint256[2],uint256[46]))'
+  'mint((uint256[2],uint256[2][2],uint256[2],uint256[6]))'
 
 const invalidEcdsaWallet = new ethers.Wallet(
   '0x3931dc49c2615b436ed233b5f1bcba76cdc352f0318f8886d23f3e524e96a1be'

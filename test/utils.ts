@@ -49,9 +49,9 @@ export async function getFakeBalanceVerifier(signer: SignerWithAddress) {
           type: 'uint256[2]',
         },
         {
-          internalType: 'uint256[46]',
+          internalType: 'uint256[6]',
           name: 'input',
-          type: 'uint256[46]',
+          type: 'uint256[6]',
         },
       ],
       name: 'verifyProof',
@@ -130,7 +130,7 @@ export async function getFakeFarcasterVerifier(signer: SignerWithAddress) {
         {
           internalType: 'uint256[11]',
           name: 'input',
-          type: 'uint256[11]',
+          type: 'uint256[12]',
         },
       ],
       name: 'verifyProof',
@@ -227,19 +227,22 @@ function getFakeBalanceVerifierInput(
   contract: string,
   network: Network,
   nullifier: number,
-  threshold: number
+  threshold: number,
+  type = 0
 ) {
   return [
-    ...ethers.utils.toUtf8Bytes(contract.toLowerCase()),
+    type,
+    BigNumber.from(contract.toLowerCase()),
     network,
+    threshold,
     nullifier,
     attestorPublicKey,
-    threshold,
   ]
 }
 
-function getFakeFarcasterVerifierInput(nullifier: number) {
+function getFakeFarcasterVerifierInput(nullifier: number, type = 0) {
   return [
+    type,
     ...ethers.utils.toUtf8Bytes('farcaster'),
     nullifier,
     attestorPublicKey,
