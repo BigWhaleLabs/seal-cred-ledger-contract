@@ -60,8 +60,10 @@
 pragma solidity ^0.8.16;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@opengsn/contracts/src/ERC2771Recipient.sol";
 import "@big-whale-labs/versioned-contract/contracts/Versioned.sol";
+import "./Derivative.sol";
 
 /**
  * @title SealCred Ledger base contract
@@ -106,6 +108,14 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
   function deleteOriginal(string memory original) external onlyOwner {
     delete originalToDerivative[original];
     emit DeleteOriginal(original);
+  }
+
+  function balanceOf(string memory origin, address owner)
+    external
+    view
+    returns (uint256)
+  {
+    return IERC721(originalToDerivative[origin]).balanceOf(owner);
   }
 
   function setBaseURI(string memory _baseURI) external onlyOwner {
