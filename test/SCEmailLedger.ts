@@ -163,6 +163,15 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
       await derivativeTx.wait()
       expect(await this.scEmailDerivative.nullifiers(nullifier)).to.equal(true)
     })
+    it('should check balance of derivative', async function () {
+      const domain = domains[0]
+      await this.scEmailLedger.mint(getFakeEmailProof(123, domain))
+      const balance = await this.scEmailLedger.balanceOf(
+        domain,
+        this.owner.address
+      )
+      expect(balance).to.equal(1)
+    })
     it('should not transfer if the from address is non-zero', async function () {
       await this.scEmailDerivative.mint(getFakeEmailProof(123, domains[0]))
       await expect(
