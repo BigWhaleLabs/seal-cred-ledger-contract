@@ -177,6 +177,15 @@ describe('SCEmailLedger and SCEmailDerivative contracts tests', () => {
       await this.scEmailLedger.mint(getFakeEmailProof(123, domain))
       const balance = await this.scEmailLedger.balanceOf(
         domains[1],
+        this.owner.address
+      )
+      expect(balance).to.equal(0)
+    })
+    it('should return 0 if owner does not own a derivative', async function () {
+      const domain = domains[0]
+      await this.scEmailLedger.mint(getFakeEmailProof(123, domain))
+      const balance = await this.scEmailLedger.balanceOf(
+        domain,
         this.user.address
       )
       expect(balance).to.equal(0)
