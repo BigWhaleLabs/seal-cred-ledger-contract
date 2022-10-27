@@ -184,6 +184,14 @@ describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
       )
       expect(balance).to.equal(1)
     })
+    it('should return 0 if owner does not own a derivative', async function () {
+      await this.scFarcasterLedger.mint(getFakeFarcasterProof(123))
+      const balance = await this.scFarcasterLedger.balanceOf(
+        'farcaster',
+        this.user.address
+      )
+      expect(balance).to.equal(0)
+    })
     it('should not transfer if the from address is non-zero', async function () {
       await this.scFarcasterDerivative.mint(getFakeFarcasterProof(123))
       await expect(
