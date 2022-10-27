@@ -172,7 +172,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
       )
       expect(balance).to.equal(1)
     })
-    it('should return 0 if owner does not own a derivative', async function () {
+    it('should return 0 if derivative is not exist', async function () {
       await this.SCExternalERC721Ledger[mintFunctionSignature](
         getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
         ...(await getEcdsaArguments(

@@ -114,6 +114,9 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
     view
     returns (uint256)
   {
+    if (originalToDerivative[origin] == address(0)) {
+      return 0;
+    }
     return IERC721(originalToDerivative[origin]).balanceOf(owner);
   }
 

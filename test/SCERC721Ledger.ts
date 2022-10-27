@@ -209,12 +209,12 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       )
       expect(balance).to.equal(1)
     })
-    it('should return 0 if owner does not own a derivative', async function () {
+    it('should return 0 if derivative is not exist', async function () {
       await this.scERC721Ledger.mint(
         getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
       )
       const balance = await this.scERC721Ledger.balanceOf(
-        this.fakeERC721.address.toLocaleLowerCase(),
+        zeroAddress.toLocaleLowerCase(),
         this.user.address
       )
       expect(balance).to.equal(0)
