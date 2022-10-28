@@ -156,6 +156,54 @@ describe('SCExternalERC721Ledger contract tests', () => {
       expect(await derivativeContract.name()).to.equal(`${name} (derivative)`)
       expect(await derivativeContract.symbol()).to.equal(`${symbol}-d`)
     })
+    it('should check balance of derivative', async function () {
+      await this.SCExternalERC721Ledger[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...(await getEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          this.name,
+          this.symbol
+        ))
+      )
+      const balance = await this.SCExternalERC721Ledger.balanceOf(
+        this.fakeERC721.address.toLocaleLowerCase(),
+        this.owner.address
+      )
+      expect(balance).to.equal(1)
+    })
+    it('should return 0 if derivative is not exist', async function () {
+      await this.SCExternalERC721Ledger[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...(await getEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          this.name,
+          this.symbol
+        ))
+      )
+      const balance = await this.SCExternalERC721Ledger.balanceOf(
+        zeroAddress.toLocaleLowerCase(),
+        this.user.address
+      )
+      expect(balance).to.equal(0)
+    })
+    it('should return 0 if owner does not own a derivative', async function () {
+      await this.SCExternalERC721Ledger[mintFunctionSignature](
+        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        ...(await getEcdsaArguments(
+          Network.mainnet,
+          this.fakeERC721.address,
+          this.name,
+          this.symbol
+        ))
+      )
+      const balance = await this.SCExternalERC721Ledger.balanceOf(
+        this.fakeERC721.address.toLocaleLowerCase(),
+        this.user.address
+      )
+      expect(balance).to.equal(0)
+    })
     it('should not mint without ecdsa signature', async function () {
       const contract = await this.SCExternalERC721LedgerFactory.deploy(
         this.fakeVerifierContract.address,
