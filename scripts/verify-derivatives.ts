@@ -85,7 +85,7 @@ async function main() {
         },
         originalNetwork: {
           required: true,
-          ask: () => (!isEmail ? false : !isFarcaster ? false : true),
+          ask: () => !isEmail && !isFarcaster,
           enum: ['g', 'm'],
           default: 'g',
           description: `Network: (m)ain, (g)oerli — for ${verifierContractName}`,
