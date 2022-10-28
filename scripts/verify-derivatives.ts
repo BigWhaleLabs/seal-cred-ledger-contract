@@ -1,7 +1,17 @@
+import {
+  ATTESTOR_PUBLIC_KEY,
+  BALANCE_VERIFIER_CONTRACT_ADDRESS,
+  EMAIL_VERIFIER_CONTRACT_ADDRESS,
+  FARCASTER_VERIFIER_CONTRACT_ADDRESS,
+  SC_EMAIL_LEDGER_CONTRACT_ADDRESS,
+  SC_ERC721_LEDGER_CONTRACT_ADDRESS,
+  SC_FARCASTER_LEDGER_CONTRACT_ADDRESS,
+} from '@big-whale-labs/constants'
 import { cwd } from 'process'
 import { readdirSync } from 'fs'
 import { resolve } from 'path'
 import { run } from 'hardhat'
+import { version } from '../package.json'
 import prompt from 'prompt'
 
 const regexes = {
@@ -17,16 +27,19 @@ async function main() {
   for (const verifierContractName of contractNames) {
     console.log(`Verifying ${verifierContractName}...`)
     const isEmail = verifierContractName.includes('Email')
+    const isFarcaster = verifierContractName.includes('Farcaster')
     const email = 'bwl.gg'
     const {
       address,
       ledgerAddress,
-      domainOrOriginalContract,
+      origin,
       verifierAddress,
       attestorPublicKey,
       originalNetwork,
       tokenName,
       tokenSymbol,
+      baseURI,
+      contractVersion,
     } = await prompt.get({
       properties: {
         address: {
@@ -39,12 +52,15 @@ async function main() {
           pattern: regexes.ethereumAddress,
           message: `Ledger address for ${verifierContractName}`,
           default: isEmail
-            ? '0xCd990C45d0B794Bbb47Ad31Ee3567a36c0c872e0'
-            : '0xE8130c7004430E882D3A49dF497C2Acb08612EC0',
+            ? SC_EMAIL_LEDGER_CONTRACT_ADDRESS
+            : isFarcaster
+            ? SC_FARCASTER_LEDGER_CONTRACT_ADDRESS
+            : SC_ERC721_LEDGER_CONTRACT_ADDRESS,
         },
-        domainOrOriginalContract: {
+        origin: {
           required: true,
           pattern: isEmail ? regexes.email : regexes.ethereumAddress,
+          ask: () => !isFarcaster,
           message: `${
             isEmail ? 'Domain' : 'Original contract'
           } for ${verifierContractName}`,
@@ -57,31 +73,44 @@ async function main() {
           pattern: regexes.ethereumAddress,
           message: `Verifier address for ${verifierContractName}`,
           default: isEmail
-            ? '0xE8c7754340B9f0Efe49DFE0f9a47F8f137F70477'
-            : '0x842B06545f9dc6a3cCe1eFD8e4B44095643e3395',
+            ? EMAIL_VERIFIER_CONTRACT_ADDRESS
+            : isFarcaster
+            ? FARCASTER_VERIFIER_CONTRACT_ADDRESS
+            : BALANCE_VERIFIER_CONTRACT_ADDRESS,
         },
         attestorPublicKey: {
           required: true,
           message: `Attestor public key for ${verifierContractName}`,
-          default:
-            '3022588728262621016474471722865235652573366639695808085248430151628770415819',
+          default: ATTESTOR_PUBLIC_KEY,
         },
         originalNetwork: {
           required: true,
-          ask: () => !isEmail,
+          ask: () => (!isEmail ? false : !isFarcaster ? false : true),
           enum: ['g', 'm'],
           default: 'g',
           description: `Network: (m)ain, (g)oerli — for ${verifierContractName}`,
         },
         tokenName: {
           required: true,
+          ask: () => !isFarcaster,
           description: `Token name for ${verifierContractName}`,
           default: isEmail ? `@${email} email` : 'StrawberryFrens (derivative)',
         },
         tokenSymbol: {
           required: true,
+          ask: () => !isFarcaster,
           description: `Token symbol for ${verifierContractName}`,
           default: isEmail ? `${email}-d` : 'STRW-d',
+        },
+        baseURI: {
+          required: true,
+          description: `Base URI for ${verifierContractName}`,
+          default: 'https://metadata.sealcred.xyz/metadata',
+        },
+        contractVersion: {
+          required: true,
+          description: `Contract version`,
+          default: version,
         },
       },
     })
@@ -91,20 +120,32 @@ async function main() {
         constructorArguments: isEmail
           ? [
               ledgerAddress,
-              domainOrOriginalContract,
+              origin,
               verifierAddress,
               attestorPublicKey,
               tokenName,
               tokenSymbol,
+              baseURI,
+              contractVersion,
+            ]
+          : isFarcaster
+          ? [
+              ledgerAddress,
+              verifierAddress,
+              attestorPublicKey,
+              baseURI,
+              contractVersion,
             ]
           : [
               ledgerAddress,
-              domainOrOriginalContract,
+              origin,
               verifierAddress,
               attestorPublicKey,
               originalNetwork === 'g' ? 103 : 109,
               tokenName,
               tokenSymbol,
+              baseURI,
+              contractVersion,
             ],
       })
     } catch (err) {
