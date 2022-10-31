@@ -1,6 +1,6 @@
 {
   "name": "@big-whale-labs/seal-cred-ledger-contract",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "SealCred Ledger contract code",
   "repository": {
     "type": "git",
