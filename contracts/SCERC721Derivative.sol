@@ -105,12 +105,17 @@ contract SCERC721Derivative is Derivative {
   }
 
   function _mint(address sender, BalanceProof memory proof) internal {
+    _checkAttestationType(proof.input[0]);
     _checkNetwork(proof.input[2]);
     _checkAttestor(proof.input[5]);
     _checkThreshold(proof.input[3]);
     _checkTokenAddress(proof);
     _checkProof(proof);
     _mintWithNullifier(sender, proof.input[4]);
+  }
+
+  function _checkAttestationType(uint256 attestationType) internal pure {
+    require(attestationType == 0, "Invalid attestation type");
   }
 
   function _checkNetwork(uint256 _network) internal view {

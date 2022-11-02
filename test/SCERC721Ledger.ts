@@ -241,6 +241,19 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         )
       ).to.be.revertedWith('This token is soulbound')
     })
+    it('should not mint if attestation type is invalid', async function () {
+      const balanceInput = getFakeBalanceProof(
+        this.fakeERC721.address,
+        Network.mainnet,
+        123,
+        1
+      )
+      // Corrupt the type
+      balanceInput.input[0] = 1
+      await expect(this.scERC721Ledger.mint(balanceInput)).to.be.revertedWith(
+        'Invalid attestation type'
+      )
+    })
     it('should not mint if the attestor is incorrect', async function () {
       const balanceInput = getFakeBalanceProof(
         this.fakeERC721.address,
