@@ -62,6 +62,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./base/Ledger.sol";
+import "./base/SealHubChecker.sol";
 import "./SCERC721Derivative.sol";
 
 uint256 constant addressLength = 42;
@@ -70,7 +71,7 @@ uint256 constant addressLength = 42;
  * @title SealCred ERC721 Ledger
  * @dev Creates SCERC721Derivatives, remembers them and proxies mint calls to them
  */
-contract SCERC721Ledger is Ledger {
+contract SCERC721Ledger is Ledger, SealHubChecker {
   // State
   uint256 public immutable network;
 
@@ -80,7 +81,8 @@ contract SCERC721Ledger is Ledger {
     address _forwarder,
     uint256 _network,
     string memory _baseURI,
-    string memory _version
+    string memory _version,
+    address _sealHub
   )
     Ledger(
       _verifierContract,
@@ -89,6 +91,7 @@ contract SCERC721Ledger is Ledger {
       _baseURI,
       _version
     )
+    SealHubChecker(_sealHub)
   {
     network = _network;
   }
@@ -135,7 +138,8 @@ contract SCERC721Ledger is Ledger {
       string(bytes.concat(bytes(name), bytes(" (derivative)"))),
       string(bytes.concat(bytes(symbol), bytes("-d"))),
       baseURI,
-      version
+      version,
+      sealHub
     );
     _registerDerivative(originalString, address(derivative));
   }

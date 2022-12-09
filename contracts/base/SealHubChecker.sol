@@ -59,99 +59,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "./base/Derivative.sol";
-import "./base/SealHubChecker.sol";
-import "./interfaces/IBalanceCheckerVerifier.sol";
-import "./models/BalanceProof.sol";
+import "../interfaces/ISealHub.sol";
 
-contract SCERC721Derivative is Derivative, SealHubChecker {
+contract SealHubChecker {
   // State
-  address public immutable originalContract;
-  uint256 public immutable originalNetwork;
+  address public immutable sealHub;
 
-  constructor(
-    address _ledgerContract,
-    address _originalContract,
-    address _verifierContract,
-    uint256 _attestorPublicKey,
-    uint256 _originalNetwork,
-    string memory tokenName,
-    string memory tokenSymbol,
-    string memory _baseURI,
-    string memory _version,
-    address _sealHub
-  )
-    Derivative(
-      _ledgerContract,
-      _verifierContract,
-      _attestorPublicKey,
-      tokenName,
-      tokenSymbol,
-      _baseURI,
-      _version
-    )
-    SealHubChecker(_sealHub)
-  {
-    originalContract = _originalContract;
-    originalNetwork = _originalNetwork;
+  constructor(address _sealHub) {
+    sealHub = _sealHub;
   }
 
-  function mint(BalanceProof memory proof) external {
-    _mint(msg.sender, proof);
-  }
-
-  function mintWithSender(
-    address sender,
-    BalanceProof memory proof
-  ) external onlyOwner {
-    _mint(sender, proof);
-  }
-
-  function _mint(address sender, BalanceProof memory proof) internal {
-    _checkAttestationType(proof.input[0]);
-    _checkNetwork(proof.input[3]);
-    _checkThreshold(proof.input[4]);
-    _checkSealHub(proof.input[5]);
-    _checkAttestor(proof.input[7]);
-    _checkTokenAddress(proof);
-    _checkProof(proof);
-    _mintWithNullifier(sender, proof.input[6]);
-  }
-
-  function _checkAttestationType(uint256 attestationType) internal pure {
-    require(attestationType == 0, "Invalid attestation type");
-  }
-
-  function _checkNetwork(uint256 _network) internal view {
-    require(originalNetwork == _network, "Unexpected network");
-  }
-
-  function _checkThreshold(uint256 _threshold) internal pure {
-    require(_threshold > 0, "The threshold should be greater than 0");
-  }
-
-  function _checkTokenAddress(BalanceProof memory proof) internal view {
-    bytes memory tokenBytes = bytes(
-      Strings.toHexString(uint256(uint160(originalContract)), 20)
-    );
-    bytes memory contractBytes = bytes(
-      Strings.toHexString(uint256(uint160(proof.input[1])), 20)
-    );
+  function _checkSealHub(uint256 merkleRoot) internal view {
     require(
-      keccak256(tokenBytes) == keccak256(contractBytes),
-      "This ZK proof is not from the correct token contract"
-    );
-  }
-
-  function _checkProof(BalanceProof memory proof) internal view {
-    require(
-      IBalanceCheckerVerifier(verifierContract).verifyProof(
-        proof.a,
-        proof.b,
-        proof.c,
-        proof.input
-      ),
-      "Invalid ZK proof"
+      ISealHub(sealHub).isCommitmentMerkleRootValid(bytes32(merkleRoot)),
+      "Proof of Ethereum address ownership should be registered at SealHub"
     );
   }
 }

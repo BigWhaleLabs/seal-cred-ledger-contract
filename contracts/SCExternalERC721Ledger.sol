@@ -77,7 +77,8 @@ contract SCExternalERC721Ledger is SCERC721Ledger {
     uint256 _network,
     address _attestorEcdsaAddress,
     string memory _baseURI,
-    string memory _version
+    string memory _version,
+    address _sealHub
   )
     SCERC721Ledger(
       _verifierContract,
@@ -85,7 +86,8 @@ contract SCExternalERC721Ledger is SCERC721Ledger {
       _forwarder,
       _network,
       _baseURI,
-      _version
+      _version,
+      _sealHub
     )
   {
     attestorEcdsaAddress = _attestorEcdsaAddress;
