@@ -112,13 +112,9 @@ contract Derivative is ERC721, Ownable, Versioned {
     nullifiers[nullifier] = true;
   }
 
-  function tokenURI(uint256 tokenId)
-    public
-    view
-    virtual
-    override
-    returns (string memory)
-  {
+  function tokenURI(
+    uint256 tokenId
+  ) public view virtual override returns (string memory) {
     _requireMinted(tokenId);
     require(bytes(baseURI).length > 0, "baseURI isn't set");
 
@@ -138,21 +134,19 @@ contract Derivative is ERC721, Ownable, Versioned {
   }
 
   function _beforeTokenTransfer(
-    address _from,
-    address _to,
-    uint256 _tokenId
+    address from,
+    address to,
+    uint256 firstTokenId,
+    uint256 batchSize
   ) internal override(ERC721) {
-    require(_from == address(0), "This token is soulbound");
-    super._beforeTokenTransfer(_from, _to, _tokenId);
+    require(from == address(0), "This token is soulbound");
+    super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
   }
 
-  function supportsInterface(bytes4 _interfaceId)
-    public
-    view
-    override(ERC721)
-    returns (bool)
-  {
-    return super.supportsInterface(_interfaceId);
+  function supportsInterface(
+    bytes4 interfaceId
+  ) public view override(ERC721) returns (bool) {
+    return super.supportsInterface(interfaceId);
   }
 
   function setVerifierContract(address _verifierContract) external onlyOwner {

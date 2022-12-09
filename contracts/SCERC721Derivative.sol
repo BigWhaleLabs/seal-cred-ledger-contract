@@ -97,10 +97,10 @@ contract SCERC721Derivative is Derivative {
     _mint(msg.sender, proof);
   }
 
-  function mintWithSender(address sender, BalanceProof memory proof)
-    external
-    onlyOwner
-  {
+  function mintWithSender(
+    address sender,
+    BalanceProof memory proof
+  ) external onlyOwner {
     _mint(sender, proof);
   }
 

@@ -94,10 +94,10 @@ contract SCEmailDerivative is Derivative {
     _mint(msg.sender, proof);
   }
 
-  function mintWithSender(address sender, EmailProof memory proof)
-    external
-    onlyOwner
-  {
+  function mintWithSender(
+    address sender,
+    EmailProof memory proof
+  ) external onlyOwner {
     _mint(sender, proof);
   }
 

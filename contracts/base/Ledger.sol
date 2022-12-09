@@ -96,11 +96,9 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
     verifierContract = _verifierContract;
   }
 
-  function getDerivative(string memory original)
-    external
-    view
-    returns (address)
-  {
+  function getDerivative(
+    string memory original
+  ) external view returns (address) {
     return originalToDerivative[original];
   }
 
@@ -109,11 +107,10 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
     emit DeleteOriginal(original);
   }
 
-  function balanceOf(string memory origin, address owner)
-    external
-    view
-    returns (uint256)
-  {
+  function balanceOf(
+    string memory origin,
+    address owner
+  ) external view returns (uint256) {
     if (originalToDerivative[origin] == address(0)) {
       return 0;
     }
@@ -124,17 +121,16 @@ contract Ledger is Ownable, ERC2771Recipient, Versioned {
     baseURI = _baseURI;
   }
 
-  function _checkDerivativeExistence(string memory original)
-    internal
-    view
-    returns (bool)
-  {
+  function _checkDerivativeExistence(
+    string memory original
+  ) internal view returns (bool) {
     return originalToDerivative[original] != address(0);
   }
 
-  function _registerDerivative(string memory original, address derivative)
-    internal
-  {
+  function _registerDerivative(
+    string memory original,
+    address derivative
+  ) internal {
     originalToDerivative[original] = derivative;
     emit CreateDerivative(original, derivative);
   }

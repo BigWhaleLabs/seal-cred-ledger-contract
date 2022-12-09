@@ -86,10 +86,10 @@ contract SCFarcasterDerivative is Derivative {
     _mint(msg.sender, proof);
   }
 
-  function mintWithSender(address sender, FarcasterProof memory proof)
-    external
-    onlyOwner
-  {
+  function mintWithSender(
+    address sender,
+    FarcasterProof memory proof
+  ) external onlyOwner {
     _mint(sender, proof);
   }
 

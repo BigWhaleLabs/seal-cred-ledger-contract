@@ -143,11 +143,9 @@ contract SCERC721Ledger is Ledger {
   /**
    * @dev Returns address from input
    */
-  function _extractAddress(uint256 numAddress)
-    internal
-    pure
-    returns (string memory, address)
-  {
+  function _extractAddress(
+    uint256 numAddress
+  ) internal pure returns (string memory, address) {
     string memory addr = Strings.toHexString(uint256(uint160(numAddress)), 20);
     return (addr, _toAddress(addr));
   }
