@@ -60,16 +60,18 @@
 pragma solidity ^0.8.17;
 
 import "./base/Derivative.sol";
+import "./base/SealHubChecker.sol";
 import "./interfaces/IFarcasterCheckerVerifier.sol";
 import "./models/FarcasterProof.sol";
 
-contract SCFarcasterDerivative is Derivative {
+contract SCFarcasterDerivative is Derivative, SealHubChecker {
   constructor(
     address _ledgerContract,
     address _verifierContract,
     uint256 _attestorPublicKey,
     string memory _baseURI,
-    string memory _version
+    string memory _version,
+    address _sealHub
   )
     Derivative(
       _ledgerContract,
@@ -80,6 +82,7 @@ contract SCFarcasterDerivative is Derivative {
       _baseURI,
       _version
     )
+    SealHubChecker(_sealHub)
   {}
 
   function mint(FarcasterProof memory proof) external {
@@ -95,10 +98,11 @@ contract SCFarcasterDerivative is Derivative {
 
   function _mint(address sender, FarcasterProof memory proof) internal {
     _checkAttestationType(proof.input[0]);
-    _checkAttestor(proof.input[11]);
+    _checkAttestor(proof.input[12]);
     _checkFarcasterWord(proof);
     _checkProof(proof);
-    _mintWithNullifier(sender, proof.input[10]);
+    _checkSealHub(proof.input[10]);
+    _mintWithNullifier(sender, proof.input[11]);
   }
 
   function _checkAttestationType(uint256 attestationType) internal pure {
