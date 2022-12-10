@@ -60,19 +60,21 @@
 pragma solidity ^0.8.17;
 
 import "./base/Ledger.sol";
+import "./base/SealHubChecker.sol";
 import "./SCFarcasterDerivative.sol";
 
 /**
  * @title SealCred Farcaster Ledger
  * @dev Creates SCFarcasterDerivatives, remembers them and proxies mint calls to them
  */
-contract SCFarcasterLedger is Ledger {
+contract SCFarcasterLedger is Ledger, SealHubChecker {
   constructor(
     address _verifierContract,
     uint256 _attestorPublicKey,
     address _forwarder,
     string memory _baseURI,
-    string memory _version
+    string memory _version,
+    address _sealHub
   )
     Ledger(
       _verifierContract,
@@ -81,6 +83,7 @@ contract SCFarcasterLedger is Ledger {
       _baseURI,
       _version
     )
+    SealHubChecker(_sealHub)
   {}
 
   /**
@@ -108,7 +111,8 @@ contract SCFarcasterLedger is Ledger {
       verifierContract,
       attestorPublicKey,
       baseURI,
-      version
+      version,
+      sealHub
     );
     _registerDerivative("farcaster", address(derivative));
   }
