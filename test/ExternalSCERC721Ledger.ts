@@ -7,6 +7,7 @@ import {
   getFakeBalanceProof,
   getFakeBalanceVerifier,
   getFakeERC721,
+  getFakeSealHub,
   metadataURL,
   zeroAddress,
 } from './utils'
@@ -15,14 +16,14 @@ import { expect } from 'chai'
 import { splitSignature } from 'ethers/lib/utils'
 
 const mintFunctionSignature =
-  'mint((uint256[2],uint256[2][2],uint256[2],uint256[6]),bytes,bytes32,bytes32)'
+  'mint((uint256[2],uint256[2][2],uint256[2],uint256[8]),bytes,bytes32,bytes32)'
 const mintFunctionSignatureWithOnlyProof =
-  'mint((uint256[2],uint256[2][2],uint256[2],uint256[6]))'
+  'mint((uint256[2],uint256[2][2],uint256[2],uint256[8]))'
 
 const invalidEcdsaWallet = new ethers.Wallet(
   '0x3931dc49c2615b436ed233b5f1bcba76cdc352f0318f8886d23f3e524e96a1be'
 )
-describe('SCExternalERC721Ledger contract tests', () => {
+describe.only('SCExternalERC721Ledger contract tests', () => {
   before(async function () {
     this.accounts = await ethers.getSigners()
     this.owner = this.accounts[0]
@@ -34,6 +35,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
       'SCERC721Derivative'
     )
     this.version = '0.0.1'
+    this.fakeSealHubContract = await getFakeSealHub(this.owner)
   })
   describe('Constructor', function () {
     it('should deploy the contract with the correct fields', async function () {
@@ -44,7 +46,8 @@ describe('SCExternalERC721Ledger contract tests', () => {
         Network.mainnet,
         ecdsaAddress,
         metadataURL,
-        this.version
+        this.version,
+        this.fakeSealHubContract.address
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
@@ -60,6 +63,9 @@ describe('SCExternalERC721Ledger contract tests', () => {
       // Verifier
       this.fakeVerifierContract = await getFakeBalanceVerifier(this.owner)
       await this.fakeVerifierContract.mock.verifyProof.returns(true)
+      await this.fakeSealHubContract.mock.isCommitmentMerkleRootValid.returns(
+        true
+      )
       // ERC721
       this.fakeERC721 = await getFakeERC721(this.owner)
       // Ledger
@@ -71,7 +77,8 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           ecdsaAddress,
           metadataURL,
-          this.version
+          this.version,
+          this.fakeSealHubContract.address
         )
       this.name = 'MyERC721'
       this.symbol = 'ME7'
@@ -81,7 +88,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     it('should mint with ledger if all the correct info is there', async function () {
       // Check the mint transaction
       const tx = await this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -105,7 +118,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     it('should return correct metadata', async function () {
       // Token mint
       const tx = await this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -136,7 +155,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
       const symbol = '‡♦‰ℑℜ¤'
       // Check the mint transaction
       const tx = await this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -158,7 +183,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     })
     it('should check balance of derivative', async function () {
       await this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -174,7 +205,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     })
     it('should return 0 if derivative is not exist', async function () {
       await this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -190,7 +227,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     })
     it('should return 0 if owner does not own a derivative', async function () {
       await this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -212,11 +255,18 @@ describe('SCExternalERC721Ledger contract tests', () => {
         Network.mainnet,
         ecdsaAddress,
         metadataURL,
-        this.version
+        this.version,
+        this.fakeSealHubContract.address
       )
       // Check the mint transaction
       const tx = contract[mintFunctionSignatureWithOnlyProof](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       await expect(tx).to.be.revertedWith(
         'Mint with ECDSA signature should be used'
@@ -231,11 +281,18 @@ describe('SCExternalERC721Ledger contract tests', () => {
         Network.mainnet,
         ecdsaAddress,
         metadataURL,
-        this.version
+        this.version,
+        this.fakeSealHubContract.address
       )
       // Check the mint transaction
       const tx = contract[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -248,7 +305,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     it('should not mint with ledger if the nullifier is incorrect', async function () {
       // Check the mint transaction
       await this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -257,7 +320,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
         ))
       )
       const tx = this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -270,7 +339,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     it('should not mint with ledger if the name is empty', async function () {
       // Check the mint transaction
       const tx = this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -283,7 +358,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     it('should not mint with ledger if the symbol is empty', async function () {
       // Check the mint transaction
       const tx = this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           this.fakeERC721.address,
@@ -307,7 +388,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
       ecdsaInput[1] = sig.r
       ecdsaInput[2] = sig.yParityAndS
       const tx = this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...ecdsaInput
       )
       await expect(tx).to.be.revertedWith('Wrong attestor public key')
@@ -321,15 +408,15 @@ describe('SCExternalERC721Ledger contract tests', () => {
         this.symbol
       )
       // Corrupt the signature
-      ecdsaInput[1] =
-        '0x' +
-        ecdsaInput[1]
-          .split('')
-          .reverse()
-          .join('')
-          .substring(0, ecdsaInput[1].length - 2)
+      ecdsaInput[1] = ecdsaInput[2]
       const tx = this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...ecdsaInput
       )
       await expect(tx).to.be.revertedWith(
@@ -339,7 +426,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     it('should not mint with ledger if the network is incorrect', async function () {
       // Check the mint transaction
       const tx = this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.goerli,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.goerli,
           this.fakeERC721.address,
@@ -352,7 +445,13 @@ describe('SCExternalERC721Ledger contract tests', () => {
     it('should not mint with ledger if the token address is incorrect', async function () {
       // Check the mint transaction
       const tx = this.SCExternalERC721Ledger[mintFunctionSignature](
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1),
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        ),
         ...(await getEcdsaArguments(
           Network.mainnet,
           zeroAddress,
@@ -361,6 +460,32 @@ describe('SCExternalERC721Ledger contract tests', () => {
         ))
       )
       await expect(tx).to.be.revertedWith('Wrong token address')
+    })
+    it('should not mint if the SealHub commitment does not exist', async function () {
+      await this.fakeSealHubContract.mock.isCommitmentMerkleRootValid
+        .withArgs(
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
+        .returns(false)
+      await expect(
+        this.SCExternalERC721Ledger[mintFunctionSignature](
+          getFakeBalanceProof(
+            this.fakeERC721.address,
+            Network.mainnet,
+            123,
+            1,
+            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          ),
+          ...(await getEcdsaArguments(
+            Network.mainnet,
+            this.fakeERC721.address,
+            this.name,
+            this.symbol
+          ))
+        )
+      ).to.be.revertedWith(
+        'Proof of Ethereum address ownership should be registered at SealHub'
+      )
     })
   })
 })

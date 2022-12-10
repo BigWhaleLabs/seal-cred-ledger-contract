@@ -49,9 +49,9 @@ export async function getFakeBalanceVerifier(signer: SignerWithAddress) {
           type: 'uint256[2]',
         },
         {
-          internalType: 'uint256[6]',
+          internalType: 'uint256[8]',
           name: 'input',
-          type: 'uint256[6]',
+          type: 'uint256[8]',
         },
       ],
       name: 'verifyProof',
@@ -167,7 +167,8 @@ export function getFakeBalanceProof(
   contract: string,
   network: Network,
   nullifier: number,
-  threshold: number
+  threshold: number,
+  sealHubCommitment: number | string
 ): BalanceProofStruct {
   return {
     a: [1, 2],
@@ -176,7 +177,13 @@ export function getFakeBalanceProof(
       [3, 4],
     ],
     c: [1, 2],
-    input: getFakeBalanceVerifierInput(contract, network, nullifier, threshold),
+    input: getFakeBalanceVerifierInput(
+      contract,
+      network,
+      nullifier,
+      threshold,
+      sealHubCommitment
+    ),
   }
 }
 
@@ -223,18 +230,51 @@ export async function getFakeERC721(signer: SignerWithAddress) {
   ])
 }
 
+export async function getFakeSealHub(signer: SignerWithAddress) {
+  return await waffle.deployMockContract(signer, [
+    {
+      inputs: [
+        {
+          internalType: 'bytes32',
+          name: 'merkleRoot',
+          type: 'bytes32',
+        },
+      ],
+      name: 'isCommitmentMerkleRootValid',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
+  ])
+}
+//   '0x00',
+//   '0x1ebac3b4f3b3a815349c507043cb77bb92d5b4128afb913752043d990a1646bd',
+//   '0x00',
+//   '0x722B0676F457aFe13e479eB2a8A4De88BA15B2c6',
+//   '0x67',
+//   '0x01'
 function getFakeBalanceVerifierInput(
   contract: string,
   network: Network,
   nullifier: number,
   threshold: number,
-  type = 0
+  sealHubCommitment: number | string,
+  type = 0,
+  tokenId = 0
 ) {
   return [
     type,
     BigNumber.from(contract.toLowerCase()),
+    tokenId,
     network,
     threshold,
+    BigNumber.from(sealHubCommitment),
     nullifier,
     attestorPublicKey,
   ]
@@ -256,7 +296,7 @@ function getFakeEmailVerifierInput(nullifier: number, domain: string) {
   )
   return [...domainBytes, nullifier, attestorPublicKey]
 }
-
+// 0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c
 export async function getEcdsaArguments(
   network: Network,
   contract: string,
