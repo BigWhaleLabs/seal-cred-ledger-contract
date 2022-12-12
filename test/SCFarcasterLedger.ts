@@ -8,12 +8,13 @@ import {
   metadataURL,
   newMetadataURL,
   nonZeroAddress,
+  sealHubCommitment,
   zeroAddress,
 } from './utils'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 
-describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
+describe('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () => {
   before(async function () {
     this.accounts = await ethers.getSigners()
     this.owner = this.accounts[0]
@@ -127,20 +128,14 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
     })
     it('should mint with ledger if all the correct info is there', async function () {
       const tx = await this.scFarcasterLedger.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       expect(await tx.wait())
     })
     it('should return correct metadata', async function () {
       // Token mint
       const tx = await this.scFarcasterDerivative.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       await tx.wait()
       // Get the derivative
@@ -159,10 +154,7 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
     it('should use baseURI configured for derivative', async function () {
       // Token mint
       const tx = await this.scFarcasterDerivative.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       await tx.wait()
       // Get the derivative
@@ -183,20 +175,14 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
     })
     it('should mint from the derivative if all the correct info is there', async function () {
       const derivativeTx = await this.scFarcasterDerivative.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       expect(await derivativeTx.wait())
     })
     it('should save nullifier correctly', async function () {
       const nullifier = 123
       const derivativeTx = await this.scFarcasterDerivative.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       expect(await derivativeTx.wait())
       expect(await this.scFarcasterDerivative.nullifiers(nullifier)).to.equal(
@@ -205,10 +191,7 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
     })
     it('should check balance of derivative', async function () {
       await this.scFarcasterLedger.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       const balance = await this.scFarcasterLedger.balanceOf(
         'farcaster',
@@ -218,10 +201,7 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
     })
     it('should return 0 if derivative is not exist', async function () {
       await this.scFarcasterLedger.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       const balance = await this.scFarcasterLedger.balanceOf(
         'FaRcAsTeR',
@@ -231,10 +211,7 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
     })
     it('should return 0 if owner does not own a derivative', async function () {
       await this.scFarcasterLedger.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       const balance = await this.scFarcasterLedger.balanceOf(
         'farcaster',
@@ -244,10 +221,7 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
     })
     it('should not transfer if the from address is non-zero', async function () {
       await this.scFarcasterDerivative.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       await expect(
         this.scFarcasterDerivative.transferFrom(
@@ -258,20 +232,14 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
       ).to.be.revertedWith('This token is soulbound')
     })
     it('should not mint if the attestor is incorrect', async function () {
-      const farcasterInput = getFakeFarcasterProof(
-        123,
-        '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-      )
+      const farcasterInput = getFakeFarcasterProof(123, sealHubCommitment)
       farcasterInput.input[12] = invalidAttestorPublicKey
       await expect(
         this.scFarcasterLedger.mint(farcasterInput)
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
     })
     it('should not mint if the "farcaster" word is incorrect', async function () {
-      const farcasterInput = getFakeFarcasterProof(
-        123,
-        '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-      )
+      const farcasterInput = getFakeFarcasterProof(123, sealHubCommitment)
       // Corrupt the message
       farcasterInput.input[1] = 0
       await expect(
@@ -279,10 +247,7 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
       ).to.be.revertedWith('This ZK proof is not from the farcaster')
     })
     it('should not mint if attestation type is invalid', async function () {
-      const farcasterInput = getFakeFarcasterProof(
-        123,
-        '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-      )
+      const farcasterInput = getFakeFarcasterProof(123, sealHubCommitment)
       // Corrupt the message
       farcasterInput.input[0] = 1
       await expect(
@@ -291,17 +256,11 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
     })
     it('should not mint if nullifier has already been used', async function () {
       await this.scFarcasterDerivative.mint(
-        getFakeFarcasterProof(
-          123,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        getFakeFarcasterProof(123, sealHubCommitment)
       )
       await expect(
         this.scFarcasterDerivative.mint(
-          getFakeFarcasterProof(
-            123,
-            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-          )
+          getFakeFarcasterProof(123, sealHubCommitment)
         )
       ).to.be.revertedWith('This ZK proof has already been used')
     })
@@ -309,25 +268,17 @@ describe.only('SCFarcasterLedger and SCFarcasterDerivative contracts tests', () 
       await this.fakeVerifierContract.mock.verifyProof.returns(false)
       await expect(
         this.scFarcasterLedger.mint(
-          getFakeFarcasterProof(
-            123,
-            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-          )
+          getFakeFarcasterProof(123, sealHubCommitment)
         )
       ).to.be.revertedWith('Invalid ZK proof')
     })
     it('should not mint if the SealHub commitment does not exist', async function () {
       await this.fakeSealHubContract.mock.isCommitmentMerkleRootValid
-        .withArgs(
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        .withArgs(sealHubCommitment)
         .returns(false)
       await expect(
         this.scFarcasterLedger.mint(
-          getFakeFarcasterProof(
-            123,
-            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-          )
+          getFakeFarcasterProof(123, sealHubCommitment)
         )
       ).to.be.revertedWith(
         'Proof of Ethereum address ownership should be registered at SealHub'

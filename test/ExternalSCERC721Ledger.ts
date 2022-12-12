@@ -9,6 +9,7 @@ import {
   getFakeERC721,
   getFakeSealHub,
   metadataURL,
+  sealHubCommitment,
   zeroAddress,
 } from './utils'
 import { ethers } from 'hardhat'
@@ -93,7 +94,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -123,7 +124,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -160,7 +161,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -188,7 +189,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -210,7 +211,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -232,7 +233,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -265,7 +266,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       await expect(tx).to.be.revertedWith(
@@ -291,7 +292,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -310,7 +311,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -325,7 +326,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -344,7 +345,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -363,7 +364,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -393,7 +394,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...ecdsaInput
       )
@@ -415,7 +416,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...ecdsaInput
       )
@@ -431,7 +432,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.goerli,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.goerli,
@@ -450,7 +451,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         ),
         ...(await getEcdsaArguments(
           Network.mainnet,
@@ -463,9 +464,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
     })
     it('should not mint if the SealHub commitment does not exist', async function () {
       await this.fakeSealHubContract.mock.isCommitmentMerkleRootValid
-        .withArgs(
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        .withArgs(sealHubCommitment)
         .returns(false)
       await expect(
         this.SCExternalERC721Ledger[mintFunctionSignature](
@@ -474,7 +473,7 @@ describe('SCExternalERC721Ledger contract tests', () => {
             Network.mainnet,
             123,
             1,
-            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+            sealHubCommitment
           ),
           ...(await getEcdsaArguments(
             Network.mainnet,
