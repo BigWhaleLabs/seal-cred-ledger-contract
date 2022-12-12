@@ -48,11 +48,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@big-whale-labs/poseidon@npm:^0.0.5":
+  version: 0.0.5
+  resolution: "@big-whale-labs/poseidon@npm:0.0.5"
+  dependencies:
+    big-integer: ^1.6.51
+  checksum: 3603121e891d75ee42ab25ae53505bf307715a948c8cd63dadab0264c6aa9aea10832463faa84f60c3f143bf6d2072682edb145483f46ab6e234f481a1414c35
+  languageName: node
+  linkType: hard
+
 "@big-whale-labs/seal-cred-ledger-contract@workspace:.":
   version: 0.0.0-use.local
   resolution: "@big-whale-labs/seal-cred-ledger-contract@workspace:."
   dependencies:
     "@big-whale-labs/constants": ^0.1.39
+    "@big-whale-labs/seal-hub-contract": ^0.0.6
     "@big-whale-labs/versioned-contract": ^1.0.2
     "@ethersproject/providers": ^5.7.2
     "@nomiclabs/hardhat-ethers": ^2.2.1
@@ -97,6 +107,19 @@ __metadata:
     typescript: ^4.9.4
   languageName: unknown
   linkType: soft
+
+"@big-whale-labs/seal-hub-contract@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "@big-whale-labs/seal-hub-contract@npm:0.0.6"
+  dependencies:
+    "@big-whale-labs/poseidon": ^0.0.5
+    "@big-whale-labs/versioned-contract": ^1.0.2
+    "@opengsn/contracts": ^3.0.0-beta.1
+    "@zk-kit/incremental-merkle-tree.sol": ^1.3.1
+    circomlibjs: ^0.1.7
+  checksum: e803071092a3781345e3b91a36644a306988e55586e0071e1d263387e9f750c111956cc77bc16736de746a1aac68a24ebe6a970c9ba5454cb38bea08f25ce6c1
+  languageName: node
+  linkType: hard
 
 "@big-whale-labs/versioned-contract@npm:^1.0.2":
   version: 1.0.2
@@ -2304,6 +2327,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@zk-kit/incremental-merkle-tree.sol@npm:^1.3.1":
+  version: 1.3.1
+  resolution: "@zk-kit/incremental-merkle-tree.sol@npm:1.3.1"
+  checksum: 8a9edd1490e5d2d5214573d633a15ce9db9b9574a2f961f7334973aa011308416fb8c67a3b9a9fee7135b33b05fef17dd2d9fc5560f6589d15edfb4b8ff6c46c
+  languageName: node
+  linkType: hard
+
 "abbrev@npm:1":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -2990,6 +3020,13 @@ __metadata:
   version: 1.11.0
   resolution: "aws4@npm:1.11.0"
   checksum: 5a00d045fd0385926d20ebebcfba5ec79d4482fe706f63c27b324d489a04c68edb0db99ed991e19eda09cb8c97dc2452059a34d97545cebf591d7a2b5a10999f
+  languageName: node
+  linkType: hard
+
+"b4a@npm:^1.0.1":
+  version: 1.6.1
+  resolution: "b4a@npm:1.6.1"
+  checksum: 9d085922d4a6bcaac69e68520681cd60da0e2dca8ea80a89cd27a3a3037058d4669a2904aa9925c7f567d84f62f64beafaf0c831771bd4eb86ca5ecbbca402d8
   languageName: node
   linkType: hard
 
@@ -3696,6 +3733,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"big-integer@npm:^1.6.51":
+  version: 1.6.51
+  resolution: "big-integer@npm:1.6.51"
+  checksum: 3d444173d1b2e20747e2c175568bedeebd8315b0637ea95d75fd27830d3b8e8ba36c6af40374f36bdaea7b5de376dcada1b07587cb2a79a928fccdb6e6e3c518
+  languageName: node
+  linkType: hard
+
 "bigint-crypto-utils@npm:^3.0.23":
   version: 3.1.4
   resolution: "bigint-crypto-utils@npm:3.1.4"
@@ -3736,6 +3780,38 @@ __metadata:
     safe-buffer: ^5.0.1
     unorm: ^1.3.3
   checksum: 26e83583c43a8430afea1c385328b447005c74ddaf997cd8d3e416057f4968360b08ebf7de32374d605295c3abdd7ddd448d8078a2aa3d951735f4499c23875b
+  languageName: node
+  linkType: hard
+
+"blake-hash@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "blake-hash@npm:2.0.0"
+  dependencies:
+    node-addon-api: ^3.0.0
+    node-gyp: latest
+    node-gyp-build: ^4.2.2
+    readable-stream: ^3.6.0
+  checksum: a0d9a8f3953b986d3b30a741a6c000dedcc9a03b1318f52cc01ae62d18829ba6cb1a4d8cbe74785abfdc952a21db410984523bd457764aca716162cfd3ca8ea4
+  languageName: node
+  linkType: hard
+
+"blake2b-wasm@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "blake2b-wasm@npm:2.4.0"
+  dependencies:
+    b4a: ^1.0.1
+    nanoassert: ^2.0.0
+  checksum: 1839dd0693681228d81f781dd8680a6803a629ca374aed5ac02fa649ce40a67a85eb49eeb2ec6aeb7ef3ef5aa169b3579b50eabf7afa360d190338bc3e8666bd
+  languageName: node
+  linkType: hard
+
+"blake2b@npm:^2.1.3":
+  version: 2.1.4
+  resolution: "blake2b@npm:2.1.4"
+  dependencies:
+    blake2b-wasm: ^2.4.0
+    nanoassert: ^2.0.0
+  checksum: cd598c96d459017714b7f9cb8892ef2b0a94f362e26e6baa46b7b8b189af0006ce25ab1713e3ec1484eb18ce7ebe1eb24e07d01e42ab1147067de2419c7f6158
   languageName: node
   linkType: hard
 
@@ -4453,6 +4529,18 @@ __metadata:
     inherits: ^2.0.1
     safe-buffer: ^5.0.1
   checksum: 47d3568dbc17431a339bad1fe7dff83ac0891be8206911ace3d3b818fc695f376df809bea406e759cdea07fff4b454fa25f1013e648851bec790c1d75763032e
+  languageName: node
+  linkType: hard
+
+"circomlibjs@npm:^0.1.7":
+  version: 0.1.7
+  resolution: "circomlibjs@npm:0.1.7"
+  dependencies:
+    blake-hash: ^2.0.0
+    blake2b: ^2.1.3
+    ethers: ^5.5.1
+    ffjavascript: ^0.2.45
+  checksum: 843aa422e7a203d06e1ef9ae6bf334d726a8091eda5afcc3a6531727a6ea3acb5c4a2498bf444fda35824064d45c25cb89fe99b02410fc0f7ff2dc6d7101d779
   languageName: node
   linkType: hard
 
@@ -6803,7 +6891,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^5.7.2":
+"ethers@npm:^5.5.1, ethers@npm:^5.7.2":
   version: 5.7.2
   resolution: "ethers@npm:5.7.2"
   dependencies:
@@ -7112,6 +7200,17 @@ __metadata:
   dependencies:
     node-fetch: ~1.7.1
   checksum: 00c85b661a8314e18cb314640b69d3b6e9635517d54290c8f366ddcb21b506ac8fa5d92f899c0fe21bc2163238130be2cf73ffd9d5a8a41a9866a55c52f57f16
+  languageName: node
+  linkType: hard
+
+"ffjavascript@npm:^0.2.45":
+  version: 0.2.57
+  resolution: "ffjavascript@npm:0.2.57"
+  dependencies:
+    wasmbuilder: 0.0.16
+    wasmcurves: 0.2.0
+    web-worker: ^1.2.0
+  checksum: 8f3e87b3e2739c607dfc2ef8cb36d92202da57b1323987cca09ade378c584a946b9d784607ee5e2193a2de6200afdc254c19f72f79145aa55d9a8688f83f6708
   languageName: node
   linkType: hard
 
@@ -11179,6 +11278,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanoassert@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "nanoassert@npm:2.0.0"
+  checksum: b1d366f9524405f3337192d32dda6ac0b02374e4d0550c9aad33480caf2eb3c84c06f18f41f4c5404c14f6fc1ae6b84692b4375166dcb9f2d04a2ea9b9bccba0
+  languageName: node
+  linkType: hard
+
 "nanoid@npm:3.3.3":
   version: 3.3.3
   resolution: "nanoid@npm:3.3.3"
@@ -11274,6 +11380,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-addon-api@npm:^3.0.0":
+  version: 3.2.1
+  resolution: "node-addon-api@npm:3.2.1"
+  dependencies:
+    node-gyp: latest
+  checksum: 2369986bb0881ccd9ef6bacdf39550e07e089a9c8ede1cbc5fc7712d8e2faa4d50da0e487e333d4125f8c7a616c730131d1091676c9d499af1d74560756b4a18
+  languageName: node
+  linkType: hard
+
 "node-emoji@npm:^1.10.0":
   version: 1.11.0
   resolution: "node-emoji@npm:1.11.0"
@@ -11325,6 +11440,17 @@ __metadata:
     node-gyp-build-optional: optional.js
     node-gyp-build-test: build-test.js
   checksum: 972a059f960253d254e0b23ce10f54c8982236fc0edcab85166d0b7f87443b2ce98391c877cfb2f6eeafcf03c538c5f4dd3e0bfff03828eb48634f58f4c64343
+  languageName: node
+  linkType: hard
+
+"node-gyp-build@npm:^4.2.2":
+  version: 4.5.0
+  resolution: "node-gyp-build@npm:4.5.0"
+  bin:
+    node-gyp-build: bin.js
+    node-gyp-build-optional: optional.js
+    node-gyp-build-test: build-test.js
+  checksum: d888bae0fb88335f69af1b57a2294a931c5042f36e413d8d364c992c9ebfa0b96ffe773179a5a2c8f04b73856e8634e09cce108dbb9804396d3cc8c5455ff2db
   languageName: node
   linkType: hard
 
@@ -15604,6 +15730,29 @@ __metadata:
     core-util-is: 1.0.2
     extsprintf: ^1.2.0
   checksum: c431df0bedf2088b227a4e051e0ff4ca54df2c114096b0c01e1cbaadb021c30a04d7dd5b41ab277bcd51246ca135bf931d4c4c796ecae7a4fef6d744ecef36ea
+  languageName: node
+  linkType: hard
+
+"wasmbuilder@npm:0.0.16":
+  version: 0.0.16
+  resolution: "wasmbuilder@npm:0.0.16"
+  checksum: a9c8ef4a0a770f71865dc7a75bc22e5204227ff6d70bed90e57f7df5939a013d4177947ea4c2c3fdfe6761b92d975908ea846c463ee635d1c95e1a3c434b7ee1
+  languageName: node
+  linkType: hard
+
+"wasmcurves@npm:0.2.0":
+  version: 0.2.0
+  resolution: "wasmcurves@npm:0.2.0"
+  dependencies:
+    wasmbuilder: 0.0.16
+  checksum: 0769ca2d0c2f99619436f86dcab16294d94cc0c8a114b0c5e6ed71df49625a6ad35000011fee57471b7647838eeb75f631e74b200996ac2513e8ca0c47e5b8d0
+  languageName: node
+  linkType: hard
+
+"web-worker@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "web-worker@npm:1.2.0"
+  checksum: 1bb28348ddcf9b2e7c62c5fd02e49a84098795856cd905456de957271bba288e9618941cf69d8960f0a7ae81f5dfb74b427c0634be47ec69e3e955c4ec5213be
   languageName: node
   linkType: hard
 

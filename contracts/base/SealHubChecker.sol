@@ -59,7 +59,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "../interfaces/ISealHub.sol";
+import "@big-whale-labs/seal-hub-contract/contracts/interfaces/ISealHub.sol";
 
 contract SealHubChecker {
   // State
