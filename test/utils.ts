@@ -253,12 +253,7 @@ export async function getFakeSealHub(signer: SignerWithAddress) {
     },
   ])
 }
-//   '0x00',
-//   '0x1ebac3b4f3b3a815349c507043cb77bb92d5b4128afb913752043d990a1646bd',
-//   '0x00',
-//   '0x722B0676F457aFe13e479eB2a8A4De88BA15B2c6',
-//   '0x67',
-//   '0x01'
+
 function getFakeBalanceVerifierInput(
   contract: string,
   network: Network,
@@ -296,7 +291,7 @@ function getFakeEmailVerifierInput(nullifier: number, domain: string) {
   )
   return [...domainBytes, nullifier, attestorPublicKey]
 }
-// 0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c
+
 export async function getEcdsaArguments(
   network: Network,
   contract: string,

@@ -23,7 +23,7 @@ const mintFunctionSignatureWithOnlyProof =
 const invalidEcdsaWallet = new ethers.Wallet(
   '0x3931dc49c2615b436ed233b5f1bcba76cdc352f0318f8886d23f3e524e96a1be'
 )
-describe.only('SCExternalERC721Ledger contract tests', () => {
+describe('SCExternalERC721Ledger contract tests', () => {
   before(async function () {
     this.accounts = await ethers.getSigners()
     this.owner = this.accounts[0]
