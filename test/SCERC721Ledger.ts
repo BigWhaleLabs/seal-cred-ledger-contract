@@ -10,6 +10,7 @@ import {
   metadataURL,
   newMetadataURL,
   nonZeroAddress,
+  sealHubCommitment,
   zeroAddress,
 } from './utils'
 import { ethers } from 'hardhat'
@@ -143,7 +144,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       expect(await tx.wait())
@@ -156,7 +157,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       await tx.wait()
@@ -181,7 +182,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       await tx.wait()
@@ -208,7 +209,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       expect(await derivativeTx.wait())
@@ -221,7 +222,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             Network.goerli,
             123,
             1,
-            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+            sealHubCommitment
           )
         )
       ).to.be.revertedWith('Unexpected network')
@@ -234,7 +235,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           nullifier,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       expect(await derivativeTx.wait())
@@ -247,7 +248,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       const balance = await this.scERC721Ledger.balanceOf(
@@ -263,7 +264,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       const balance = await this.scERC721Ledger.balanceOf(
@@ -279,7 +280,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       const balance = await this.scERC721Ledger.balanceOf(
@@ -295,7 +296,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       await expect(
@@ -312,7 +313,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         Network.mainnet,
         123,
         1,
-        '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        sealHubCommitment
       )
       // Corrupt the type
       balanceInput.input[0] = 1
@@ -326,7 +327,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         Network.mainnet,
         123,
         1,
-        '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        sealHubCommitment
       )
       await expect(
         this.scERC721Ledger.mint({
@@ -343,7 +344,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             Network.mainnet,
             123,
             1,
-            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+            sealHubCommitment
           )
         )
       ).to.be.revertedWith(
@@ -357,7 +358,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           Network.mainnet,
           123,
           1,
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          sealHubCommitment
         )
       )
       await expect(
@@ -367,7 +368,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             Network.mainnet,
             123,
             1,
-            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+            sealHubCommitment
           )
         )
       ).to.be.revertedWith('This ZK proof has already been used')
@@ -381,16 +382,14 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             Network.mainnet,
             123,
             1,
-            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+            sealHubCommitment
           )
         )
       ).to.be.revertedWith('Invalid ZK proof')
     })
     it('should not mint if the SealHub commitment does not exist', async function () {
       await this.fakeSealHubContract.mock.isCommitmentMerkleRootValid
-        .withArgs(
-          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
-        )
+        .withArgs(sealHubCommitment)
         .returns(false)
       await expect(
         this.scERC721Ledger.mint(
@@ -399,7 +398,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             Network.mainnet,
             123,
             1,
-            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+            sealHubCommitment
           )
         )
       ).to.be.revertedWith(

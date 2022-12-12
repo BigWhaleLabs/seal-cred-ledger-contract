@@ -12,6 +12,8 @@ export const domains = emails.map((e) => e.split('@')[1])
 export const nonZeroAddress = '0x0000000000000000000000000000000000000001'
 export const metadataURL = 'https://metadata.sealcred.xyz/metadata'
 export const newMetadataURL = 'https://metadata-v2.sealcred.xyz/metadata'
+export const sealHubCommitment =
+  '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
 export const attestorPublicKey = BigNumber.from(
   '13578469780849928704623562188688413596472689853032556827882124682666588837591'
 )
@@ -130,7 +132,7 @@ export async function getFakeFarcasterVerifier(signer: SignerWithAddress) {
         {
           internalType: 'uint256[11]',
           name: 'input',
-          type: 'uint256[12]',
+          type: 'uint256[13]',
         },
       ],
       name: 'verifyProof',
@@ -187,7 +189,10 @@ export function getFakeBalanceProof(
   }
 }
 
-export function getFakeFarcasterProof(nullifier: number): FarcasterProofStruct {
+export function getFakeFarcasterProof(
+  nullifier: number,
+  sealHubCommitment: number | string
+): FarcasterProofStruct {
   return {
     a: [1, 2],
     b: [
@@ -195,7 +200,7 @@ export function getFakeFarcasterProof(nullifier: number): FarcasterProofStruct {
       [3, 4],
     ],
     c: [1, 2],
-    input: getFakeFarcasterVerifierInput(nullifier),
+    input: getFakeFarcasterVerifierInput(nullifier, sealHubCommitment),
   }
 }
 
@@ -275,10 +280,15 @@ function getFakeBalanceVerifierInput(
   ]
 }
 
-function getFakeFarcasterVerifierInput(nullifier: number, type = 0) {
+function getFakeFarcasterVerifierInput(
+  nullifier: number,
+  sealHubCommitment: number | string,
+  type = 0
+) {
   return [
     type,
     ...ethers.utils.toUtf8Bytes('farcaster'),
+    BigNumber.from(sealHubCommitment),
     nullifier,
     attestorPublicKey,
   ]
