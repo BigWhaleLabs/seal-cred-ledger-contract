@@ -5,6 +5,7 @@ import {
   getFakeBalanceProof,
   getFakeBalanceVerifier,
   getFakeERC721,
+  getFakeSealHub,
   invalidAttestorPublicKey,
   metadataURL,
   newMetadataURL,
@@ -26,6 +27,7 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       'SCERC721Derivative'
     )
     this.version = '0.0.1'
+    this.fakeSealHubContract = await getFakeSealHub(this.owner)
   })
   describe('Constructor', function () {
     it('should deploy the contract with the correct fields', async function () {
@@ -35,7 +37,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         zeroAddress,
         Network.mainnet,
         metadataURL,
-        this.version
+        this.version,
+        this.fakeSealHubContract.address
       )
       expect(await contract.verifierContract()).to.equal(zeroAddress)
       expect(await contract.attestorPublicKey()).to.equal(attestorPublicKey)
@@ -52,7 +55,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         nonZeroAddress,
         Network.mainnet,
         metadataURL,
-        this.version
+        this.version,
+        this.fakeSealHubContract.address
       )
       await this.scERC721Ledger.deployed()
       this.contractWithIncorrectOwner = this.scERC721Ledger.connect(this.user)
@@ -83,7 +87,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       nonZeroAddress,
       Network.mainnet,
       metadataURL,
-      this.version
+      this.version,
+      this.fakeSealHubContract.address
     )
     await contract.deployed()
     expect(await contract.verifierContract()).to.equal(zeroAddress)
@@ -96,6 +101,9 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       // Verifier
       this.fakeVerifierContract = await getFakeBalanceVerifier(this.owner)
       await this.fakeVerifierContract.mock.verifyProof.returns(true)
+      await this.fakeSealHubContract.mock.isCommitmentMerkleRootValid.returns(
+        true
+      )
       // ERC721
       this.fakeERC721 = await getFakeERC721(this.owner)
       await this.fakeERC721.mock.name.returns('Fake ERC721')
@@ -107,7 +115,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         nonZeroAddress,
         Network.mainnet,
         metadataURL,
-        this.version
+        this.version,
+        this.fakeSealHubContract.address
       )
       await this.scERC721Ledger.deployed()
       this.scERC721Ledger.connect(this.user)
@@ -121,21 +130,34 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         'FakeERC721 (derivative)',
         'FAKE-d',
         metadataURL,
-        this.version
+        this.version,
+        this.fakeSealHubContract.address
       )
       await this.scERC721Derivative.deployed()
       this.scERC721Derivative.connect(this.user)
     })
     it('should mint with ledger if all the correct info is there', async function () {
       const tx = await this.scERC721Ledger.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       expect(await tx.wait())
     })
     it('should return correct metadata', async function () {
       // Token mint
       const tx = await this.scERC721Derivative.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       await tx.wait()
       // Get the derivative
@@ -154,7 +176,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     it('should use baseURI configured for derivative', async function () {
       // Token mint
       const tx = await this.scERC721Derivative.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       await tx.wait()
       // Get the derivative
@@ -175,14 +203,26 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     })
     it('should mint from the derivative if all the correct info is there', async function () {
       const derivativeTx = await this.scERC721Derivative.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       expect(await derivativeTx.wait())
     })
     it('should fail if network is incorrect', async function () {
       await expect(
         this.scERC721Ledger.mint(
-          getFakeBalanceProof(this.fakeERC721.address, Network.goerli, 123, 1)
+          getFakeBalanceProof(
+            this.fakeERC721.address,
+            Network.goerli,
+            123,
+            1,
+            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          )
         )
       ).to.be.revertedWith('Unexpected network')
     })
@@ -193,7 +233,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
           this.fakeERC721.address,
           Network.mainnet,
           nullifier,
-          1
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
         )
       )
       expect(await derivativeTx.wait())
@@ -201,7 +242,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     })
     it('should check balance of derivative', async function () {
       await this.scERC721Ledger.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       const balance = await this.scERC721Ledger.balanceOf(
         this.fakeERC721.address.toLocaleLowerCase(),
@@ -211,7 +258,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     })
     it('should return 0 if derivative is not exist', async function () {
       await this.scERC721Ledger.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       const balance = await this.scERC721Ledger.balanceOf(
         zeroAddress.toLocaleLowerCase(),
@@ -221,7 +274,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     })
     it('should return 0 if owner does not own a derivative', async function () {
       await this.scERC721Ledger.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       const balance = await this.scERC721Ledger.balanceOf(
         this.fakeERC721.address.toLocaleLowerCase(),
@@ -231,7 +290,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     })
     it('should not transfer if the from address is non-zero', async function () {
       await this.scERC721Derivative.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       await expect(
         this.scERC721Derivative.transferFrom(
@@ -246,7 +311,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         this.fakeERC721.address,
         Network.mainnet,
         123,
-        1
+        1,
+        '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
       )
       // Corrupt the type
       balanceInput.input[0] = 1
@@ -259,12 +325,13 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
         this.fakeERC721.address,
         Network.mainnet,
         123,
-        1
+        1,
+        '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
       )
       await expect(
         this.scERC721Ledger.mint({
           ...balanceInput,
-          input: [...balanceInput.input.slice(0, 5), invalidAttestorPublicKey],
+          input: [...balanceInput.input.slice(0, 7), invalidAttestorPublicKey],
         })
       ).to.be.revertedWith('This ZK proof is not from the correct attestor')
     })
@@ -275,7 +342,8 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
             '0x399f4a0a9d6E8f6f4BD019340e4d1bE0C9a742F0',
             Network.mainnet,
             123,
-            1
+            1,
+            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
           )
         )
       ).to.be.revertedWith(
@@ -284,11 +352,23 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
     })
     it('should not mint if nullifier has already been used', async function () {
       await this.scERC721Derivative.mint(
-        getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+        getFakeBalanceProof(
+          this.fakeERC721.address,
+          Network.mainnet,
+          123,
+          1,
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
       )
       await expect(
         this.scERC721Derivative.mint(
-          getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+          getFakeBalanceProof(
+            this.fakeERC721.address,
+            Network.mainnet,
+            123,
+            1,
+            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          )
         )
       ).to.be.revertedWith('This ZK proof has already been used')
     })
@@ -296,9 +376,35 @@ describe('SCERC721Ledger and SCERC721Derivative contracts tests', () => {
       await this.fakeVerifierContract.mock.verifyProof.returns(false)
       await expect(
         this.scERC721Ledger.mint(
-          getFakeBalanceProof(this.fakeERC721.address, Network.mainnet, 123, 1)
+          getFakeBalanceProof(
+            this.fakeERC721.address,
+            Network.mainnet,
+            123,
+            1,
+            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          )
         )
       ).to.be.revertedWith('Invalid ZK proof')
+    })
+    it('should not mint if the SealHub commitment does not exist', async function () {
+      await this.fakeSealHubContract.mock.isCommitmentMerkleRootValid
+        .withArgs(
+          '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+        )
+        .returns(false)
+      await expect(
+        this.scERC721Ledger.mint(
+          getFakeBalanceProof(
+            this.fakeERC721.address,
+            Network.mainnet,
+            123,
+            1,
+            '0x50fb338d16773120c91f7c8435411c5618e6c98341b6fb5130c802b879874a9c'
+          )
+        )
+      ).to.be.revertedWith(
+        'Proof of Ethereum address ownership should be registered at SealHub'
+      )
     })
   })
 })

@@ -42,6 +42,7 @@ declare module 'mocha' {
     fakeVerifierContract: MockContract
     fakeEmailVerifierContract: MockContract
     fakeERC721: MockContract
+    fakeSealHubContract: MockContract
     // Signers
     accounts: SignerWithAddress[]
     owner: SignerWithAddress
