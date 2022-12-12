@@ -61,8 +61,8 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@big-whale-labs/seal-hub-kit/contracts/SealHubChecker.sol";
 import "./base/Ledger.sol";
-import "./base/SealHubChecker.sol";
 import "./SCERC721Derivative.sol";
 
 uint256 constant addressLength = 42;

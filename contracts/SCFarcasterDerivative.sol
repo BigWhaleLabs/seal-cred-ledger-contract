@@ -59,8 +59,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import "@big-whale-labs/seal-hub-kit/contracts/SealHubChecker.sol";
 import "./base/Derivative.sol";
-import "./base/SealHubChecker.sol";
 import "./interfaces/IFarcasterCheckerVerifier.sol";
 import "./models/FarcasterProof.sol";
 
