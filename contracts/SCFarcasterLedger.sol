@@ -84,19 +84,17 @@ contract SCFarcasterLedger is Ledger, SealHubChecker {
       _version
     )
     SealHubChecker(_sealHub)
-  {}
+  {
+    // Deploy derivative
+    _spawnDerivative();
+  }
 
   /**
-   * @dev Universal mint function that proxies mint call to derivatives and creates derivatives if necessary
+   * @dev Universal mint function that proxies mint call to derivatives
    */
   function mint(FarcasterProof memory proof) external virtual {
-    string memory original = "farcaster";
-    // Check if derivative already exists
-    if (!_checkDerivativeExistence(original)) {
-      _spawnDerivative();
-    }
     // Proxy mint call
-    SCFarcasterDerivative(originalToDerivative[original]).mintWithSender(
+    SCFarcasterDerivative(originalToDerivative["farcaster"]).mintWithSender(
       _msgSender(),
       proof
     );
